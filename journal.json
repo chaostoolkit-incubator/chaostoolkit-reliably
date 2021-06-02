@@ -1,0 +1,656 @@
+{
+  "chaoslib-version": "1.19.0",
+  "platform": "Linux-5.8.0-53-generic-x86_64-with-glibc2.32",
+  "node": "sylvain-work",
+  "experiment": {
+    "version": "0.1.0",
+    "title": "Use SLO as steady-states that we must not deviate from.",
+    "description": "n/a",
+    "steady-state-hypothesis": {
+      "title": "SLO should not consume all the error budgets during experiment",
+      "probes": [
+        {
+          "name": "last-3-slos-must-be-ok",
+          "type": "probe",
+          "provider": {
+            "type": "python",
+            "module": "chaosreliably.slo.probes",
+            "func": "get_last_N_slos",
+            "arguments": {
+              "quantity": 3
+            }
+          },
+          "tolerance": {
+            "type": "probe",
+            "name": "validate-last-3-slo-statuses",
+            "provider": {
+              "type": "python",
+              "module": "chaosreliably.slo.tolerances",
+              "func": "last_N_slo_were_met_for_all_services",
+              "arguments": {
+                "value": {
+                  "Noteboard API/availability/99% availability of the Noteboard API": [
+                    {
+                      "name": "99% availability of the Noteboard API",
+                      "type": "availability",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-02T12:43:52.797051388Z",
+                        "to_": "2021-06-02T13:43:52.797051388Z"
+                      },
+                      "result": {
+                        "delta": 1.0,
+                        "actual": 100.0,
+                        "slo_is_met": true
+                      }
+                    },
+                    {
+                      "name": "99% availability of the Noteboard API",
+                      "type": "availability",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-02T12:36:08.953361665Z",
+                        "to_": "2021-06-02T13:36:08.953361665Z"
+                      },
+                      "result": {
+                        "delta": 1.0,
+                        "actual": 100.0,
+                        "slo_is_met": true
+                      }
+                    },
+                    {
+                      "name": "99% availability of the Noteboard API",
+                      "type": "availability",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-02T12:30:34.057032448Z",
+                        "to_": "2021-06-02T13:30:34.057032448Z"
+                      },
+                      "result": {
+                        "delta": 1.0,
+                        "actual": 100.0,
+                        "slo_is_met": true
+                      }
+                    }
+                  ],
+                  "Noteboard API/latency/99% latency under 100ms": [
+                    {
+                      "name": "99% latency under 100ms",
+                      "type": "latency",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-02T12:43:52.797051388Z",
+                        "to_": "2021-06-02T13:43:52.797051388Z"
+                      },
+                      "result": {
+                        "delta": -15.666666666666657,
+                        "actual": 83.33333333333334,
+                        "slo_is_met": false
+                      }
+                    },
+                    {
+                      "name": "99% latency under 100ms",
+                      "type": "latency",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-02T12:36:08.953361665Z",
+                        "to_": "2021-06-02T13:36:08.953361665Z"
+                      },
+                      "result": {
+                        "delta": -19.0,
+                        "actual": 80.0,
+                        "slo_is_met": false
+                      }
+                    },
+                    {
+                      "name": "99% latency under 100ms",
+                      "type": "latency",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-02T12:30:34.057032448Z",
+                        "to_": "2021-06-02T13:30:34.057032448Z"
+                      },
+                      "result": {
+                        "delta": -19.0,
+                        "actual": 80.0,
+                        "slo_is_met": false
+                      }
+                    }
+                  ],
+                  "Noteboard Frontend/availability/99% availability of the Noteboard application": [
+                    {
+                      "name": "99% availability of the Noteboard application",
+                      "type": "availability",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-01T14:06:38.246423379Z",
+                        "to_": "2021-06-01T15:06:38.246423379Z"
+                      },
+                      "result": {
+                        "delta": 1.0,
+                        "actual": 100.0,
+                        "slo_is_met": true
+                      }
+                    },
+                    {
+                      "name": "99% availability of the Noteboard application",
+                      "type": "availability",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-01T14:02:08.675660349Z",
+                        "to_": "2021-06-01T15:02:08.675660349Z"
+                      },
+                      "result": {
+                        "delta": 1.0,
+                        "actual": 100.0,
+                        "slo_is_met": true
+                      }
+                    },
+                    {
+                      "name": "99% availability of the Noteboard application",
+                      "type": "availability",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-01T14:00:25.071074951Z",
+                        "to_": "2021-06-01T15:00:25.071074951Z"
+                      },
+                      "result": {
+                        "delta": 1.0,
+                        "actual": 100.0,
+                        "slo_is_met": true
+                      }
+                    }
+                  ],
+                  "Noteboard Frontend/latency/99% latency under 200ms": [
+                    {
+                      "name": "99% latency under 200ms",
+                      "type": "latency",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-01T14:06:38.246423379Z",
+                        "to_": "2021-06-01T15:06:38.246423379Z"
+                      },
+                      "result": {
+                        "delta": -24.0,
+                        "actual": 75.0,
+                        "slo_is_met": false
+                      }
+                    },
+                    {
+                      "name": "99% latency under 200ms",
+                      "type": "latency",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-01T14:02:08.675660349Z",
+                        "to_": "2021-06-01T15:02:08.675660349Z"
+                      },
+                      "result": {
+                        "delta": -65.66666666666667,
+                        "actual": 33.33333333333333,
+                        "slo_is_met": false
+                      }
+                    },
+                    {
+                      "name": "99% latency under 200ms",
+                      "type": "latency",
+                      "period": "PT1H",
+                      "objective": 99.0,
+                      "window": {
+                        "from_": "2021-06-01T14:00:25.071074951Z",
+                        "to_": "2021-06-01T15:00:25.071074951Z"
+                      },
+                      "result": {
+                        "delta": -65.66666666666667,
+                        "actual": 33.33333333333333,
+                        "slo_is_met": false
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "method": [],
+    "dry": false
+  },
+  "start": "2021-06-02T15:18:44.570149",
+  "status": "failed",
+  "deviated": true,
+  "steady_states": {
+    "before": null,
+    "after": {
+      "steady_state_met": false,
+      "probes": [
+        {
+          "activity": {
+            "name": "last-3-slos-must-be-ok",
+            "type": "probe",
+            "provider": {
+              "type": "python",
+              "module": "chaosreliably.slo.probes",
+              "func": "get_last_N_slos",
+              "arguments": {
+                "quantity": 3
+              }
+            },
+            "tolerance": {
+              "type": "probe",
+              "name": "validate-last-3-slo-statuses",
+              "provider": {
+                "type": "python",
+                "module": "chaosreliably.slo.tolerances",
+                "func": "last_N_slo_were_met_for_all_services",
+                "arguments": {
+                  "value": {
+                    "Noteboard API/availability/99% availability of the Noteboard API": [
+                      {
+                        "name": "99% availability of the Noteboard API",
+                        "type": "availability",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-02T12:43:52.797051388Z",
+                          "to_": "2021-06-02T13:43:52.797051388Z"
+                        },
+                        "result": {
+                          "delta": 1.0,
+                          "actual": 100.0,
+                          "slo_is_met": true
+                        }
+                      },
+                      {
+                        "name": "99% availability of the Noteboard API",
+                        "type": "availability",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-02T12:36:08.953361665Z",
+                          "to_": "2021-06-02T13:36:08.953361665Z"
+                        },
+                        "result": {
+                          "delta": 1.0,
+                          "actual": 100.0,
+                          "slo_is_met": true
+                        }
+                      },
+                      {
+                        "name": "99% availability of the Noteboard API",
+                        "type": "availability",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-02T12:30:34.057032448Z",
+                          "to_": "2021-06-02T13:30:34.057032448Z"
+                        },
+                        "result": {
+                          "delta": 1.0,
+                          "actual": 100.0,
+                          "slo_is_met": true
+                        }
+                      }
+                    ],
+                    "Noteboard API/latency/99% latency under 100ms": [
+                      {
+                        "name": "99% latency under 100ms",
+                        "type": "latency",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-02T12:43:52.797051388Z",
+                          "to_": "2021-06-02T13:43:52.797051388Z"
+                        },
+                        "result": {
+                          "delta": -15.666666666666657,
+                          "actual": 83.33333333333334,
+                          "slo_is_met": false
+                        }
+                      },
+                      {
+                        "name": "99% latency under 100ms",
+                        "type": "latency",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-02T12:36:08.953361665Z",
+                          "to_": "2021-06-02T13:36:08.953361665Z"
+                        },
+                        "result": {
+                          "delta": -19.0,
+                          "actual": 80.0,
+                          "slo_is_met": false
+                        }
+                      },
+                      {
+                        "name": "99% latency under 100ms",
+                        "type": "latency",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-02T12:30:34.057032448Z",
+                          "to_": "2021-06-02T13:30:34.057032448Z"
+                        },
+                        "result": {
+                          "delta": -19.0,
+                          "actual": 80.0,
+                          "slo_is_met": false
+                        }
+                      }
+                    ],
+                    "Noteboard Frontend/availability/99% availability of the Noteboard application": [
+                      {
+                        "name": "99% availability of the Noteboard application",
+                        "type": "availability",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-01T14:06:38.246423379Z",
+                          "to_": "2021-06-01T15:06:38.246423379Z"
+                        },
+                        "result": {
+                          "delta": 1.0,
+                          "actual": 100.0,
+                          "slo_is_met": true
+                        }
+                      },
+                      {
+                        "name": "99% availability of the Noteboard application",
+                        "type": "availability",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-01T14:02:08.675660349Z",
+                          "to_": "2021-06-01T15:02:08.675660349Z"
+                        },
+                        "result": {
+                          "delta": 1.0,
+                          "actual": 100.0,
+                          "slo_is_met": true
+                        }
+                      },
+                      {
+                        "name": "99% availability of the Noteboard application",
+                        "type": "availability",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-01T14:00:25.071074951Z",
+                          "to_": "2021-06-01T15:00:25.071074951Z"
+                        },
+                        "result": {
+                          "delta": 1.0,
+                          "actual": 100.0,
+                          "slo_is_met": true
+                        }
+                      }
+                    ],
+                    "Noteboard Frontend/latency/99% latency under 200ms": [
+                      {
+                        "name": "99% latency under 200ms",
+                        "type": "latency",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-01T14:06:38.246423379Z",
+                          "to_": "2021-06-01T15:06:38.246423379Z"
+                        },
+                        "result": {
+                          "delta": -24.0,
+                          "actual": 75.0,
+                          "slo_is_met": false
+                        }
+                      },
+                      {
+                        "name": "99% latency under 200ms",
+                        "type": "latency",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-01T14:02:08.675660349Z",
+                          "to_": "2021-06-01T15:02:08.675660349Z"
+                        },
+                        "result": {
+                          "delta": -65.66666666666667,
+                          "actual": 33.33333333333333,
+                          "slo_is_met": false
+                        }
+                      },
+                      {
+                        "name": "99% latency under 200ms",
+                        "type": "latency",
+                        "period": "PT1H",
+                        "objective": 99.0,
+                        "window": {
+                          "from_": "2021-06-01T14:00:25.071074951Z",
+                          "to_": "2021-06-01T15:00:25.071074951Z"
+                        },
+                        "result": {
+                          "delta": -65.66666666666667,
+                          "actual": 33.33333333333333,
+                          "slo_is_met": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "output": {
+            "Noteboard API/availability/99% availability of the Noteboard API": [
+              {
+                "name": "99% availability of the Noteboard API",
+                "type": "availability",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-02T12:43:52.797051388Z",
+                  "to_": "2021-06-02T13:43:52.797051388Z"
+                },
+                "result": {
+                  "delta": 1.0,
+                  "actual": 100.0,
+                  "slo_is_met": true
+                }
+              },
+              {
+                "name": "99% availability of the Noteboard API",
+                "type": "availability",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-02T12:36:08.953361665Z",
+                  "to_": "2021-06-02T13:36:08.953361665Z"
+                },
+                "result": {
+                  "delta": 1.0,
+                  "actual": 100.0,
+                  "slo_is_met": true
+                }
+              },
+              {
+                "name": "99% availability of the Noteboard API",
+                "type": "availability",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-02T12:30:34.057032448Z",
+                  "to_": "2021-06-02T13:30:34.057032448Z"
+                },
+                "result": {
+                  "delta": 1.0,
+                  "actual": 100.0,
+                  "slo_is_met": true
+                }
+              }
+            ],
+            "Noteboard API/latency/99% latency under 100ms": [
+              {
+                "name": "99% latency under 100ms",
+                "type": "latency",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-02T12:43:52.797051388Z",
+                  "to_": "2021-06-02T13:43:52.797051388Z"
+                },
+                "result": {
+                  "delta": -15.666666666666657,
+                  "actual": 83.33333333333334,
+                  "slo_is_met": false
+                }
+              },
+              {
+                "name": "99% latency under 100ms",
+                "type": "latency",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-02T12:36:08.953361665Z",
+                  "to_": "2021-06-02T13:36:08.953361665Z"
+                },
+                "result": {
+                  "delta": -19.0,
+                  "actual": 80.0,
+                  "slo_is_met": false
+                }
+              },
+              {
+                "name": "99% latency under 100ms",
+                "type": "latency",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-02T12:30:34.057032448Z",
+                  "to_": "2021-06-02T13:30:34.057032448Z"
+                },
+                "result": {
+                  "delta": -19.0,
+                  "actual": 80.0,
+                  "slo_is_met": false
+                }
+              }
+            ],
+            "Noteboard Frontend/availability/99% availability of the Noteboard application": [
+              {
+                "name": "99% availability of the Noteboard application",
+                "type": "availability",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-01T14:06:38.246423379Z",
+                  "to_": "2021-06-01T15:06:38.246423379Z"
+                },
+                "result": {
+                  "delta": 1.0,
+                  "actual": 100.0,
+                  "slo_is_met": true
+                }
+              },
+              {
+                "name": "99% availability of the Noteboard application",
+                "type": "availability",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-01T14:02:08.675660349Z",
+                  "to_": "2021-06-01T15:02:08.675660349Z"
+                },
+                "result": {
+                  "delta": 1.0,
+                  "actual": 100.0,
+                  "slo_is_met": true
+                }
+              },
+              {
+                "name": "99% availability of the Noteboard application",
+                "type": "availability",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-01T14:00:25.071074951Z",
+                  "to_": "2021-06-01T15:00:25.071074951Z"
+                },
+                "result": {
+                  "delta": 1.0,
+                  "actual": 100.0,
+                  "slo_is_met": true
+                }
+              }
+            ],
+            "Noteboard Frontend/latency/99% latency under 200ms": [
+              {
+                "name": "99% latency under 200ms",
+                "type": "latency",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-01T14:06:38.246423379Z",
+                  "to_": "2021-06-01T15:06:38.246423379Z"
+                },
+                "result": {
+                  "delta": -24.0,
+                  "actual": 75.0,
+                  "slo_is_met": false
+                }
+              },
+              {
+                "name": "99% latency under 200ms",
+                "type": "latency",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-01T14:02:08.675660349Z",
+                  "to_": "2021-06-01T15:02:08.675660349Z"
+                },
+                "result": {
+                  "delta": -65.66666666666667,
+                  "actual": 33.33333333333333,
+                  "slo_is_met": false
+                }
+              },
+              {
+                "name": "99% latency under 200ms",
+                "type": "latency",
+                "period": "PT1H",
+                "objective": 99.0,
+                "window": {
+                  "from_": "2021-06-01T14:00:25.071074951Z",
+                  "to_": "2021-06-01T15:00:25.071074951Z"
+                },
+                "result": {
+                  "delta": -65.66666666666667,
+                  "actual": 33.33333333333333,
+                  "slo_is_met": false
+                }
+              }
+            ]
+          },
+          "status": "succeeded",
+          "start": "2021-06-02T15:18:44.572434",
+          "end": "2021-06-02T15:18:44.758790",
+          "duration": 0.186356,
+          "tolerance_met": false
+        }
+      ]
+    },
+    "during": []
+  },
+  "run": [],
+  "rollbacks": [],
+  "end": "2021-06-02T15:18:44.761364",
+  "duration": 0.21252226829528809
+}
