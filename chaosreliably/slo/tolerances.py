@@ -14,7 +14,6 @@ def last_N_slo_were_met_for_all_services(
 
     Fails as soon as one was not met.
     """
-    print(value)
     not_ok = {}
     for (service_name, slos) in value.items():
         for slo in slos:
@@ -37,7 +36,9 @@ def last_N_slo_were_met_for_all_services(
             service, slo_type, slo_name, slo_period, slo_objective,
             result["actual"], result["delta"]
         ])
-    logger.info("SLO that were not met during experiment:\n\n{}\n".format(
-        tabulate(table, headers=headers, tablefmt="github")))
+    
+    if table:
+        logger.info("SLO that were not met during experiment:\n\n{}\n".format(
+            tabulate(table, headers=headers, tablefmt="github")))
 
     return len(not_ok) == 0

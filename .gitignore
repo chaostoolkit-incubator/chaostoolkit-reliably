@@ -154,4 +154,6 @@ Thumbs.db
 # Visual Studio Code
 .vscode/
 
+journal.json
+
 # End of https://www.toptal.com/developers/gitignore/api/python

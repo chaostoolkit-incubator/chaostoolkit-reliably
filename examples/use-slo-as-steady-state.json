@@ -3,7 +3,7 @@
     "title": "Use SLO as steady-states that we must not deviate from.",
     "description": "n/a",
     "steady-state-hypothesis": {
-        "title": "SLO should not consume all the error budgets during experiment",
+        "title": "We do not consume all of our error budgets during the experiment",
         "probes": [
             {
                 "name": "last-3-slos-must-be-ok",
@@ -30,5 +30,17 @@
         ]
     },
     "method": [
+        {
+            "name": "fake-doing-something-useful",
+            "type": "action",
+            "provider": {
+                "type": "python",
+                "module": "chaosaddons.utils.idle",
+                "func": "idle_for",
+                "arguments": {
+                    "duration": 5
+                }
+            }
+        }
     ]
 }
