@@ -3,3 +3,4 @@ logzero
 requests
 pyyaml~=5.4
 pydantic
+tabulate
