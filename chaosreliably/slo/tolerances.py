@@ -36,7 +36,7 @@ def last_N_slo_were_met_for_all_services(
             service, slo_type, slo_name, slo_period, slo_objective,
             result["actual"], result["delta"]
         ])
-    
+
     if table:
         logger.info("SLO that were not met during experiment:\n\n{}\n".format(
             tabulate(table, headers=headers, tablefmt="github")))
