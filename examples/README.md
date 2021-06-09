@@ -47,3 +47,41 @@ to protect your system from experiments that may indeed harm it too extensively.
 
 Your SLO are being checked regularly during the experiment and as soon as one
 of them breaks its target, the safeguard mechanism interrupts the experiment.
+
+# Run from the Chaos Toolkit Kubernetes operator
+
+File: run-from-kubernetes-operator.yaml
+
+This experiment only differs from the way it's executed. It runs from the
+[Chaos Toolkit operator](https://chaostoolkit.org/deployment/k8s/operator/).
+
+To run it:
+
+* Ensure you have first a Kubernetes cluster with the operator deployed
+
+* Now create the `chaostoolkit-run` namespace:
+
+```console
+$ kubectl create ns chaostoolkit-run
+```
+
+* Then create a configmap with your Reliably's configuration:
+
+```console
+$ kubectl -n chaostoolkit-run create secret generic \
+    reliably-config \
+    --from-file=$HOME/.config/reliably/config.yaml
+```
+
+* Now apply the resource to be run:
+
+```console
+$ kubectl apply -f examples/run-from-kubernetes-operator.yaml
+```
+
+* You can then look at the logs of the pod running the experiment:
+
+```console
+$ kubectl -n chaostoolkit-run logs -l app=chaostoolkit
+```
+
