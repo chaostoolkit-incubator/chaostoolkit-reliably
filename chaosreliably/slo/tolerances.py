@@ -17,7 +17,7 @@ def last_N_slo_were_met_for_all_services(
     not_ok = {}
     for (service_name, slos) in value.items():
         for slo in slos:
-            if not slo["result"]["slo_is_met"]:
+            if service_name not in not_ok and not slo["result"]["slo_is_met"]:
                 not_ok[service_name] = slo
 
     headers = [

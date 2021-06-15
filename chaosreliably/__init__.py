@@ -13,7 +13,7 @@ from logzero import logger
 import requests
 import yaml
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 __all__ = ["get_session", "discover", "get_default_org"]
 RELIABLY_CONFIG_PATH = "~/.config/reliably/config.yaml"
 RELIABLY_HOST = "reliably.com"

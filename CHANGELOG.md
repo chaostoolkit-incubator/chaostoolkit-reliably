@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-reliably/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-reliably/compare/0.1.2...HEAD
+
+## [0.1.2][]
+
+[0.1.2]: https://github.com/chaostoolkit/chaostoolkit-reliably/compare/0.1.1...0.1.2
+
+### Changed
+
+- Use the most recent SLO report only
 
 ## [0.1.1][]
 
