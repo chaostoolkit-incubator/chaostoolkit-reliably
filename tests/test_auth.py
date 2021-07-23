@@ -41,10 +41,8 @@ def test_using_config_file_but_override_token_and_host():
         host, token = get_auth_info({
             "reliably_config_path": f.name
         }, {
-            "reliably": {
                 "token": "78890",
                 "host": "reliably.dev"
-            }
         })
         assert token == "78890"
         assert host == "reliably.dev"
@@ -52,10 +50,8 @@ def test_using_config_file_but_override_token_and_host():
 
 def test_using_secret_only():
     host, token = get_auth_info(None, {
-        "reliably": {
-            "token": "78890",
-            "host": "reliably.dev"
-        }
+        "token": "78890",
+        "host": "reliably.dev"
     })
     assert token == "78890"
     assert host == "reliably.dev"
