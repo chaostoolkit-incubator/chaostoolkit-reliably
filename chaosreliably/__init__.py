@@ -78,9 +78,8 @@ def get_auth_info(configuration: Configuration = None,
         reliably_config_path = None
 
     secrets = secrets or {}
-    reliably_secrets = secrets.get("reliably", {})
-    reliably_token = reliably_secrets.get("token")
-    reliably_host = reliably_secrets.get("host")
+    reliably_token = secrets.get("token")
+    reliably_host = secrets.get("host")
 
     if not reliably_token and reliably_config_path:
         logger.debug("Loading Reliably config from: {}".format(
