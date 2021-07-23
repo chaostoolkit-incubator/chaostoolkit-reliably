@@ -6,7 +6,9 @@
 
 ### Changed
 
-- Fix issue where secrets were not correctly extracted from Experiment config [#1](https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/issues/1)
+- Fix issue where secrets were not correctly extracted from Experiment config [#1][1]
+
+[1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/issues/1
 
 ## [0.1.2][]
 
