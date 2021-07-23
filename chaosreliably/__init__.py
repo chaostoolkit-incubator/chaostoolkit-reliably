@@ -10,7 +10,7 @@ from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Configuration, DiscoveredActivities, Discovery, \
     Secrets
 from logzero import logger
-import requests
+import httpx
 import yaml
 
 __version__ = '0.1.2'
@@ -19,15 +19,7 @@ RELIABLY_CONFIG_PATH = "~/.config/reliably/config.yaml"
 RELIABLY_HOST = "reliably.com"
 
 
-def get_user(session: requests.Session) -> Dict[str, str]:
-    r = session.get(session.reliably_url("/api/v1/userinfo"))
-    if r.status_code != 200:
-        raise ActivityFailed(
-            "Failed to retrieve current user: {}".format(r.text))
-    return r.json()
-
-
-def get_default_org(session: requests.Session) -> Dict[str, str]:
+def get_default_org(session: httpx.Client) -> Dict[str, str]:
     r = session.get(session.reliably_url("/api/v1/orgs/default"))
     if r.status_code != 200:
         raise ActivityFailed(
@@ -37,16 +29,16 @@ def get_default_org(session: requests.Session) -> Dict[str, str]:
 
 @contextmanager
 def get_session(configuration: Configuration = None,
-                secrets: Secrets = None) -> requests.Session:
+                secrets: Secrets = None) -> httpx.Client:
     host, token = get_auth_info(configuration, secrets)
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer {}".format(token)
     }
-    with requests.Session() as s:
-        s.headers = headers
-        s.reliably_url = lambda p: urljoin("https://{}".format(host), p)
-        yield s
+    with httpx.Client() as client:
+        client.headers = headers
+        client.reliably_url = lambda p: urljoin("https://{}".format(host), p)
+        yield client
 
 
 def discover(discover_system: bool = True) -> Discovery:

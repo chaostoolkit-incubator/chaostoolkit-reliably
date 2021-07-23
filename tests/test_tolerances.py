@@ -1,6 +1,3 @@
-from chaoslib.exceptions import ActivityFailed
-import pytest
-
 from chaosreliably.slo.tolerances import last_N_slo_were_met_for_all_services
 from chaosreliably.slo.types import SLO, SLOResult, SLOWindow
 

@@ -5,7 +5,7 @@ from typing import Dict, List
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Configuration, Secrets
 from logzero import logger
-import requests
+import httpx
 
 from chaosreliably import get_default_org, get_session
 from chaosreliably.slo.types import Reports
@@ -56,7 +56,7 @@ def get_slo_history(limit: int = 25, configuration: Configuration = None,
         return history
 
 
-def fetch_history(session: requests.Session, limit: int = 25,
+def fetch_history(session: httpx.Client, limit: int = 25,
                   cursor: str = None) -> Reports:
     params = {
         "limit": limit
