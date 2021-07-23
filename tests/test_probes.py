@@ -22,7 +22,7 @@ def test_get_slo_history_fails(httpx_mock):
         data="Bad Request"
     )
 
-    with pytest.raises(ActivityFailed) as ex:
+    with pytest.raises(ActivityFailed):
         with NamedTemporaryFile(mode="w") as f:
             yaml.safe_dump({
                 "auths": {
