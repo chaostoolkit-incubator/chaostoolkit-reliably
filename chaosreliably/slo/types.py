@@ -6,8 +6,8 @@ __all__ = ["Reports"]
 
 
 class SLOWindow(BaseModel):
-    from_: str = Field(..., alias='from')
-    to_: str = Field(..., alias='to')
+    from_: str = Field(..., alias="from")
+    to_: str = Field(..., alias="to")
 
 
 class SLOResult(BaseModel):

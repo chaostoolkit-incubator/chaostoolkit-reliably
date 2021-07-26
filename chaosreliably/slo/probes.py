@@ -2,20 +2,20 @@
 from collections import deque
 from typing import Dict, List
 
+import httpx
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Configuration, Secrets
 from logzero import logger
-import httpx
 
 from chaosreliably import get_default_org, get_session
 from chaosreliably.slo.types import Reports
 
-
 __all__ = ["get_slo_history", "get_last_N_slos"]
 
 
-def get_last_N_slos(quantity: int = 5, configuration: Configuration = None,
-                    secrets: Secrets = None) -> Dict[str, List[Dict]]:
+def get_last_N_slos(
+    quantity: int = 5, configuration: Configuration = None, secrets: Secrets = None
+) -> Dict[str, List[Dict]]:
 
     """
     Fetch the last N SLO reports in a structure that makes it easy to navigate
@@ -28,8 +28,7 @@ def get_last_N_slos(quantity: int = 5, configuration: Configuration = None,
     for report in reports:
         for service in report.services:
             for slo in service.service_levels:
-                key = "{}/{}/{}".format(
-                    service.name, slo.type, slo.name)
+                key = "{}/{}/{}".format(service.name, slo.type, slo.name)
                 result = slo.result
                 if result:
                     value = dataset.setdefault(key, deque([], quantity))
@@ -45,8 +44,9 @@ def get_last_N_slos(quantity: int = 5, configuration: Configuration = None,
 ##############################################################################
 # Internal
 ##############################################################################
-def get_slo_history(limit: int = 25, configuration: Configuration = None,
-                    secrets: Secrets = None) -> Reports:
+def get_slo_history(
+    limit: int = 25, configuration: Configuration = None, secrets: Secrets = None
+) -> Reports:
     """
     Fetch the history of SLO reports as provided by Reliably.
     """
@@ -56,23 +56,20 @@ def get_slo_history(limit: int = 25, configuration: Configuration = None,
         return history
 
 
-def fetch_history(session: httpx.Client, limit: int = 25,
-                  cursor: str = None) -> Reports:
-    params = {
-        "limit": limit
-    }
+def fetch_history(
+    session: httpx.Client, limit: int = 25, cursor: str = None
+) -> Reports:
+    params = {"limit": limit}
     if cursor:
         params["cursor"] = cursor
 
     org = get_default_org(session)
-    url = session.reliably_url(
-        "/api/v1/orgs/{}/reports/history").format(org["id"])
+    url = session.reliably_url("/api/v1/orgs/{}/reports/history").format(org["id"])
 
     r = session.get(url=url, params=params)
     logger.debug("Fetched SLO history from: {}".format(r.url))
     if r.status_code != 200:
-        raise ActivityFailed(
-            "Failed to retrieve SLO history: {}".format(r.text))
+        raise ActivityFailed("Failed to retrieve SLO history: {}".format(r.text))
 
     history = r.json()
     # used if we wanted oldest slos only
