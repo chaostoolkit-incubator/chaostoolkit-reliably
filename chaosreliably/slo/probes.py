@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
-from collections import deque
 from typing import Dict, List
 from urllib.parse import quote
 
-import httpx
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Configuration, Secrets
 from logzero import logger
 
 from chaosreliably import get_session
-from chaosreliably.slo.types import Reports
 
-__all__ = ["get_slo_history", "get_last_N_slos", "get_objective_results_by_labels"]
+__all__ = ["get_objective_results_by_labels"]
 
 
 def get_objective_results_by_labels(
