@@ -1,9 +1,16 @@
-from typing import Dict
+from typing import Dict, List
 
 from logzero import logger
 from tabulate import tabulate
 
 __all__ = ["last_N_slo_were_met_for_all_services"]
+
+
+def all_objective_results_ok(value: List[Dict] = None) -> bool:
+    for result in value:
+        if result["spec"]["remainingPercent"] < 0:
+            return False
+    return True
 
 
 def last_N_slo_were_met_for_all_services(value: Dict[str, Dict] = None) -> bool:
