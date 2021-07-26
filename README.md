@@ -199,3 +199,19 @@ To run the tests for the project execute the following:
 ```
 $ pytest
 ```
+
+### Linting & Formatting
+
+A `Makefile` is provided to abstract away the linting and formatting commands.
+
+To lint the project, run:
+
+```bash
+$ make lint
+```
+
+To format the project, run:
+
+```bash
+$ make format
+```
