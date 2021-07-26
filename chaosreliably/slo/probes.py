@@ -7,7 +7,7 @@ from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Configuration, Secrets
 from logzero import logger
 
-from chaosreliably import get_default_org, get_session
+from chaosreliably import get_session
 from chaosreliably.slo.types import Reports
 
 __all__ = ["get_slo_history", "get_last_N_slos"]
@@ -63,8 +63,7 @@ def fetch_history(
     if cursor:
         params["cursor"] = cursor
 
-    org = get_default_org(session)
-    url = session.reliably_url("/api/v1/orgs/{}/reports/history").format(org["id"])
+    url = f"{session.reliably_url}/reports/history"
 
     r = session.get(url=url, params=params)
     logger.debug("Fetched SLO history from: {}".format(r.url))
@@ -72,12 +71,5 @@ def fetch_history(
         raise ActivityFailed("Failed to retrieve SLO history: {}".format(r.text))
 
     history = r.json()
-    # used if we wanted oldest slos only
-    # page_info = history["page_info"]
-    # has_next_page = page_info["has_next_page"]
-    # if has_next_page:
-    #     history = None
-    #     cursor = page_info["cursor"]
-    #     return fetch_history(session, limit=limit, cursor=cursor)
 
     return Reports.parse_obj(history)

@@ -10,13 +10,7 @@ from chaosreliably.slo.probes import get_slo_history
 def test_get_slo_history_fails(httpx_mock):
     httpx_mock.add_response(
         method="GET",
-        url="https://reliably.com/api/v1/orgs/default",
-        json={"id": "1234"},
-    )
-
-    httpx_mock.add_response(
-        method="GET",
-        url="https://reliably.com/api/v1/orgs/1234/reports/history?limit=5",
+        url="https://reliably.com/api/v1/orgs/test-org/reports/history?limit=5",
         status_code=400,
         data="Bad Request",
     )
@@ -24,7 +18,10 @@ def test_get_slo_history_fails(httpx_mock):
     with pytest.raises(ActivityFailed):
         with NamedTemporaryFile(mode="w") as f:
             yaml.safe_dump(
-                {"auths": {"reliably.com": {"token": "12345", "username": "jane"}}},
+                {
+                    "auths": {"reliably.com": {"token": "12345", "username": "jane"}},
+                    "currentOrg": {"name": "test-org"},
+                },
                 f,
                 indent=2,
                 default_flow_style=False,
@@ -36,13 +33,7 @@ def test_get_slo_history_fails(httpx_mock):
 def test_get_slo_history(httpx_mock):
     httpx_mock.add_response(
         method="GET",
-        url="https://reliably.com/api/v1/orgs/default",
-        json={"id": "1234"},
-    )
-
-    httpx_mock.add_response(
-        method="GET",
-        url="https://reliably.com/api/v1/orgs/1234/reports/history?limit=5",
+        url="https://reliably.com/api/v1/orgs/test-org/reports/history?limit=5",
         json={
             "reports": [
                 {
@@ -77,7 +68,10 @@ def test_get_slo_history(httpx_mock):
 
     with NamedTemporaryFile(mode="w") as f:
         yaml.safe_dump(
-            {"auths": {"reliably.com": {"token": "12345", "username": "jane"}}},
+            {
+                "auths": {"reliably.com": {"token": "12345", "username": "jane"}},
+                "currentOrg": {"name": "test-org"},
+            },
             f,
             indent=2,
             default_flow_style=False,

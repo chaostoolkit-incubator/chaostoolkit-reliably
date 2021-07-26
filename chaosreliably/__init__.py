@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 from contextlib import contextmanager
-from typing import Dict, List, Tuple
-from urllib.parse import urljoin
+from typing import Dict, List
 
 import httpx
 import yaml
@@ -17,27 +16,20 @@ RELIABLY_CONFIG_PATH = "~/.config/reliably/config.yaml"
 RELIABLY_HOST = "reliably.com"
 
 
-def get_default_org(session: httpx.Client) -> Dict[str, str]:
-    r = session.get(session.reliably_url("/api/v1/orgs/default"))
-    if r.status_code != 200:
-        raise ActivityFailed(
-            "Failed to retrieve default organisation: {}".format(r.text)
-        )
-    return r.json()
-
-
 @contextmanager
 def get_session(
     configuration: Configuration = None, secrets: Secrets = None
 ) -> httpx.Client:
-    host, token = get_auth_info(configuration, secrets)
+    auth_info = get_auth_info(configuration, secrets)
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer {}".format(token),
+        "Authorization": "Bearer {}".format(auth_info["token"]),
     }
     with httpx.Client() as client:
         client.headers = headers
-        client.reliably_url = lambda p: urljoin("https://{}".format(host), p)
+        client.reliably_url = (
+            f"https://{auth_info['host']}/api/v1/orgs/{auth_info['org']}"
+        )
         yield client
 
 
@@ -60,10 +52,11 @@ def discover(discover_system: bool = True) -> Discovery:
 ###############################################################################
 def get_auth_info(
     configuration: Configuration = None, secrets: Secrets = None
-) -> Tuple[str, str]:
+) -> Dict[str, str]:
     reliably_config_path = None
     reliably_host = None
     reliably_token = None
+    reliably_org = None
 
     configuration = configuration or {}
     reliably_config_path = os.path.expanduser(
@@ -75,6 +68,7 @@ def get_auth_info(
     secrets = secrets or {}
     reliably_token = secrets.get("token")
     reliably_host = secrets.get("host")
+    reliably_org = secrets.get("org")
 
     if not reliably_token and reliably_config_path:
         logger.debug("Loading Reliably config from: {}".format(reliably_config_path))
@@ -93,8 +87,16 @@ def get_auth_info(
             if auth_host == reliably_host:
                 reliably_token = values.get("token")
                 break
+        current_org = config.get("currentOrg")
+        if current_org:
+            reliably_org = current_org.get("name")
 
-    if not reliably_config_path and not reliably_token and not reliably_host:
+    if (
+        not reliably_config_path
+        and not reliably_token
+        and not reliably_host
+        and not reliably_org
+    ):
         raise ActivityFailed(
             "Make sure to login against Reliably's services and/or provide "
             "them correct authentication information to the experiment."
@@ -112,7 +114,13 @@ def get_auth_info(
             "the Reliably's configuration's file."
         )
 
-    return (reliably_host, reliably_token)
+    if not reliably_org:
+        raise ActivityFailed(
+            "Make sure to provide the current Reliably org as a secret or via "
+            "the Reliably's configuration's file."
+        )
+
+    return {"host": reliably_host, "token": reliably_token, "org": reliably_org}
 
 
 def load_exported_activities() -> List[DiscoveredActivities]:
