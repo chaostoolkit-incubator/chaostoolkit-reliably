@@ -13,7 +13,7 @@ from logzero import logger
 __version__ = "0.1.2"
 __all__ = ["get_session", "discover", "get_default_org"]
 RELIABLY_CONFIG_PATH = "~/.config/reliably/config.yaml"
-RELIABLY_HOST = "reliably.com"
+RELIABLY_HOST = "api.reliably.com"
 
 
 @contextmanager
@@ -28,7 +28,7 @@ def get_session(
     with httpx.Client() as client:
         client.headers = headers
         client.reliably_url = (
-            f"https://{auth_info['host']}/api/v1/orgs/{auth_info['org']}"
+            f"https://{auth_info['host']}/entities/{auth_info['org']}/reliably.com/v1"
         )
         yield client
 
