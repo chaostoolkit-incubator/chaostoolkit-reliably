@@ -43,11 +43,11 @@ appropriate file.
 Because we use the default path, you may omit this configuration's entry
 altogether unless you need a specific different path.
 
-
 The second one is by setting some environment variables as secrets. This is
 for specific use case and usually not required.
 
 * `RELIABLY_TOKEN`: the token to authenticate against Reliably's API
+* `RELIABLY_ORG`: the Reliably organisation to use
 * `RELIABLY_HOST:`: the hostname to connect to, default to `reliably.com`
 
 ```json
@@ -57,6 +57,10 @@ for specific use case and usually not required.
             "token": {
                 "type": "env",
                 "key": "RELIABLY_TOKEN"
+            },
+            "org": {
+                "type": "env",
+                "key": "RELIABLY_ORG"
             },
             "host": {
                 "type": "env",
@@ -80,23 +84,24 @@ deviated during a Chaos Toolkit experiment. Here is a simple example:
     "title": "We do not consume all of our error budgets during the experiment",
     "probes": [
         {
-            "name": "last-3-slos-must-be-ok",
+            "name": "Our 'Must be good' SLO results must be OK",
             "type": "probe",
             "provider": {
                 "type": "python",
                 "module": "chaosreliably.slo.probes",
-                "func": "get_last_N_slos",
+                "func": "get_objective_results_by_labels",
                 "arguments": {
-                    "quantity": 3
+                    "labels": {"name": "must-be-good", "service": "must-be-good-service"},
+                    "limit": 5
                 }
             },
             "tolerance": {
                 "type": "probe",
-                "name": "validate-last-3-slo-statuses",
+                "name": "Check all SLO results are ok",
                 "provider": {
                     "type": "python",
                     "module": "chaosreliably.slo.tolerances",
-                    "func": "last_N_slo_were_met_for_all_services",
+                    "func": "all_objective_results_ok",
                     "arguments": {}
                 }
             }
@@ -105,8 +110,7 @@ deviated during a Chaos Toolkit experiment. Here is a simple example:
 }
 ```
 
-This looks at the last three SLO reports for all your services and ensure all
-of them are within the [error budget](https://sre.google/workbook/error-budget-policy/#:~:text=Error%20budgets%20are%20the%20tool,with%20the%20pace%20of%20innovation.&text=The%20error%20budget%20forms%20a,has%20a%200.1%25%20error%20budget.)
+This above example will get the last 5 Objective Results for our `Must be good` SLO and determine if they were all okay or whether we've spent our [error budget](https://sre.google/workbook/error-budget-policy/#:~:text=Error%20budgets%20are%20the%20tool,with%20the%20pace%20of%20innovation.&text=The%20error%20budget%20forms%20a,has%20a%200.1%25%20error%20budget.)
 they are allowed.
 
 
@@ -134,18 +138,19 @@ mechanism to protect your system from being harmed too harshly by an experiment.
                         "provider": {
                             "type": "python",
                             "module": "chaosreliably.slo.probes",
-                            "func": "get_last_N_slos",
+                            "func": "get_objective_results_by_labels",
                             "arguments": {
-                                "quantity": 3
+                                "labels": {"name": "must-be-good", "service": "must-be-good-service"},
+                                "limit": 5
                             }
                         },
                         "tolerance": {
                             "type": "probe",
-                            "name": "validate-last-3-slo-statuses",
+                            "name": "Check all SLO results are ok",
                             "provider": {
                                 "type": "python",
                                 "module": "chaosreliably.slo.tolerances",
-                                "func": "last_N_slo_were_met_for_all_services",
+                                "func": "all_objective_results_ok",
                                 "arguments": {}
                             }
                         }
@@ -159,7 +164,7 @@ mechanism to protect your system from being harmed too harshly by an experiment.
 
 As you can notice it is the same construct as for the steady-state, it's merely
 used with a different purpose. Here these probes will be executed every 5s
-during the experiment (it's for demo purpose, you would usually only run it
+during the experiment (this frequence is for demo purposes, you would usually only run it
 once every minute or less).
 
 ## Contribute
@@ -198,4 +203,20 @@ To run the tests for the project execute the following:
 
 ```
 $ pytest
+```
+
+### Linting & Formatting
+
+A `Makefile` is provided to abstract away the linting and formatting commands.
+
+To lint the project, run:
+
+```bash
+$ make lint
+```
+
+To format the project, run:
+
+```bash
+$ make format
 ```
