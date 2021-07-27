@@ -11,7 +11,7 @@ from chaoslib.types import Configuration, DiscoveredActivities, Discovery, Secre
 from logzero import logger
 
 __version__ = "0.1.2"
-__all__ = ["get_session", "discover", "get_default_org"]
+__all__ = ["get_session", "discover"]
 RELIABLY_CONFIG_PATH = "~/.config/reliably/config.yaml"
 RELIABLY_HOST = "api.reliably.com"
 
