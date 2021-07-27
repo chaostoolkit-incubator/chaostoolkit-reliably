@@ -39,7 +39,7 @@ def all_objective_results_ok(value: List[Dict] = None) -> bool:
             "Remaining %",
             "Indicator Selector",
         ]
-        logger.info(
+        logger.critical(
             (
                 "The following Objective Results were not OK:\n\n"
                 "Objective Results are sorted by latest at the top:\n"

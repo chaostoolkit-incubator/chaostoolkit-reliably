@@ -26,7 +26,7 @@ def test_all_objective_results_ok_logs_table_when_all_results_not_ok(
     mocked_logger, objective_results, not_ok_table
 ):
     _ = all_objective_results_ok(objective_results)
-    mocked_logger.info.assert_called_once_with(
+    mocked_logger.critical.assert_called_once_with(
         (
             "The following Objective Results were not OK:\n\n"
             "Objective Results are sorted by latest at the top:\n"
