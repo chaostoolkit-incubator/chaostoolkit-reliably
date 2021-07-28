@@ -10,7 +10,7 @@ from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Configuration, DiscoveredActivities, Discovery, Secrets
 from logzero import logger
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __all__ = ["get_session", "discover"]
 RELIABLY_CONFIG_PATH = "~/.config/reliably/config.yaml"
 RELIABLY_HOST = "api.reliably.com"
