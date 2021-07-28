@@ -7,6 +7,7 @@
 ### Changed
 
 - Updated `get_objective_results_by_labels` to have a default `limit` of `1`
+- Add `slo_is_met` as a probe to encompass the `get_objective_results_by_labels` probe and `all_objective_results_ok` tolerance
 
 
 ## [0.2.0][]
