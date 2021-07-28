@@ -20,9 +20,9 @@ def test_that_get_objective_results_by_label_returns_correct_results(
     )
     request_url = (
         "https://api.reliably.com/entities/test-org/reliably.com/v1/objectiveresult"
-        f"?objective-match={encoded_labels}"
+        f"?objective-match={encoded_labels}&limit=1"
     )
-    httpx_mock.add_response(method="GET", url=request_url, json=objective_results)
+    httpx_mock.add_response(method="GET", url=request_url, json=objective_results[:1])
 
     with NamedTemporaryFile(mode="w") as f:
         yaml.safe_dump(
@@ -38,7 +38,7 @@ def test_that_get_objective_results_by_label_returns_correct_results(
         results = get_objective_results_by_labels(
             labels=labels, configuration={"reliably_config_path": f.name}, secrets=None
         )
-        assert len(results) == 10
+        assert len(results) == 1
 
 
 def test_that_get_objective_results_by_label_raises_exception_if_non_200(httpx_mock):
@@ -51,7 +51,7 @@ def test_that_get_objective_results_by_label_raises_exception_if_non_200(httpx_m
     )
     request_url = (
         "https://api.reliably.com/entities/test-org/reliably.com/v1/objectiveresult"
-        f"?objective-match={encoded_labels}"
+        f"?objective-match={encoded_labels}&limit=1"
     )
     httpx_mock.add_response(method="GET", url=request_url, status_code=400)
 
