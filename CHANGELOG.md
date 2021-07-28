@@ -4,6 +4,8 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.2.1...HEAD
 
+- Updated `README.md` to correctly show where `tolerance` goes when using `slo_is_met` as a Steady State Hypothesis
+
 ## [0.2.1][]
 
 [0.2.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.2.0...0.2.1

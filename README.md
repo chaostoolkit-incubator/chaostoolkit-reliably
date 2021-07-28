@@ -90,12 +90,12 @@ deviated during a Chaos Toolkit experiment. Here is a simple example:
                 "type": "python",
                 "module": "chaosreliably.slo.probes",
                 "func": "slo_is_met",
-                "tolerance": true,
                 "arguments": {
                     "labels": {"name": "must-be-good", "service": "must-be-good-service"},
                     "limit": 5
                 }
-            }
+            },
+            "tolerance": true,
         }
     ]
 }
@@ -130,12 +130,12 @@ mechanism to protect your system from being harmed too harshly by an experiment.
                             "type": "python",
                             "module": "chaosreliably.slo.probes",
                             "func": "slo_is_met",
-                            "tolerance": true,
                             "arguments": {
                                 "labels": {"name": "must-be-good", "service": "must-be-good-service"},
                                 "limit": 5
                             }
-                        }
+                        },
+                        "tolerance": true
                     }
                 ]
             }
