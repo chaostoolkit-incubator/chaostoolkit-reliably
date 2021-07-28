@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.2.0...HEAD
 
+### Changed
+
+- Updated `get_objective_results_by_labels` to have a default `limit` of `1`
+
 
 ## [0.2.0][]
 
