@@ -89,20 +89,11 @@ deviated during a Chaos Toolkit experiment. Here is a simple example:
             "provider": {
                 "type": "python",
                 "module": "chaosreliably.slo.probes",
-                "func": "get_objective_results_by_labels",
+                "func": "slo_is_met",
+                "tolerance": true,
                 "arguments": {
                     "labels": {"name": "must-be-good", "service": "must-be-good-service"},
                     "limit": 5
-                }
-            },
-            "tolerance": {
-                "type": "probe",
-                "name": "Check all SLO results are ok",
-                "provider": {
-                    "type": "python",
-                    "module": "chaosreliably.slo.tolerances",
-                    "func": "all_objective_results_ok",
-                    "arguments": {}
                 }
             }
         }
@@ -138,20 +129,11 @@ mechanism to protect your system from being harmed too harshly by an experiment.
                         "provider": {
                             "type": "python",
                             "module": "chaosreliably.slo.probes",
-                            "func": "get_objective_results_by_labels",
+                            "func": "slo_is_met",
+                            "tolerance": true,
                             "arguments": {
                                 "labels": {"name": "must-be-good", "service": "must-be-good-service"},
                                 "limit": 5
-                            }
-                        },
-                        "tolerance": {
-                            "type": "probe",
-                            "name": "Check all SLO results are ok",
-                            "provider": {
-                                "type": "python",
-                                "module": "chaosreliably.slo.tolerances",
-                                "func": "all_objective_results_ok",
-                                "arguments": {}
                             }
                         }
                     }
