@@ -11,7 +11,7 @@ def test_using_config_file():
     with NamedTemporaryFile(mode="w") as f:
         yaml.safe_dump(
             {
-                "auths": {"api.reliably.com": {"token": "12345", "username": "jane"}},
+                "auths": {"reliably.com": {"token": "12345", "username": "jane"}},
                 "currentOrg": {"name": "test-org"},
             },
             f,
@@ -22,7 +22,7 @@ def test_using_config_file():
 
         auth_info = get_auth_info({"reliably_config_path": f.name})
         assert auth_info["token"] == "12345"
-        assert auth_info["host"] == "api.reliably.com"
+        assert auth_info["host"] == "reliably.com"
         assert auth_info["org"] == "test-org"
 
 

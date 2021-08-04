@@ -5,6 +5,7 @@
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.2.1...HEAD
 
 - Updated `README.md` to correctly show where `tolerance` goes when using `slo_is_met` as a Steady State Hypothesis
+- Fixed default reliably host to be `reliably.com` instead of `api.reliably.com`
 
 ## [0.2.1][]
 
