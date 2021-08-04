@@ -19,7 +19,7 @@ def test_that_get_objective_results_by_label_returns_correct_results(
         ",".join([f"{key}={value}" for key, value in labels.items()])
     )
     request_url = (
-        "https://api.reliably.com/entities/test-org/reliably.com/v1/objectiveresult"
+        "https://reliably.com/entities/test-org/reliably.com/v1/objectiveresult"
         f"?objective-match={encoded_labels}&limit=1"
     )
     httpx_mock.add_response(method="GET", url=request_url, json=objective_results[:1])
@@ -27,7 +27,7 @@ def test_that_get_objective_results_by_label_returns_correct_results(
     with NamedTemporaryFile(mode="w") as f:
         yaml.safe_dump(
             {
-                "auths": {"api.reliably.com": {"token": "12345", "username": "jane"}},
+                "auths": {"reliably.com": {"token": "12345", "username": "jane"}},
                 "currentOrg": {"name": "test-org"},
             },
             f,
@@ -50,7 +50,7 @@ def test_that_get_objective_results_by_label_raises_exception_if_non_200(httpx_m
         ",".join([f"{key}={value}" for key, value in labels.items()])
     )
     request_url = (
-        "https://api.reliably.com/entities/test-org/reliably.com/v1/objectiveresult"
+        "https://reliably.com/entities/test-org/reliably.com/v1/objectiveresult"
         f"?objective-match={encoded_labels}&limit=1"
     )
     httpx_mock.add_response(method="GET", url=request_url, status_code=400)
@@ -59,9 +59,7 @@ def test_that_get_objective_results_by_label_raises_exception_if_non_200(httpx_m
         with NamedTemporaryFile(mode="w") as f:
             yaml.safe_dump(
                 {
-                    "auths": {
-                        "api.reliably.com": {"token": "12345", "username": "jane"}
-                    },
+                    "auths": {"reliably.com": {"token": "12345", "username": "jane"}},
                     "currentOrg": {"name": "test-org"},
                 },
                 f,
@@ -87,7 +85,7 @@ def test_that_get_objective_results_by_label_passes_limit_parameter_correctly(
         ",".join([f"{key}={value}" for key, value in labels.items()])
     )
     request_url = (
-        "https://api.reliably.com/entities/test-org/reliably.com/v1/objectiveresult"
+        "https://reliably.com/entities/test-org/reliably.com/v1/objectiveresult"
         f"?objective-match={encoded_labels}&limit=20"
     )
     httpx_mock.add_response(method="GET", url=request_url, json=objective_results)
@@ -95,7 +93,7 @@ def test_that_get_objective_results_by_label_passes_limit_parameter_correctly(
     with NamedTemporaryFile(mode="w") as f:
         yaml.safe_dump(
             {
-                "auths": {"api.reliably.com": {"token": "12345", "username": "jane"}},
+                "auths": {"reliably.com": {"token": "12345", "username": "jane"}},
                 "currentOrg": {"name": "test-org"},
             },
             f,
