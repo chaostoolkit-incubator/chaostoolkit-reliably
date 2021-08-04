@@ -59,9 +59,7 @@ def test_that_get_objective_results_by_label_raises_exception_if_non_200(httpx_m
         with NamedTemporaryFile(mode="w") as f:
             yaml.safe_dump(
                 {
-                    "auths": {
-                        "reliably.com": {"token": "12345", "username": "jane"}
-                    },
+                    "auths": {"reliably.com": {"token": "12345", "username": "jane"}},
                     "currentOrg": {"name": "test-org"},
                 },
                 f,
