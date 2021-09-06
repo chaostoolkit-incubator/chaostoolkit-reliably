@@ -8,6 +8,8 @@
 
 - Updated `.github/workflows/build.yaml` to be in line with `chaostoolkit`
 - Updated `Makefile` to be in line with `chaostoolkit`
+- Add `check-pr.md` which alerts PR raisers to whether they've modified
+`CHANGELOG.md` or tests.
 
 ## [0.2.2][]
 
