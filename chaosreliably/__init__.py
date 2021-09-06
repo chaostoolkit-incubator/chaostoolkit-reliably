@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 from contextlib import contextmanager
 from typing import Dict, List
@@ -71,7 +70,7 @@ def get_auth_info(
     reliably_org = secrets.get("org")
 
     if not reliably_token and reliably_config_path:
-        logger.debug("Loading Reliably config from: {}".format(reliably_config_path))
+        logger.debug(f"Loading Reliably config from: {reliably_config_path}")
         with open(reliably_config_path) as f:
             try:
                 config = yaml.safe_load(f)
@@ -81,7 +80,7 @@ def get_auth_info(
                     "'{}': {}".format(reliably_config_path, str(ye))
                 )
         reliably_host = reliably_host or RELIABLY_HOST
-        logger.debug("Connecting to Reliably: {}".format(reliably_host))
+        logger.debug(f"Connecting to Reliably: {reliably_host}")
         auth_hosts = config.get("auths", {})
         for auth_host, values in auth_hosts.items():
             if auth_host == reliably_host:

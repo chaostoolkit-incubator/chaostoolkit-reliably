@@ -10,6 +10,7 @@
 - Updated `Makefile` to be in line with `chaostoolkit`
 - Add `check-pr.md` which alerts PR raisers to whether they've modified
 `CHANGELOG.md` or tests.
+- Ran `pyupgrade --py36-plus` on the project
 
 ## [0.2.2][]
 

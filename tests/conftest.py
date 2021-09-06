@@ -11,7 +11,7 @@ TEST_DATA_DIR = os.path.join(Path(__file__).parent, "data")
 @fixture
 def objective_results():
     with open(
-        os.path.join(TEST_DATA_DIR, "objective_results_from_api.json"), "r"
+        os.path.join(TEST_DATA_DIR, "objective_results_from_api.json")
     ) as json_in:
         return json.load(json_in)
 
