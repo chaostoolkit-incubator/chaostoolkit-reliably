@@ -4,6 +4,11 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.2.2...HEAD
 
+### Changed
+
+- Updated `.github/workflows/build.yaml` to be in line with `chaostoolkit`
+- Updated `Makefile` to be in line with `chaostoolkit`
+
 ## [0.2.2][]
 
 [0.2.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.2.1...0.2.2
