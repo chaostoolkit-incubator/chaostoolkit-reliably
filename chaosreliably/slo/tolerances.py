@@ -43,9 +43,9 @@ def all_objective_results_ok(value: List[Dict] = None) -> bool:
             "Indicator Selector",
         ]
         logger.critical(
-                "The following Objective Results were not OK:\n\n"
-                "Objective Results are sorted by latest at the top:\n"
-                f"{tabulate(not_ok_results, headers=headers, tablefmt='github')}"
+            "The following Objective Results were not OK:\n\n"
+            "Objective Results are sorted by latest at the top:\n"
+            f"{tabulate(not_ok_results, headers=headers, tablefmt='github')}"
         )
         return False
     else:
