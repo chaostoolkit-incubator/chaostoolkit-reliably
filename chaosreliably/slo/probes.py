@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from typing import Dict, List
 from urllib.parse import quote
 
@@ -36,9 +35,9 @@ def get_objective_results_by_labels(
     with get_session(configuration, secrets) as session:
         url = f"{session.reliably_url}/objectiveresult?objective-match={encoded_labels}"
         resp = session.get(url, params={"limit": limit})
-        logger.debug("Fetched SLO results from: {}".format(resp.url))
+        logger.debug(f"Fetched SLO results from: {resp.url}")
         if resp.status_code != 200:
-            raise ActivityFailed("Failed to retrieve SLO results: {}".format(resp.text))
+            raise ActivityFailed(f"Failed to retrieve SLO results: {resp.text}")
         return resp.json()
 
 
