@@ -11,6 +11,7 @@
 - Add `check-pr.md` which alerts PR raisers to whether they've modified
 `CHANGELOG.md` or tests.
 - Ran `pyupgrade --py36-plus` on the project
+- Bump up coverage in tests to cover failure cases in `__init__.py`
 
 ## [0.2.2][]
 

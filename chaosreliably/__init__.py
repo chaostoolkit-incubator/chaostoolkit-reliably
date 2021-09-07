@@ -98,7 +98,7 @@ def get_auth_info(
     ):
         raise ActivityFailed(
             "Make sure to login against Reliably's services and/or provide "
-            "them correct authentication information to the experiment."
+            "the correct authentication information to the experiment."
         )
 
     if not reliably_token:
