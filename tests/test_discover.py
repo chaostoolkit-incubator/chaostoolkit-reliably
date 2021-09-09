@@ -1,7 +1,7 @@
 from chaosreliably import __version__, discover
 
 
-def test_that_discover_returns_correct_discovery():
+def test_that_discover_returns_correct_discovery() -> None:
     discovery = discover()
     assert discovery["extension"]["name"] == "chaostoolkit-reliably"
     assert discovery["extension"]["version"] == __version__

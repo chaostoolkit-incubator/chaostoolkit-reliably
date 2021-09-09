@@ -1,6 +1,6 @@
 import os
 from contextlib import contextmanager
-from typing import Dict, List
+from typing import Dict, Generator, List
 
 import httpx
 import yaml
@@ -18,15 +18,15 @@ RELIABLY_HOST = "reliably.com"
 @contextmanager
 def get_session(
     configuration: Configuration = None, secrets: Secrets = None
-) -> httpx.Client:
+) -> Generator[httpx.Client, None, None]:
     auth_info = get_auth_info(configuration, secrets)
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer {}".format(auth_info["token"]),
     }
     with httpx.Client() as client:
-        client.headers = headers
-        client.reliably_url = (
+        client.headers = httpx.Headers(headers)
+        client.base_url = httpx.URL(
             f"https://{auth_info['host']}/entities/{auth_info['org']}/reliably.com/v1"
         )
         yield client
