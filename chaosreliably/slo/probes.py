@@ -27,7 +27,8 @@ def get_objective_results_by_labels(
     :param limit: int representing how many results to retrieve - Default 1
     :param configuration: Configuration object provided by Chaos Toolkit
     :param secrets: Secret object provided by Chaos Toolkit
-    :returns: List[Dict] representing the Objective Results for the given Objective
+    :returns: List[ObjectiveResult] representing the Objective Results for the given
+        Objective
 
     """
     encoded_labels = quote(

@@ -17,7 +17,7 @@ def all_objective_results_ok(value: List[ObjectiveResult]) -> bool:
     If an objective is set to 90% and the actual percent is 99% then the remaining
     percent is 9% and the SLO has passed.
 
-    :param value: List[Dict] representing the Objective Results to check
+    :param value: List[ObjectiveResult] representing the Objective Results to check
     :returns: bool representing whether all the Objective Results were OK or not
     """
     not_ok_results = []

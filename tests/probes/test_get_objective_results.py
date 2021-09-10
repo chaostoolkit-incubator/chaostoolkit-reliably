@@ -106,10 +106,10 @@ def test_that_get_objective_results_by_label_passes_limit_parameter_correctly(
             default_flow_style=False,
         )
         f.seek(0)
-        results = get_objective_results_by_labels(
+        res = get_objective_results_by_labels(
             labels=labels,
             limit=20,
             configuration={"reliably_config_path": f.name},
             secrets=None,
         )
-        assert len(results) == 10
+        assert len(res) == 10
