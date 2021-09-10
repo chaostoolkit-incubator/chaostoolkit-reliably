@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field, parse_obj_as
@@ -21,5 +19,5 @@ class ObjectiveResult(BaseModel):
     metadata: ObjectiveResultMetadata
     spec: ObjectiveResultSpec
 
-    def parse_list(obj: Any) -> List[ObjectiveResult]:
+    def parse_list(obj: Any) -> "List[ObjectiveResult]":
         return parse_obj_as(List[ObjectiveResult], obj)
