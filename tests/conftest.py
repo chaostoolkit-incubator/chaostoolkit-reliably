@@ -7,7 +7,7 @@ from typing import Any, List
 from pytest import fixture
 from tabulate import tabulate
 
-from chaosreliably.types import ApiObjectiveResult
+from chaosreliably.types import ObjectiveResult
 
 TEST_DATA_DIR = os.path.join(Path(__file__).parent, "data")
 
@@ -21,19 +21,19 @@ def results() -> Any:
 
 
 @fixture
-def objective_results_not_all_ok(results: Any) -> List[ApiObjectiveResult]:
+def objective_results_not_all_ok(results: Any) -> List[ObjectiveResult]:
     results_not_all_okay = deepcopy(results)
-    return ApiObjectiveResult.parse_list(results_not_all_okay)
+    return ObjectiveResult.parse_list(results_not_all_okay)
 
 
 @fixture
-def objective_results_all_ok(results: Any) -> List[ApiObjectiveResult]:
+def objective_results_all_ok(results: Any) -> List[ObjectiveResult]:
     results_all_okay = deepcopy(results)
     for result in results_all_okay:
         result["spec"]["objectivePercent"] = 90.00
         result["spec"]["actualPercent"] = 100.00
         result["spec"]["remainingPercent"] = 10.00
-    return ApiObjectiveResult.parse_list(results_all_okay)
+    return ObjectiveResult.parse_list(results_all_okay)
 
 
 @fixture

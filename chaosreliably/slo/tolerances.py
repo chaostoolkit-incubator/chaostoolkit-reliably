@@ -3,12 +3,12 @@ from typing import List
 from logzero import logger
 from tabulate import tabulate
 
-from chaosreliably.types import ApiObjectiveResult
+from chaosreliably.types import ObjectiveResult
 
 __all__ = ["all_objective_results_ok"]
 
 
-def all_objective_results_ok(value: List[ApiObjectiveResult]) -> bool:
+def all_objective_results_ok(value: List[ObjectiveResult]) -> bool:
     """
     Determines if any of the objective results provided had a `remainingPercent` of less
     than 0. This means the SLO failed:

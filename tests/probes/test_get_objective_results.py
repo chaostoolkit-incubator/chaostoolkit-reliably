@@ -8,7 +8,7 @@ import yaml
 from chaoslib.exceptions import ActivityFailed
 
 from chaosreliably.slo.probes import get_objective_results_by_labels
-from chaosreliably.types import ApiObjectiveResult
+from chaosreliably.types import ObjectiveResult
 
 
 def test_that_get_objective_results_by_label_returns_correct_results(
@@ -80,7 +80,7 @@ def test_that_get_objective_results_by_label_raises_exception_if_non_200(
 
 
 def test_that_get_objective_results_by_label_passes_limit_parameter_correctly(
-    httpx_mock: pytest_httpx._httpx_mock.HTTPXMock, results: List[ApiObjectiveResult]
+    httpx_mock: pytest_httpx._httpx_mock.HTTPXMock, results: List[ObjectiveResult]
 ) -> None:
     labels = {
         "name": "exploring-reliability-guide",
