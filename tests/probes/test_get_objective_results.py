@@ -1,16 +1,19 @@
 from tempfile import NamedTemporaryFile
+from typing import Any, List
 from urllib.parse import quote
 
 import pytest
+import pytest_httpx
 import yaml
 from chaoslib.exceptions import ActivityFailed
 
 from chaosreliably.slo.probes import get_objective_results_by_labels
+from chaosreliably.types import ObjectiveResult
 
 
 def test_that_get_objective_results_by_label_returns_correct_results(
-    httpx_mock, objective_results
-):
+    httpx_mock: pytest_httpx._httpx_mock.HTTPXMock, results: Any
+) -> None:
     labels = {
         "name": "exploring-reliability-guide",
         "service": "exploring-reliability-guide-service",
@@ -22,7 +25,7 @@ def test_that_get_objective_results_by_label_returns_correct_results(
         "https://reliably.com/entities/test-org/reliably.com/v1/objectiveresult"
         f"?objective-match={encoded_labels}&limit=1"
     )
-    httpx_mock.add_response(method="GET", url=request_url, json=objective_results[:1])
+    httpx_mock.add_response(method="GET", url=request_url, json=results[:1])
 
     with NamedTemporaryFile(mode="w") as f:
         yaml.safe_dump(
@@ -35,13 +38,15 @@ def test_that_get_objective_results_by_label_returns_correct_results(
             default_flow_style=False,
         )
         f.seek(0)
-        results = get_objective_results_by_labels(
+        res = get_objective_results_by_labels(
             labels=labels, configuration={"reliably_config_path": f.name}, secrets=None
         )
-        assert len(results) == 1
+        assert len(res) == 1
 
 
-def test_that_get_objective_results_by_label_raises_exception_if_non_200(httpx_mock):
+def test_that_get_objective_results_by_label_raises_exception_if_non_200(
+    httpx_mock: pytest_httpx._httpx_mock.HTTPXMock,
+) -> None:
     labels = {
         "name": "exploring-reliability-guide",
         "service": "exploring-reliability-guide-service",
@@ -75,8 +80,8 @@ def test_that_get_objective_results_by_label_raises_exception_if_non_200(httpx_m
 
 
 def test_that_get_objective_results_by_label_passes_limit_parameter_correctly(
-    httpx_mock, objective_results
-):
+    httpx_mock: pytest_httpx._httpx_mock.HTTPXMock, results: List[ObjectiveResult]
+) -> None:
     labels = {
         "name": "exploring-reliability-guide",
         "service": "exploring-reliability-guide-service",
@@ -88,7 +93,7 @@ def test_that_get_objective_results_by_label_passes_limit_parameter_correctly(
         "https://reliably.com/entities/test-org/reliably.com/v1/objectiveresult"
         f"?objective-match={encoded_labels}&limit=20"
     )
-    httpx_mock.add_response(method="GET", url=request_url, json=objective_results)
+    httpx_mock.add_response(method="GET", url=request_url, json=results)
 
     with NamedTemporaryFile(mode="w") as f:
         yaml.safe_dump(
@@ -101,10 +106,10 @@ def test_that_get_objective_results_by_label_passes_limit_parameter_correctly(
             default_flow_style=False,
         )
         f.seek(0)
-        results = get_objective_results_by_labels(
+        res = get_objective_results_by_labels(
             labels=labels,
             limit=20,
             configuration={"reliably_config_path": f.name},
             secrets=None,
         )
-        assert len(results) == 10
+        assert len(res) == 10

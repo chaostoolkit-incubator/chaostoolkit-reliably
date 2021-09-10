@@ -17,6 +17,7 @@ lint:
 	flake8 chaosreliably/ tests/
 	isort --check-only --profile black chaosreliably/ tests/
 	black --check --diff chaosreliably/ tests/
+	mypy chaosreliably/ tests/
 
 .PHONY: format
 format:

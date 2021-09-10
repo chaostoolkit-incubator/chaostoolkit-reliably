@@ -1,12 +1,14 @@
-from typing import Dict, List
+from typing import List
 
 from logzero import logger
 from tabulate import tabulate
 
+from chaosreliably.types import ObjectiveResult
+
 __all__ = ["all_objective_results_ok"]
 
 
-def all_objective_results_ok(value: List[Dict] = None) -> bool:
+def all_objective_results_ok(value: List[ObjectiveResult]) -> bool:
     """
     Determines if any of the objective results provided had a `remainingPercent` of less
     than 0. This means the SLO failed:
@@ -15,21 +17,21 @@ def all_objective_results_ok(value: List[Dict] = None) -> bool:
     If an objective is set to 90% and the actual percent is 99% then the remaining
     percent is 9% and the SLO has passed.
 
-    :param value: List[Dict] representing the Objective Results to check
+    :param value: List[ObjectiveResult] representing the Objective Results to check
     :returns: bool representing whether all the Objective Results were OK or not
     """
     not_ok_results = []
 
     for result in value:
-        if result["spec"]["remainingPercent"] < 0:
+        if result.spec.remaining_percent < 0:
             not_ok_results.append(
                 [
-                    result["metadata"]["labels"]["from"],
-                    result["metadata"]["labels"]["to"],
-                    result["spec"]["objectivePercent"],
-                    result["spec"]["actualPercent"],
-                    result["spec"]["remainingPercent"],
-                    result["spec"]["indicatorSelector"],
+                    result.metadata.labels["from"],
+                    result.metadata.labels["to"],
+                    result.spec.objective_percent,
+                    result.spec.actual_percent,
+                    result.spec.remaining_percent,
+                    result.spec.indicator_selector,
                 ]
             )
 

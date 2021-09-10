@@ -1,6 +1,6 @@
 import uuid
 from tempfile import NamedTemporaryFile
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 import yaml
@@ -10,7 +10,7 @@ from yaml.error import YAMLError
 from chaosreliably import get_auth_info
 
 
-def test_using_config_file():
+def test_using_config_file() -> None:
     with NamedTemporaryFile(mode="w") as f:
         yaml.safe_dump(
             {
@@ -30,7 +30,7 @@ def test_using_config_file():
 
 
 @patch("chaosreliably.yaml.safe_load")
-def test_invalid_yaml_file_errors(mock_safe_load):
+def test_invalid_yaml_file_errors(mock_safe_load: MagicMock) -> None:
     mock_safe_load.side_effect = YAMLError("An Error")
     with NamedTemporaryFile(mode="w") as f:
         f.write("")
@@ -42,7 +42,7 @@ def test_invalid_yaml_file_errors(mock_safe_load):
     )
 
 
-def test_using_config_file_but_override_token_and_host():
+def test_using_config_file_but_override_token_and_host() -> None:
     with NamedTemporaryFile(mode="w") as f:
         yaml.safe_dump(
             {
@@ -64,7 +64,7 @@ def test_using_config_file_but_override_token_and_host():
         assert auth_info["org"] == "overriden-org"
 
 
-def test_using_secret_only():
+def test_using_secret_only() -> None:
     auth_info = get_auth_info(
         None, {"token": "78890", "host": "reliably.dev", "org": "secret-org"}
     )
@@ -73,7 +73,7 @@ def test_using_secret_only():
     assert auth_info["org"] == "secret-org"
 
 
-def test_missing_token_from_secrets():
+def test_missing_token_from_secrets() -> None:
     with pytest.raises(ActivityFailed) as ex:
         get_auth_info(
             {
@@ -87,7 +87,7 @@ def test_missing_token_from_secrets():
     )
 
 
-def test_missing_host_from_secrets():
+def test_missing_host_from_secrets() -> None:
     with pytest.raises(ActivityFailed) as ex:
         get_auth_info(
             {
@@ -101,7 +101,7 @@ def test_missing_host_from_secrets():
     )
 
 
-def test_missing_org_from_secrets():
+def test_missing_org_from_secrets() -> None:
     with pytest.raises(ActivityFailed) as ex:
         get_auth_info(
             {
@@ -115,7 +115,7 @@ def test_missing_org_from_secrets():
     )
 
 
-def test_no_config_at_path_and_no_secrets_provided():
+def test_no_config_at_path_and_no_secrets_provided() -> None:
     with pytest.raises(ActivityFailed) as ex:
         get_auth_info({"reliably_config_path": str(uuid.uuid4())}, None)
     assert str(ex.value) == (

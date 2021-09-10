@@ -151,12 +151,21 @@ once every minute or less).
 
 ## Contribute
 
-If you wish to contribute more functions to this package, you are more than
-welcome to do so. Please, fork this project, make your changes following the
-usual [PEP 8][pep8] code style, sprinkling with tests and submit a PR for
-review.
+From a code perspective, if you wish to contribute, you will need to run a
+Python 3.6+ environment. Please, fork this project, write unit tests to cover
+the proposed changes, implement the changes, ensure they meet the formatting
+standards set out by `black`, `flake8`, `isort`, and `mypy`, add an entry into
+`CHANGELOG.md`, and then raise a PR to the repository for review
 
-[pep8]: https://pycodestyle.readthedocs.io/en/latest/
+Please refer to the [formatting](#formatting-and-linting) section for more
+information on the formatting standards.
+
+The Chaos Toolkit projects require all contributors must sign a
+[Developer Certificate of Origin][dco] on each commit they would like to merge
+into the master branch of the repository. Please, make sure you can abide by
+the rules of the DCO before submitting a PR.
+
+[dco]: https://github.com/probot/dco#how-it-works
 
 ### Develop
 
@@ -167,38 +176,42 @@ those dependencies.
 [venv]: http://chaostoolkit.org/reference/usage/install/#create-a-virtual-environment
 
 ```console
-$ pip install -r requirements-dev.txt -r requirements.txt 
+$ make install-dev
 ```
-
-Then, point your environment to this directory:
-
-```console
-$ python setup.py develop
-```
-
-Now, you can edit the files and they will be automatically be seen by your
-environment, even when running from the `chaos` command locally.
 
 ### Test
 
 To run the tests for the project execute the following:
 
+```console
+$ make tests
 ```
-$ pytest
+
+### Formatting and Linting
+
+We use a combination of [`black`][black], [`flake8`][flake8], [`isort`][isort],
+and [`mypy`][mypy] to both lint and format this repositories code.
+
+[black]: https://github.com/psf/black
+[flake8]: https://github.com/PyCQA/flake8
+[isort]: https://github.com/PyCQA/isort
+[mypy]: https://github.com/python/mypy
+
+Before raising a Pull Request, we recommend you run formatting against your
+code with:
+
+```console
+$ make format
 ```
 
-### Linting & Formatting
+This will automatically format any code that doesn't adhere to the formatting
+standards.
 
-A `Makefile` is provided to abstract away the linting and formatting commands.
+As some things are not picked up by the formatting, we also recommend you run:
 
-To lint the project, run:
-
-```bash
+```console
 $ make lint
 ```
 
-To format the project, run:
-
-```bash
-$ make format
-```
+To ensure that any unused import statements/strings that are too long, etc.
+are also picked up. It will also provide you with any errors `mypy` picks up.

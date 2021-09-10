@@ -2,7 +2,10 @@ coverage
 black
 flake8
 isort
+mypy
 pytest>=6.0
 pytest-cov
 pytest-sugar
 pytest-httpx
+types-PyYAML
+types-tabulate

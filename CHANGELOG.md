@@ -12,6 +12,7 @@
 `CHANGELOG.md` or tests.
 - Ran `pyupgrade --py36-plus` on the project
 - Bump up coverage in tests to cover failure cases in `__init__.py`
+- Add `mypy` as a dependency and use it in linting to enforce typing
 
 ## [0.2.2][]
 

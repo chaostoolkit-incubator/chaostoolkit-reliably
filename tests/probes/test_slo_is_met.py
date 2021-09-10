@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from chaosreliably.slo.probes import slo_is_met
 
@@ -6,8 +6,9 @@ from chaosreliably.slo.probes import slo_is_met
 @patch("chaosreliably.slo.probes.all_objective_results_ok")
 @patch("chaosreliably.slo.probes.get_objective_results_by_labels")
 def test_that_slo_is_met_correctly_calls_probe_and_tolerance_with_no_limit(
-    mock_get_objective_results_by_labels, mock_all_objective_results_ok
-):
+    mock_get_objective_results_by_labels: MagicMock,
+    mock_all_objective_results_ok: MagicMock,
+) -> None:
     expected_results = [{"objective_result": "a-result"}]
     mock_get_objective_results_by_labels.return_value = expected_results
     mock_all_objective_results_ok.return_value = True
@@ -26,8 +27,9 @@ def test_that_slo_is_met_correctly_calls_probe_and_tolerance_with_no_limit(
 @patch("chaosreliably.slo.probes.all_objective_results_ok")
 @patch("chaosreliably.slo.probes.get_objective_results_by_labels")
 def test_that_slo_is_met_correctly_calls_probe_and_tolerance_with_limit(
-    mock_get_objective_results_by_labels, mock_all_objective_results_ok
-):
+    mock_get_objective_results_by_labels: MagicMock,
+    mock_all_objective_results_ok: MagicMock,
+) -> None:
     expected_results = [{"objective_result": "a-result"}]
     mock_get_objective_results_by_labels.return_value = expected_results
     mock_all_objective_results_ok.return_value = False
