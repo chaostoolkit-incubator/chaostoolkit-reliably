@@ -65,29 +65,38 @@ def before_experiment_control(
         }
     ]
     """
-    commit_hash = kwargs.get("commit_hash")
-    source = kwargs.get("source")
-    user = kwargs.get("user")
-    if not commit_hash or not source or not user:
-        logger.warn(
-            "The parameters: `commit_hash`, `source`, and `user` are required for the"
-            "chaosreliably controls, please provide them. This Experiment Run will not"
-            "be tracked with Reliably."
+    try:
+        commit_hash = kwargs.get("commit_hash")
+        source = kwargs.get("source")
+        user = kwargs.get("user")
+        if not commit_hash or not source or not user:
+            logger.warn(
+                "The parameters: `commit_hash`, `source`, and `user` are required for "
+                "the chaosreliably controls, please provide them. This Experiment Run"
+                " will not be tracked with Reliably."
+            )
+            return
+
+        experiment_run_labels = (
+            _create_experiment_entities_for_before_experiment_control(
+                experiment_title=context["title"],
+                commit_hash=commit_hash,
+                source=source,
+                user=user,
+                configuration=configuration,
+                secrets=secrets,
+            )
         )
-        return
 
-    experiment_run_labels = _create_experiment_entities_for_before_experiment_control(
-        experiment_title=context["title"],
-        commit_hash=commit_hash,
-        source=source,
-        user=user,
-        configuration=configuration,
-        secrets=secrets,
-    )
-
-    configuration.update(
-        {"chaosreliably": {"experiment_run_labels": experiment_run_labels.dict()}}
-    )
+        configuration.update(
+            {"chaosreliably": {"experiment_run_labels": experiment_run_labels.dict()}}
+        )
+    except Exception as ex:
+        logger.warn(
+            f"An error occurred: {ex}, whilst running the Before Experiment control, "
+            "no further entities will be created, the Experiment execution won't be "
+            "affected"
+        )
 
 
 def _create_entity_context_on_reliably(

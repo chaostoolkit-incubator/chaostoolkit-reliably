@@ -379,8 +379,31 @@ def test_that_before_experiment_control_does_nothing_if_kwargs_not_present(
         secrets=None,
     )
     mock_logger.warn.assert_called_once_with(
-        "The parameters: `commit_hash`, `source`, and `user` are required for the"
-        "chaosreliably controls, please provide them. This Experiment Run will not"
+        "The parameters: `commit_hash`, `source`, and `user` are required for the "
+        "chaosreliably controls, please provide them. This Experiment Run will not "
         "be tracked with Reliably."
     )
     mock_create_experiment_entities.assert_not_called()
+
+
+@patch("chaosreliably.controls.experiment.logger")
+@patch(
+    "chaosreliably.controls.experiment._create_experiment_entities_for_before_experiment_control"  # Noqa
+)
+def test_that_an_exception_does_not_get_raised_and_warning_logged(
+    mock_create_experiment_entities: MagicMock, mock_logger: MagicMock
+) -> None:
+    mock_create_experiment_entities.side_effect = Exception("An exception happened")
+    experiment.before_experiment_control(
+        context={"title": "a-title"},
+        configuration=None,
+        secrets=None,
+        commit_hash="blah",
+        source="blah",
+        user="blah",
+    )
+    mock_logger.warn.assert_called_once_with(
+        "An error occurred: An exception happened, whilst running the Before Experiment"
+        " control, no further entities will be created, the Experiment execution won't"
+        " be affected"
+    )
