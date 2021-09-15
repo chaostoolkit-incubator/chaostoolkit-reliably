@@ -46,30 +46,30 @@ class ChaosToolkitType(Enum):
 
 class EntityContextExperimentLabels(BaseModel):
     type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT.value, alias="_type", const=True
+        default=ChaosToolkitType.EXPERIMENT.value, alias="ctk_type", const=True
     )
-    title: str = Field(alias="_experiment_title")
+    title: str = Field(alias="ctk_experiment_title")
 
 
 class EntityContextExperimentVersionLabels(BaseModel):
     type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_VERSION.value, alias="_type", const=True
+        default=ChaosToolkitType.EXPERIMENT_VERSION.value, alias="ctk_type", const=True
     )
-    commit_hash: str = Field(alias="_commit_hash")
-    source: HttpUrl = Field(alias="_source")
+    commit_hash: str = Field(alias="ctk_commit_hash")
+    source: HttpUrl = Field(alias="ctk_source")
 
 
 class EntityContextExperimentRunLabels(BaseModel):
     type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_RUN.value, alias="_type", const=True
+        default=ChaosToolkitType.EXPERIMENT_RUN.value, alias="ctk_type", const=True
     )
-    id: UUID4 = Field(default=uuid4(), alias="_run_id", const=True)
+    id: UUID4 = Field(default=uuid4(), alias="ctk_run_id", const=True)
     timestamp: datetime = Field(
-        alias="_run_timestamp",
+        alias="ctk_run_timestamp",
         default=datetime.now(timezone.utc).isoformat(),
         const=True,
     )
-    user: str = Field(alias="_run_user")
+    user: str = Field(alias="ctk_run_user")
 
 
 class EventType(Enum):
@@ -78,16 +78,16 @@ class EventType(Enum):
 
 class EntityContextExperimentEventLabels(BaseModel):
     type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_EVENT.value, alias="_type", const=True
+        default=ChaosToolkitType.EXPERIMENT_EVENT.value, alias="ctk_type", const=True
     )
-    event_type: str = Field(alias="_event_type")
+    event_type: str = Field(alias="ctk_event_type")
     timestamp: datetime = Field(
-        alias="_event_timestamp",
+        alias="ctk_event_timestamp",
         default=datetime.now(timezone.utc).isoformat(),
         const=True,
     )
-    name: str = Field(alias="_event_name")
-    output: Any = Field(alias="_event_output")
+    name: str = Field(alias="ctk_event_name")
+    output: Any = Field(alias="ctk_event_output")
 
 
 class EntityContextMetadata(BaseModel):
