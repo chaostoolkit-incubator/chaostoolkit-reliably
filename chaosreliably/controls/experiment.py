@@ -1,4 +1,4 @@
-from typing import Any, cast
+from typing import Any, Dict, List, cast
 
 from chaoslib.types import Configuration, Experiment, Secrets
 from logzero import logger
@@ -27,8 +27,7 @@ def before_experiment_control(
     Control run *before* the execution of an Experiment.
 
     For a given Experiment, the control creates (if not already created) an Experiment
-    Entity Context and an Experiment Version Entity Context in the Reliably Entity
-    Server.
+    Entity Context and an Experiment Version Entity Context in the Reliably service.
 
     A unique Experiment Run Entity Context is also created, with an Experiment Event
     Entity Context of type `EXPERIMENT_START` created, relating to the run.
@@ -44,12 +43,13 @@ def before_experiment_control(
     :param context: Experiment object representing the Experiment that will be executed
     :param configuration: Configuration object provided by Chaos Toolkit
     :param secrets: Secret object provided by Chaos Toolkit
-    :param **kwargs: Expected `kwargs` are 'commit_hash' (str), `source` (str), and
-        `user` (str)
+    :param **kwargs: Expected required `kwargs` are 'commit_hash' (str), `source` (str),
+        and `user` (str), optional is `experiment_related_to_labels`
+        (List[Dict[str, str]]) representing labels of entities the Experiment relates to
 
     Examples
     --------
-
+    # Experiment has no relation to any Reliably entity
     "controls": [
         {
             "name": "chaosreliably",
@@ -60,6 +60,28 @@ def before_experiment_control(
                     "commit_hash": "59f9f577e2d90719098f4d23d26329ce41f2d0bd",
                     "source": "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json",  # Noqa
                     "user": "A users name"
+                }
+            }
+        }
+    ]
+
+    # Experiment relates to a Reliably Entity
+    "controls": [
+        {
+            "name": "chaosreliably",
+            "provider": {
+                "type": "python",
+                "module": "chaosreliably.controls"
+                "arguments": {
+                    "commit_hash": "59f9f577e2d90719098f4d23d26329ce41f2d0bd",
+                    "source": "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json",  # Noqa
+                    "user": "A users name",
+                    "experiment_related_to_labels": [
+                        {
+                            "name": "must-be-good-slo",
+                            "service": "must-be-good-service"
+                        }
+                    ]
                 }
             }
         }
@@ -77,6 +99,8 @@ def before_experiment_control(
             )
             return
 
+        experiment_related_to_labels = kwargs.get("experiment_related_to_labels") or []
+
         experiment_run_labels = (
             _create_experiment_entities_for_before_experiment_control(
                 experiment_title=context["title"],
@@ -85,6 +109,7 @@ def before_experiment_control(
                 user=user,
                 configuration=configuration,
                 secrets=secrets,
+                experiment_related_to_labels=experiment_related_to_labels,
             )
         )
 
@@ -103,10 +128,9 @@ def _create_entity_context_on_reliably(
     entity_context: EntityContext, configuration: Configuration, secrets: Secrets
 ) -> EntityContext:
     """
-    For a given EntityContext, create it on the Reliably Entity Server.
+    For a given EntityContext, create it on the Reliably services.
 
-    :param entity_context: EntityContext which will be created on the Reliably Entity
-        Server
+    :param entity_context: EntityContext which will be created on the Reliably service
     :param configuration: Configuration object provided by Chaos Toolkit
     :param secrets: Secret object provided by Chaos Toolkit
     :returns: EntityContext representing the EntityContext that was just created
@@ -119,11 +143,14 @@ def _create_entity_context_on_reliably(
 
 
 def _create_experiment(
-    experiment_title: str, configuration: Configuration, secrets: Secrets
+    experiment_title: str,
+    configuration: Configuration,
+    secrets: Secrets,
+    related_to_labels: List[Dict[str, str]] = [],
 ) -> EntityContextExperimentLabels:
     """
     For a given Experiment title, create a Experiment Entity Context
-    on the Reliably Entity Server.
+    on the Reliably services.
 
     :param experiment_title: str representing the name of the Experiment
     :param configuration: Configuration object provided by Chaos Toolkit
@@ -133,7 +160,8 @@ def _create_experiment(
     """
     experiment_entity = EntityContext(
         metadata=EntityContextMetadata(
-            labels=EntityContextExperimentLabels(title=experiment_title)
+            labels=EntityContextExperimentLabels(title=experiment_title),
+            related_to=related_to_labels,
         )
     )
 
@@ -152,7 +180,7 @@ def _create_experiment_version(
 ) -> EntityContextExperimentVersionLabels:
     """
     For a given commit hash, source link, and Experiment labels, create a
-    ExperimentVersion Entity Context on the Reliably Entity Server.
+    ExperimentVersion Entity Context on the Reliably services.
 
     :param commit_hash: str representing the SHA1 Hash of the current commit of the
         Experiments repo at the time of running it
@@ -191,7 +219,7 @@ def _create_experiment_run(
 ) -> EntityContextExperimentRunLabels:
     """
     For a given user and Experiment Version labels, create a ExperimentRun Entity
-    Context on the Reliably Entity Server.
+    Context on the Reliably services.
 
     :param user: str representing the name of the user that is running the Experiment
     :param experiment_version_labels: EntityContextExperimentVersionLabels object
@@ -226,7 +254,7 @@ def _create_experiment_event(
 ) -> EntityContextExperimentEventLabels:
     """
     For a given event type, name, output, and Experiment Run labels, create a
-    ExperimentEvent Entity Context on the Reliably Entity Server.
+    ExperimentEvent Entity Context on the Reliably services.
 
     :param event_type: EventType representing the type of the Event that has happened
     :param name: str representing the name of the Event in the Experiment
@@ -262,11 +290,12 @@ def _create_experiment_entities_for_before_experiment_control(
     user: str,
     configuration: Configuration,
     secrets: Secrets,
+    experiment_related_to_labels: List[Dict[str, str]] = [],
 ) -> EntityContextExperimentRunLabels:
     """
     For a given Experiment title, commit hash, source link and user, create
     an Experiment, Experiment Version, Experiment Run, and Experiment start Entity
-    Context on the Reliably Entity Server.
+    Context on the Reliably services.
 
     If the Experiment and version already exist, new ones will not be created, however
     a new run is *always* created.
@@ -284,7 +313,10 @@ def _create_experiment_entities_for_before_experiment_control(
         Experiment so that Events may relate to it
     """
     experiment_labels = _create_experiment(
-        experiment_title=experiment_title, configuration=configuration, secrets=secrets
+        experiment_title=experiment_title,
+        configuration=configuration,
+        secrets=secrets,
+        related_to_labels=experiment_related_to_labels,
     )
     experiment_version_labels = _create_experiment_version(
         commit_hash=commit_hash,

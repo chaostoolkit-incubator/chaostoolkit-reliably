@@ -8,7 +8,7 @@
 
 - Added `chaosreliably.controls`:
   - Added `before_experiment_control` to create an Experiment, Experiment Version,
-    Experiment Run, and an Experiment Event (Start) within Reliably Entity Server.
+    Experiment Run, and an Experiment Event (Start) within Reliably services.
 
 ### Changed
 
