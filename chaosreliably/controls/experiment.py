@@ -14,7 +14,7 @@ from chaosreliably.types import (
     EventType,
 )
 
-__all__ = ["before_experiment_control"]
+__all__ = ["before_experiment_control", "before_hypothesis_control"]
 
 
 def before_experiment_control(
@@ -122,6 +122,10 @@ def before_experiment_control(
             "no further entities will be created, the Experiment execution won't be "
             "affected"
         )
+
+
+def before_hypothesis_control():
+    pass
 
 
 def _create_entity_context_on_reliably(
