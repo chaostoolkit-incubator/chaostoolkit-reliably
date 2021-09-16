@@ -4,6 +4,12 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.2.2...HEAD
 
+### Added
+
+- Added `chaosreliably.controls`:
+  - Added `before_experiment_control` to create an Experiment, Experiment Version,
+    Experiment Run, and an Experiment Event (Start) within Reliably services.
+
 ### Changed
 
 - Updated `.github/workflows/build.yaml` to be in line with `chaostoolkit`

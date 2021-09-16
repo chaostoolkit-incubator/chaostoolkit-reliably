@@ -1,5 +1,5 @@
 from tempfile import NamedTemporaryFile
-from typing import Any, List
+from typing import Any
 from urllib.parse import quote
 
 import pytest
@@ -8,7 +8,6 @@ import yaml
 from chaoslib.exceptions import ActivityFailed
 
 from chaosreliably.slo.probes import get_objective_results_by_labels
-from chaosreliably.types import ObjectiveResult
 
 
 def test_that_get_objective_results_by_label_returns_correct_results(
@@ -80,7 +79,7 @@ def test_that_get_objective_results_by_label_raises_exception_if_non_200(
 
 
 def test_that_get_objective_results_by_label_passes_limit_parameter_correctly(
-    httpx_mock: pytest_httpx._httpx_mock.HTTPXMock, results: List[ObjectiveResult]
+    httpx_mock: pytest_httpx._httpx_mock.HTTPXMock, results: Any
 ) -> None:
     labels = {
         "name": "exploring-reliability-guide",
