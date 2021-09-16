@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, cast
 
-from chaoslib.types import Configuration, Experiment, Secrets
+from chaoslib.types import Configuration, Experiment, Hypothesis, Secrets
 from logzero import logger
 
 from chaosreliably import get_session
@@ -124,8 +124,28 @@ def before_experiment_control(
         )
 
 
-def before_hypothesis_control():
-    pass
+def before_hypothesis_control(
+    context: Hypothesis,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    try:
+        _create_experiment_event(
+            event_type=EventType.HYPOTHESIS_START,
+            name=context["title"],
+            output=None,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the Before Hypothesis control, the"
+            " Experiment execution won't be affected."
+        )
 
 
 def _create_entity_context_on_reliably(
