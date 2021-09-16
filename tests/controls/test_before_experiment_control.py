@@ -1,10 +1,13 @@
+from datetime import datetime
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, cast
 from unittest.mock import MagicMock, patch
+from uuid import uuid4
 
 import pytest
 import pytest_httpx
 import yaml
+from freezegun import freeze_time
 from httpx._exceptions import HTTPStatusError
 
 from chaosreliably.controls import experiment
@@ -183,9 +186,13 @@ def test_create_experiment_version_calls_create_entity_context_and_returns_label
     )
 
 
+@freeze_time(
+    datetime.now()
+)  # Needed so that we get the same objects back from our assertions  # Noqa
+@patch("chaosreliably.types.uuid4")  # Ditto
 @patch("chaosreliably.controls.experiment._create_entity_context_on_reliably")
 def test_create_experiment_run_calls_create_entity_context_and_returns_labels(
-    mock_create_entity_context: MagicMock,
+    mock_create_entity_context: MagicMock, mock_uuid4: MagicMock
 ) -> None:
     user = "TestUser"
     experiment_version_context = EntityContext(
@@ -196,6 +203,7 @@ def test_create_experiment_run_calls_create_entity_context_and_returns_labels(
             )
         )
     )
+    mock_uuid4.return_value = uuid4()
     experiment_run_context = EntityContext(
         metadata=EntityContextMetadata(
             labels=EntityContextExperimentRunLabels(user=user),
@@ -220,6 +228,9 @@ def test_create_experiment_run_calls_create_entity_context_and_returns_labels(
     )
 
 
+@freeze_time(
+    datetime.now()
+)  # Needed so that we get the same objects back from our assertions  # Noqa
 @patch("chaosreliably.controls.experiment._create_entity_context_on_reliably")
 def test_create_experiment_event_calls_create_entity_context_and_returns_labels(
     mock_create_entity_context: MagicMock,
@@ -563,7 +574,7 @@ def test_that_before_experiment_control_does_nothing_if_kwargs_not_present(
     experiment.before_experiment_control(
         context={"title": "a-title"}, **{"configuration": None, "secrets": None}
     )
-    mock_logger.warn.assert_called_once_with(
+    mock_logger.debug.assert_called_once_with(
         "The parameters: `commit_hash`, `source`, and `user` are required for the "
         "chaosreliably controls, please provide them. This Experiment Run will not "
         "be tracked with Reliably."
@@ -589,7 +600,7 @@ def test_that_an_exception_does_not_get_raised_and_warning_logged(
             "user": "blah",
         },
     )
-    mock_logger.warn.assert_called_once_with(
+    mock_logger.debug.assert_called_once_with(
         "An error occurred: An exception happened, whilst running the Before Experiment"
         " control, no further entities will be created, the Experiment execution won't"
         " be affected"

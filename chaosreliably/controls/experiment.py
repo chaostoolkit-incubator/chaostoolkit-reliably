@@ -92,7 +92,7 @@ def before_experiment_control(
         source = kwargs.get("source")
         user = kwargs.get("user")
         if not commit_hash or not source or not user:
-            logger.warn(
+            logger.debug(
                 "The parameters: `commit_hash`, `source`, and `user` are required for "
                 "the chaosreliably controls, please provide them. This Experiment Run"
                 " will not be tracked with Reliably."
@@ -117,7 +117,7 @@ def before_experiment_control(
             {"chaosreliably": {"experiment_run_labels": experiment_run_labels.dict()}}
         )
     except Exception as ex:
-        logger.warn(
+        logger.debug(
             f"An error occurred: {ex}, whilst running the Before Experiment control, "
             "no further entities will be created, the Experiment execution won't be "
             "affected"

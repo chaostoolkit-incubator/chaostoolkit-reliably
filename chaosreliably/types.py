@@ -63,10 +63,10 @@ class EntityContextExperimentRunLabels(BaseModel):
     type: str = Field(
         default=ChaosToolkitType.EXPERIMENT_RUN.value, alias="ctk_type", const=True
     )
-    id: UUID4 = Field(default=uuid4(), alias="ctk_run_id", const=True)
+    id: UUID4 = Field(default_factory=lambda: uuid4(), alias="ctk_run_id", const=True)
     timestamp: datetime = Field(
         alias="ctk_run_timestamp",
-        default=datetime.now(timezone.utc).isoformat(),
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         const=True,
     )
     user: str = Field(alias="ctk_run_user")
@@ -83,7 +83,7 @@ class EntityContextExperimentEventLabels(BaseModel):
     event_type: str = Field(alias="ctk_event_type")
     timestamp: datetime = Field(
         alias="ctk_event_timestamp",
-        default=datetime.now(timezone.utc).isoformat(),
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         const=True,
     )
     name: str = Field(alias="ctk_event_name")
