@@ -1,6 +1,14 @@
 from typing import Any, Dict, List, cast
 
-from chaoslib.types import Activity, Configuration, Experiment, Hypothesis, Run, Secrets
+from chaoslib.types import (
+    Activity,
+    Configuration,
+    Experiment,
+    Hypothesis,
+    Journal,
+    Run,
+    Secrets,
+)
 from logzero import logger
 
 from chaosreliably import get_session
@@ -16,6 +24,7 @@ from chaosreliably.types import (
 
 __all__ = [
     "after_activity_control",
+    "after_experiment_control",
     "after_hypothesis_control",
     "after_method_control",
     "after_rollback_control",
@@ -131,6 +140,46 @@ def before_experiment_control(
             f"An error occurred: {ex}, whilst running the Before Experiment control, "
             "no further entities will be created, the Experiment execution won't be "
             "affected"
+        )
+
+
+def after_experiment_control(
+    context: Experiment,
+    state: Journal,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    """
+    Control run *after* the execution of an Experiment.
+
+    For a given Experiment and its state in Journal form, the control creates an
+    Experiment Event Entity Context in the Reliably service.
+
+    The Event has the `event_type` of `EXPERIMENT_END`
+
+    :param context: Experiment object representing the Experiment that was executed
+    :param state: Journal object representing the state of the Experiment after
+        execution
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    :param **kwargs: Any additional keyword arguments passed to the control
+    """
+    try:
+        _create_experiment_event(
+            event_type=EventType.EXPERIMENT_END,
+            name=f"Experiment: {context['title']} - Ended",
+            output=state,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the After Experiment control, the"
+            " Experiment execution won't be affected."
         )
 
 
@@ -413,7 +462,7 @@ def after_activity_control(
     **kwargs: Any,
 ) -> None:
     """
-    Control run *after* te execution of an Experiment Activity.
+    Control run *after* the execution of an Experiment Activity.
 
     For a given Experiment Activity and its state, the control creates an Experiment
     Event Entity Context in the Reliably service.

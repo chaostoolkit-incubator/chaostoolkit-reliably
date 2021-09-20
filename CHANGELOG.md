@@ -17,6 +17,8 @@
     Experiment Events within Reliably services.
   - Added `before_activity_control` and `after_activity_control` to create
     Experiment Events within Reliably services.
+  - Added `after_experiment_control` to create an Experiment Event within Reliably
+    services
 
 ### Changed
 
