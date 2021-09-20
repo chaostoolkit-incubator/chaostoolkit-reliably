@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, cast
 
-from chaoslib.types import Configuration, Experiment, Hypothesis, Secrets
+from chaoslib.types import Configuration, Experiment, Hypothesis, Run, Secrets
 from logzero import logger
 
 from chaosreliably import get_session
@@ -16,6 +16,7 @@ from chaosreliably.types import (
 
 __all__ = [
     "after_hypothesis_control",
+    "after_method_control",
     "before_experiment_control",
     "before_hypothesis_control",
     "before_method_control",
@@ -241,6 +242,31 @@ def before_method_control(
     except Exception as ex:
         logger.debug(
             f"An error occurred: {ex}, while running the Before Method control, the"
+            " Experiment execution won't be affected."
+        )
+
+
+def after_method_control(
+    context: Experiment,
+    state: List[Run],
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    try:
+        _create_experiment_event(
+            event_type=EventType.METHOD_END,
+            name=f"{context['title']} - Method End",
+            output=state,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the After Method control, the"
             " Experiment execution won't be affected."
         )
 
