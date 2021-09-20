@@ -15,6 +15,8 @@
     Events within Reliably services.
   - Added `before_rollback_control` and `after_rollback_control` to create
     Experiment Events within Reliably services.
+  - Added `before_activity_control` and `after_activity_control` to create
+    Experiment Events within Reliably services.
 
 ### Changed
 
