@@ -2,7 +2,9 @@ from chaosreliably.controls import experiment
 
 
 def test_experiment_controls_exposes_correct___all___values() -> None:
-    assert [
+    for func in [
         "before_experiment_control",
         "before_hypothesis_control",
-    ] == experiment.__all__
+        "after_hypothesis_control",
+    ]:
+        assert func in experiment.__all__
