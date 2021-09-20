@@ -10,5 +10,7 @@ def test_experiment_controls_exposes_correct___all___values() -> None:
         "after_method_control",
         "before_rollback_control",
         "after_rollback_control",
+        "before_activity_control",
+        "after_activity_control",
     ]:
         assert func in experiment.__all__

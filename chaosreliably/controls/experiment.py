@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, cast
 
-from chaoslib.types import Configuration, Experiment, Hypothesis, Run, Secrets
+from chaoslib.types import Activity, Configuration, Experiment, Hypothesis, Run, Secrets
 from logzero import logger
 
 from chaosreliably import get_session
@@ -15,9 +15,11 @@ from chaosreliably.types import (
 )
 
 __all__ = [
+    "after_activity_control",
     "after_hypothesis_control",
     "after_method_control",
     "after_rollback_control",
+    "before_activity_control",
     "before_experiment_control",
     "before_hypothesis_control",
     "before_method_control",
@@ -361,6 +363,84 @@ def after_rollback_control(
     except Exception as ex:
         logger.debug(
             f"An error occurred: {ex}, while running the After Rollback control, the"
+            " Experiment execution won't be affected."
+        )
+
+
+def before_activity_control(
+    context: Activity,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    """
+    Control run *before* the execution of an Experiment Activity.
+
+    For a given Experiment Activity, the control creates an Experiment Event Entity
+    Context in the Reliably service.
+
+    The Event has the `event_type` of `ACTIVITY_START`.
+
+    :param context: Activity object representing the Experiment Activity
+        that will be executed
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    :param **kwargs: Any additional keyword arguments passed to the control
+    """
+    try:
+        _create_experiment_event(
+            event_type=EventType.ACTIVITY_START,
+            name=context["name"],
+            output=None,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the Before Activity control, the"
+            " Experiment execution won't be affected."
+        )
+
+
+def after_activity_control(
+    context: Activity,
+    state: Run,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    """
+    Control run *after* te execution of an Experiment Activity.
+
+    For a given Experiment Activity and its state, the control creates an Experiment
+    Event Entity Context in the Reliably service.
+
+    The Event has the `event_type` of `ACTIVITY_END`.
+
+    :param context: Activity object representing the Experiment Activity
+        that was executed
+    :param state: Run object representing the state of the executed Experiment Activity
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    :param **kwargs: Any additional keyword arguments passed to the control
+    """
+    try:
+        _create_experiment_event(
+            event_type=EventType.ACTIVITY_END,
+            name=context["name"],
+            output=state,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the After Activity control, the"
             " Experiment execution won't be affected."
         )
 
