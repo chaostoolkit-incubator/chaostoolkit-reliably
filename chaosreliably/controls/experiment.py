@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, cast
 
-from chaoslib.types import Configuration, Experiment, Secrets
+from chaoslib.types import Configuration, Experiment, Hypothesis, Secrets
 from logzero import logger
 
 from chaosreliably import get_session
@@ -14,7 +14,11 @@ from chaosreliably.types import (
     EventType,
 )
 
-__all__ = ["before_experiment_control"]
+__all__ = [
+    "after_hypothesis_control",
+    "before_experiment_control",
+    "before_hypothesis_control",
+]
 
 
 def before_experiment_control(
@@ -121,6 +125,85 @@ def before_experiment_control(
             f"An error occurred: {ex}, whilst running the Before Experiment control, "
             "no further entities will be created, the Experiment execution won't be "
             "affected"
+        )
+
+
+def before_hypothesis_control(
+    context: Hypothesis,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    """
+    Control run *before* the execution of an Experiments Steady State Hypothesis
+
+    For a given Steady State Hypothesis, the control creates an Experiment Event Entity
+    Context in the Reliably service.
+
+    The Event has the `event_type` of `HYPOTHESIS_START`.
+
+    :param context: Hypothesis object representing the Steady State Hypothesis that is
+        to be executed
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    :param **kwargs: Any additional keyword arguments passed to the control
+    """
+    try:
+        _create_experiment_event(
+            event_type=EventType.HYPOTHESIS_START,
+            name=context["title"],
+            output=None,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the Before Hypothesis control, the"
+            " Experiment execution won't be affected."
+        )
+
+
+def after_hypothesis_control(
+    context: Hypothesis,
+    state: Dict[str, Any],
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    """
+    Control run *after* the execution of an Experiments Steady State Hypothesis
+
+    For a given Steady State Hypothesis and its state, post execution, the control
+    creates an Experiment Event Entity Context in the Reliably service.
+
+    The Event has the `event_type` of `HYPOTHESIS_END`.
+
+    :param context: Hypothesis object representing the Steady State Hypothesis that has
+        been executed
+    :param state: Dict[str, Any] representing the output of
+        `run_steady_state_hypothesis` in `chaoslib`
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    :param **kwargs: Any additional keyword arguments passed to the control
+    """
+    try:
+        _create_experiment_event(
+            event_type=EventType.HYPOTHESIS_END,
+            name=context["title"],
+            output=state,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the After Hypothesis control, the"
+            " Experiment execution won't be affected."
         )
 
 

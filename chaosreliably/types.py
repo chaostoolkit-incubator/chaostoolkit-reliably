@@ -74,6 +74,8 @@ class EntityContextExperimentRunLabels(BaseModel):
 
 class EventType(Enum):
     EXPERIMENT_START = "EXPERIMENT_START"
+    HYPOTHESIS_END = "HYPOTHESIS_END"
+    HYPOTHESIS_START = "HYPOTHESIS_START"
 
 
 class EntityContextExperimentEventLabels(BaseModel):
