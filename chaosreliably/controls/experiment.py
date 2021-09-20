@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, cast
 
-from chaoslib.types import Configuration, Experiment, Hypothesis, Secrets
+from chaoslib.types import Configuration, Experiment, Hypothesis, Run, Secrets
 from logzero import logger
 
 from chaosreliably import get_session
@@ -16,8 +16,10 @@ from chaosreliably.types import (
 
 __all__ = [
     "after_hypothesis_control",
+    "after_method_control",
     "before_experiment_control",
     "before_hypothesis_control",
+    "before_method_control",
 ]
 
 
@@ -135,7 +137,7 @@ def before_hypothesis_control(
     **kwargs: Any,
 ) -> None:
     """
-    Control run *before* the execution of an Experiments Steady State Hypothesis
+    Control run *before* the execution of an Experiments Steady State Hypothesis.
 
     For a given Steady State Hypothesis, the control creates an Experiment Event Entity
     Context in the Reliably service.
@@ -174,7 +176,7 @@ def after_hypothesis_control(
     **kwargs: Any,
 ) -> None:
     """
-    Control run *after* the execution of an Experiments Steady State Hypothesis
+    Control run *after* the execution of an Experiments Steady State Hypothesis.
 
     For a given Steady State Hypothesis and its state, post execution, the control
     creates an Experiment Event Entity Context in the Reliably service.
@@ -203,6 +205,83 @@ def after_hypothesis_control(
     except Exception as ex:
         logger.debug(
             f"An error occurred: {ex}, while running the After Hypothesis control, the"
+            " Experiment execution won't be affected."
+        )
+
+
+def before_method_control(
+    context: Experiment,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    """
+    Control run *before* the execution of an Experiments Method.
+
+    For a given Experiment, the control creates an Experiment Event Entity Context in
+    the Reliably service.
+
+    The Event has the `event_type` of `METHOD_START`.
+
+    :param context: Experiment object representing the Experiment that will be executed
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    :param **kwargs: Any additional keyword arguments passed to the control
+    """
+    try:
+        _create_experiment_event(
+            event_type=EventType.METHOD_START,
+            name=f"{context['title']} - Method Start",
+            output=None,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the Before Method control, the"
+            " Experiment execution won't be affected."
+        )
+
+
+def after_method_control(
+    context: Experiment,
+    state: List[Run],
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    """
+    Control run *after* the execution of an Experiments Method.
+
+    For a given Experiment, the control creates an Experiment Event Entity Context in
+    the Reliably service.
+
+    The Event has the `event_type` of `METHOD_END`.
+
+    :param context: Experiment object representing the Experiment that will be executed
+    :param state: List[Run] object presenting the executed Activities within the
+        Experiments Method
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    :param **kwargs: Any additional keyword arguments passed to the control
+    """
+    try:
+        _create_experiment_event(
+            event_type=EventType.METHOD_END,
+            name=f"{context['title']} - Method End",
+            output=state,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the After Method control, the"
             " Experiment execution won't be affected."
         )
 

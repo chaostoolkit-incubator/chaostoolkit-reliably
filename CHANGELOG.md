@@ -11,6 +11,8 @@
     Experiment Run, and an Experiment Event (Start) within Reliably services.
   - Added `before_hypothesis_control` and `after_hypothesis_control` to create
     Experiment Events within Reliably services.
+  - Added `before_method_control` and `after_method_control` to create Experiment
+    Events within Reliably services.
 
 ### Changed
 
