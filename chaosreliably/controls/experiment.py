@@ -17,9 +17,11 @@ from chaosreliably.types import (
 __all__ = [
     "after_hypothesis_control",
     "after_method_control",
+    "after_rollback_control",
     "before_experiment_control",
     "before_hypothesis_control",
     "before_method_control",
+    "before_rollback_control",
 ]
 
 
@@ -256,8 +258,8 @@ def after_method_control(
     """
     Control run *after* the execution of an Experiments Method.
 
-    For a given Experiment, the control creates an Experiment Event Entity Context in
-    the Reliably service.
+    For a given Experiment Method and its state, the control creates an Experiment
+    Event Entity Context in the Reliably service.
 
     The Event has the `event_type` of `METHOD_END`.
 
@@ -282,6 +284,83 @@ def after_method_control(
     except Exception as ex:
         logger.debug(
             f"An error occurred: {ex}, while running the After Method control, the"
+            " Experiment execution won't be affected."
+        )
+
+
+def before_rollback_control(
+    context: Experiment,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    """
+    Control run *before* the execution of an Experiments Rollback.
+
+    For a given Experiment, the control creates an Experiment Event Entity Context in
+    the Reliably service.
+
+    The Event has the `event_type` of `ROLLBACK_START`.
+
+    :param context: Experiment object representing the Experiment that will be executed
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    :param **kwargs: Any additional keyword arguments passed to the control
+    """
+    try:
+        _create_experiment_event(
+            event_type=EventType.ROLLBACK_START,
+            name=f"{context['title']} - Rollback Start",
+            output=None,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the Before Rollback control, the"
+            " Experiment execution won't be affected."
+        )
+
+
+def after_rollback_control(
+    context: Experiment,
+    state: List[Run],
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs: Any,
+) -> None:
+    """
+    Control run *after* the execution of an Experiments Rollback.
+
+    For a given Experiment Rollback and its state, the control creates an Experiment
+    Event Entity Context in the Reliably service.
+
+    The Event has the `event_type` of `ROLLBACK_END`.
+
+    :param context: Experiment object representing the Experiment that will be executed
+    :param state: List[Run] object presenting the executed Activities within the
+        Experiments Rollback
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    :param **kwargs: Any additional keyword arguments passed to the control
+    """
+    try:
+        _create_experiment_event(
+            event_type=EventType.ROLLBACK_END,
+            name=f"{context['title']} - Rollback End",
+            output=state,
+            experiment_run_labels=configuration["chaosreliably"][
+                "experiment_run_labels"
+            ],
+            configuration=configuration,
+            secrets=secrets,
+        )
+    except Exception as ex:
+        logger.debug(
+            f"An error occurred: {ex}, while running the After Rollback control, the"
             " Experiment execution won't be affected."
         )
 
