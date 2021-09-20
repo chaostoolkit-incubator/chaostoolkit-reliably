@@ -78,6 +78,8 @@ class EventType(Enum):
     HYPOTHESIS_START = "HYPOTHESIS_START"
     METHOD_START = "METHOD_START"
     METHOD_END = "METHOD_END"
+    ROLLBACK_START = "ROLLBACK_START"
+    ROLLBACK_END = "ROLLBACK_END"
 
 
 class EntityContextExperimentEventLabels(BaseModel):
