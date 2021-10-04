@@ -133,7 +133,7 @@ def before_experiment_control(
         )
 
         configuration.update(
-            {"chaosreliably": {"experiment_run_labels": experiment_run_labels.dict()}}
+            {"chaosreliably": {"experiment_run_labels": experiment_run_labels}}
         )
     except Exception as ex:
         logger.debug(
@@ -538,7 +538,10 @@ def _create_experiment(
     created_entity = _create_entity_context_on_reliably(
         entity_context=experiment_entity, configuration=configuration, secrets=secrets
     )
-    return cast(EntityContextExperimentLabels, created_entity.metadata.labels)
+    return cast(
+        EntityContextExperimentLabels,
+        created_entity.metadata.labels.dict(by_alias=True),
+    )
 
 
 def _create_experiment_version(
@@ -578,7 +581,10 @@ def _create_experiment_version(
         configuration=configuration,
         secrets=secrets,
     )
-    return cast(EntityContextExperimentVersionLabels, created_entity.metadata.labels)
+    return cast(
+        EntityContextExperimentVersionLabels,
+        created_entity.metadata.labels.dict(by_alias=True),
+    )
 
 
 def _create_experiment_run(
@@ -611,7 +617,10 @@ def _create_experiment_run(
         configuration=configuration,
         secrets=secrets,
     )
-    return cast(EntityContextExperimentRunLabels, created_entity.metadata.labels)
+    return cast(
+        EntityContextExperimentRunLabels,
+        created_entity.metadata.labels.dict(by_alias=True),
+    )
 
 
 def _create_experiment_event(
@@ -650,7 +659,10 @@ def _create_experiment_event(
         configuration=configuration,
         secrets=secrets,
     )
-    return cast(EntityContextExperimentEventLabels, created_entity.metadata.labels)
+    return cast(
+        EntityContextExperimentEventLabels,
+        created_entity.metadata.labels.dict(by_alias=True),
+    )
 
 
 def _create_experiment_entities_for_before_experiment_control(
