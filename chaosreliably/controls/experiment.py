@@ -648,7 +648,7 @@ def _create_experiment_event(
     experiment_event_entity = EntityContext(
         metadata=EntityContextMetadata(
             labels=EntityContextExperimentEventLabels(
-                event_type=event_type.value, name=name, output=output
+                event_type=event_type.value, name=name, output=str(output)
             ),
             related_to=[experiment_run_labels],
         )

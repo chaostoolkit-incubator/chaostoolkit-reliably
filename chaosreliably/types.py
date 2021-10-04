@@ -96,7 +96,7 @@ class EntityContextExperimentEventLabels(BaseModel):
         const=True,
     )
     name: str = Field(alias="ctk_event_name")
-    output: Any = Field(alias="ctk_event_output")
+    output: str = Field(alias="ctk_event_output")
 
 
 class EntityContextMetadata(BaseModel):

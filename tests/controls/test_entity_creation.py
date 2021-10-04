@@ -233,7 +233,7 @@ def test_create_experiment_event_calls_create_entity_context_and_returns_labels(
 ) -> None:
     event_type = EventType.EXPERIMENT_START
     event_name = "A Start Event"
-    event_output = [1, 2, 3]
+    event_output = str([1, 2, 3])
     experiment_run_context = EntityContext(
         metadata=EntityContextMetadata(
             labels=EntityContextExperimentRunLabels(user="TestUser"),
