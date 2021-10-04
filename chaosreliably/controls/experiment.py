@@ -74,7 +74,7 @@ def before_experiment_control(
             "name": "chaosreliably",
             "provider": {
                 "type": "python",
-                "module": "chaosreliably.controls"
+                "module": "chaosreliably.controls",
                 "arguments": {
                     "commit_hash": "59f9f577e2d90719098f4d23d26329ce41f2d0bd",
                     "source": "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json",  # Noqa
@@ -90,7 +90,7 @@ def before_experiment_control(
             "name": "chaosreliably",
             "provider": {
                 "type": "python",
-                "module": "chaosreliably.controls"
+                "module": "chaosreliably.controls",
                 "arguments": {
                     "commit_hash": "59f9f577e2d90719098f4d23d26329ce41f2d0bd",
                     "source": "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json",  # Noqa
