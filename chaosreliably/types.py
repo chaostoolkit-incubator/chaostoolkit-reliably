@@ -38,22 +38,24 @@ class ObjectiveResult(BaseModel):
 
 
 class ChaosToolkitType(Enum):
-    EXPERIMENT: str = "Chaos Toolkit Experiment"
-    EXPERIMENT_EVENT: str = "Chaos Toolkit Experiment Event"
-    EXPERIMENT_RUN: str = "Chaos Toolkit Experiment Run"
-    EXPERIMENT_VERSION: str = "Chaos Toolkit Experiment Version"
+    EXPERIMENT: str = "chaos-toolkit-experiment"
+    EXPERIMENT_EVENT: str = "chaos-toolkit-experiment-event"
+    EXPERIMENT_RUN: str = "chaos-toolkit-experiment-run"
+    EXPERIMENT_VERSION: str = "chaos-toolkit-experiment-version"
 
 
 class EntityContextExperimentLabels(BaseModel):
     type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT.value, alias="ctk_type", const=True
+        default=ChaosToolkitType.EXPERIMENT.value, alias="entity-type", const=True
     )
     title: str = Field(alias="ctk_experiment_title")
 
 
 class EntityContextExperimentVersionLabels(BaseModel):
     type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_VERSION.value, alias="ctk_type", const=True
+        default=ChaosToolkitType.EXPERIMENT_VERSION.value,
+        alias="entity-type",
+        const=True,
     )
     commit_hash: str = Field(alias="ctk_commit_hash")
     source: HttpUrl = Field(alias="ctk_source")
@@ -61,7 +63,7 @@ class EntityContextExperimentVersionLabels(BaseModel):
 
 class EntityContextExperimentRunLabels(BaseModel):
     type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_RUN.value, alias="ctk_type", const=True
+        default=ChaosToolkitType.EXPERIMENT_RUN.value, alias="entity-type", const=True
     )
     id: UUID4 = Field(default_factory=lambda: uuid4(), alias="ctk_run_id", const=True)
     timestamp: datetime = Field(
@@ -87,7 +89,7 @@ class EventType(Enum):
 
 class EntityContextExperimentEventLabels(BaseModel):
     type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_EVENT.value, alias="ctk_type", const=True
+        default=ChaosToolkitType.EXPERIMENT_EVENT.value, alias="entity-type", const=True
     )
     event_type: str = Field(alias="ctk_event_type")
     timestamp: datetime = Field(
