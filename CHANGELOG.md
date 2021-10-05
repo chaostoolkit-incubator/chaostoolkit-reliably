@@ -4,6 +4,13 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.3.0...HEAD
 
+### Changed
+
+* Fixed labels sent to Reliably to use alias field names
+* Corrected docstring examples of control usage
+* Modified output label entry for experiment events to be strings
+* Change `ctk_type` label entry to be `entity-type`
+
 ## [0.3.0][]
 
 [0.3.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.2.2...0.3.0

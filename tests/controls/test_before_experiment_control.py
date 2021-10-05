@@ -53,7 +53,7 @@ def test_that_create_experiment_entities_for_before_experiment_control_creates_e
             labels=EntityContextExperimentEventLabels(
                 event_type=EventType.EXPERIMENT_START.value,
                 name=name,
-                output=None,
+                output=str(None),
             ),
             related_to=[experiment_run_context.metadata.labels],
         )
@@ -149,7 +149,7 @@ def test_that_create_experiment_entities_for_before_experiment_control_creates_e
             labels=EntityContextExperimentEventLabels(
                 event_type=EventType.EXPERIMENT_START.value,
                 name=name,
-                output=None,
+                output=str(None),
             ),
             related_to=[experiment_run_context.metadata.labels],
         )

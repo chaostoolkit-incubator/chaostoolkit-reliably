@@ -109,7 +109,7 @@ def test_create_experiment_correct_calls_create_entity_context_and_returns_label
         experiment_title=title, configuration=None, secrets=None
     )
 
-    assert labels == experiment_context.metadata.labels
+    assert labels == experiment_context.metadata.labels.dict(by_alias=True)
     mock_create_entity_context.assert_called_once_with(
         entity_context=experiment_context, configuration=None, secrets=None
     )
@@ -139,7 +139,7 @@ def test_create_experiment_with_related_to_labels_correct_calls_create_entity_co
         secrets=None,
     )
 
-    assert labels == experiment_context.metadata.labels
+    assert labels == experiment_context.metadata.labels.dict(by_alias=True)
     mock_create_entity_context.assert_called_once_with(
         entity_context=experiment_context, configuration=None, secrets=None
     )
@@ -176,7 +176,7 @@ def test_create_experiment_version_calls_create_entity_context_and_returns_label
         secrets=None,
     )
 
-    assert labels == experiment_version_context.metadata.labels
+    assert labels == experiment_version_context.metadata.labels.dict(by_alias=True)
     mock_create_entity_context.assert_called_once_with(
         entity_context=experiment_version_context, configuration=None, secrets=None
     )
@@ -218,7 +218,7 @@ def test_create_experiment_run_calls_create_entity_context_and_returns_labels(
         secrets=None,
     )
 
-    assert labels == experiment_run_context.metadata.labels
+    assert labels == experiment_run_context.metadata.labels.dict(by_alias=True)
     mock_create_entity_context.assert_called_once_with(
         entity_context=experiment_run_context, configuration=None, secrets=None
     )
@@ -233,7 +233,7 @@ def test_create_experiment_event_calls_create_entity_context_and_returns_labels(
 ) -> None:
     event_type = EventType.EXPERIMENT_START
     event_name = "A Start Event"
-    event_output = [1, 2, 3]
+    event_output = str([1, 2, 3])
     experiment_run_context = EntityContext(
         metadata=EntityContextMetadata(
             labels=EntityContextExperimentRunLabels(user="TestUser"),
@@ -260,7 +260,7 @@ def test_create_experiment_event_calls_create_entity_context_and_returns_labels(
         secrets=None,
     )
 
-    assert labels == experiment_event_context.metadata.labels
+    assert labels == experiment_event_context.metadata.labels.dict(by_alias=True)
     mock_create_entity_context.assert_called_once_with(
         entity_context=experiment_event_context, configuration=None, secrets=None
     )
