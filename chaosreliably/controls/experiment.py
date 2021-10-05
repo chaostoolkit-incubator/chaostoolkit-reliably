@@ -107,6 +107,7 @@ def before_experiment_control(
     ]
     """
     try:
+        reliably_secrets = secrets.get("reliably", None) if secrets else None
         commit_hash = kwargs.get("commit_hash")
         source = kwargs.get("source")
         user = kwargs.get("user")
@@ -127,7 +128,7 @@ def before_experiment_control(
                 source=source,
                 user=user,
                 configuration=configuration,
-                secrets=secrets,
+                secrets=reliably_secrets,
                 experiment_related_to_labels=experiment_related_to_labels,
             )
         )
@@ -166,6 +167,7 @@ def after_experiment_control(
     :param **kwargs: Any additional keyword arguments passed to the control
     """
     try:
+        reliably_secrets = secrets.get("reliably", None) if secrets else None
         _create_experiment_event(
             event_type=EventType.EXPERIMENT_END,
             name=f"Experiment: {context['title']} - Ended",
@@ -174,7 +176,7 @@ def after_experiment_control(
                 "experiment_run_labels"
             ],
             configuration=configuration,
-            secrets=secrets,
+            secrets=reliably_secrets,
         )
     except Exception as ex:
         logger.debug(
@@ -204,6 +206,7 @@ def before_hypothesis_control(
     :param **kwargs: Any additional keyword arguments passed to the control
     """
     try:
+        reliably_secrets = secrets.get("reliably", None) if secrets else None
         _create_experiment_event(
             event_type=EventType.HYPOTHESIS_START,
             name=context["title"],
@@ -212,7 +215,7 @@ def before_hypothesis_control(
                 "experiment_run_labels"
             ],
             configuration=configuration,
-            secrets=secrets,
+            secrets=reliably_secrets,
         )
     except Exception as ex:
         logger.debug(
@@ -245,6 +248,7 @@ def after_hypothesis_control(
     :param **kwargs: Any additional keyword arguments passed to the control
     """
     try:
+        reliably_secrets = secrets.get("reliably", None) if secrets else None
         _create_experiment_event(
             event_type=EventType.HYPOTHESIS_END,
             name=context["title"],
@@ -253,7 +257,7 @@ def after_hypothesis_control(
                 "experiment_run_labels"
             ],
             configuration=configuration,
-            secrets=secrets,
+            secrets=reliably_secrets,
         )
     except Exception as ex:
         logger.debug(
@@ -282,6 +286,7 @@ def before_method_control(
     :param **kwargs: Any additional keyword arguments passed to the control
     """
     try:
+        reliably_secrets = secrets.get("reliably", None) if secrets else None
         _create_experiment_event(
             event_type=EventType.METHOD_START,
             name=f"{context['title']} - Method Start",
@@ -290,7 +295,7 @@ def before_method_control(
                 "experiment_run_labels"
             ],
             configuration=configuration,
-            secrets=secrets,
+            secrets=reliably_secrets,
         )
     except Exception as ex:
         logger.debug(
@@ -322,6 +327,7 @@ def after_method_control(
     :param **kwargs: Any additional keyword arguments passed to the control
     """
     try:
+        reliably_secrets = secrets.get("reliably", None) if secrets else None
         _create_experiment_event(
             event_type=EventType.METHOD_END,
             name=f"{context['title']} - Method End",
@@ -330,7 +336,7 @@ def after_method_control(
                 "experiment_run_labels"
             ],
             configuration=configuration,
-            secrets=secrets,
+            secrets=reliably_secrets,
         )
     except Exception as ex:
         logger.debug(
@@ -359,6 +365,7 @@ def before_rollback_control(
     :param **kwargs: Any additional keyword arguments passed to the control
     """
     try:
+        reliably_secrets = secrets.get("reliably", None) if secrets else None
         _create_experiment_event(
             event_type=EventType.ROLLBACK_START,
             name=f"{context['title']} - Rollback Start",
@@ -367,7 +374,7 @@ def before_rollback_control(
                 "experiment_run_labels"
             ],
             configuration=configuration,
-            secrets=secrets,
+            secrets=reliably_secrets,
         )
     except Exception as ex:
         logger.debug(
@@ -399,6 +406,7 @@ def after_rollback_control(
     :param **kwargs: Any additional keyword arguments passed to the control
     """
     try:
+        reliably_secrets = secrets.get("reliably", None) if secrets else None
         _create_experiment_event(
             event_type=EventType.ROLLBACK_END,
             name=f"{context['title']} - Rollback End",
@@ -407,7 +415,7 @@ def after_rollback_control(
                 "experiment_run_labels"
             ],
             configuration=configuration,
-            secrets=secrets,
+            secrets=reliably_secrets,
         )
     except Exception as ex:
         logger.debug(
@@ -437,6 +445,7 @@ def before_activity_control(
     :param **kwargs: Any additional keyword arguments passed to the control
     """
     try:
+        reliably_secrets = secrets.get("reliably", None) if secrets else None
         _create_experiment_event(
             event_type=EventType.ACTIVITY_START,
             name=context["name"],
@@ -445,7 +454,7 @@ def before_activity_control(
                 "experiment_run_labels"
             ],
             configuration=configuration,
-            secrets=secrets,
+            secrets=reliably_secrets,
         )
     except Exception as ex:
         logger.debug(
@@ -477,6 +486,7 @@ def after_activity_control(
     :param **kwargs: Any additional keyword arguments passed to the control
     """
     try:
+        reliably_secrets = secrets.get("reliably", None) if secrets else None
         _create_experiment_event(
             event_type=EventType.ACTIVITY_END,
             name=context["name"],
@@ -485,7 +495,7 @@ def after_activity_control(
                 "experiment_run_labels"
             ],
             configuration=configuration,
-            secrets=secrets,
+            secrets=reliably_secrets,
         )
     except Exception as ex:
         logger.debug(
