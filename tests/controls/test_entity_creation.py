@@ -26,7 +26,9 @@ def test_create_entity_context_on_reliably_correctly_calls_reliably_api(
     httpx_mock: pytest_httpx._httpx_mock.HTTPXMock,
 ) -> None:
     title = "A Test Experiment Title"
-    request_url = "https://reliably.com/entities/test-org/reliably.com/v1/entitycontext"
+    request_url = (
+        "https://reliably.com/api/entities/test-org/" "reliably.com/v1/entitycontext"
+    )
     expected_entity = EntityContext(
         metadata=EntityContextMetadata(
             labels=EntityContextExperimentLabels(title=title),
@@ -61,7 +63,9 @@ def test_create_entity_context_on_reliably_raises_exception_if_response_not_ok(
     httpx_mock: pytest_httpx._httpx_mock.HTTPXMock,
 ) -> None:
     title = "A Test Experiment Title"
-    request_url = "https://reliably.com/entities/test-org/reliably.com/v1/entitycontext"
+    request_url = (
+        "https://reliably.com/api/entities/test-org/" "reliably.com/v1/entitycontext"
+    )
     expected_entity = EntityContext(
         metadata=EntityContextMetadata(
             labels=EntityContextExperimentLabels(title=title),

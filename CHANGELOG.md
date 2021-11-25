@@ -10,6 +10,8 @@
 * Corrected docstring examples of control usage
 * Modified output label entry for experiment events to be strings
 * Change `ctk_type` label entry to be `entity-type`
+* Change url to reliably to now include `/api/*` as Reliably changed routes to
+services
 
 ## [0.3.0][]
 
