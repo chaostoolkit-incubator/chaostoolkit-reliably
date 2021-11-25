@@ -27,7 +27,8 @@ def get_session(
     with httpx.Client() as client:
         client.headers = httpx.Headers(headers)
         client.base_url = httpx.URL(
-            f"https://{auth_info['host']}/entities/{auth_info['org']}/reliably.com/v1"
+            f"https://{auth_info['host']}/api/entities/"
+            f"{auth_info['org']}/reliably.com/v1"
         )
         yield client
 
