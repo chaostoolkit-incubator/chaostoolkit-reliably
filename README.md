@@ -105,6 +105,49 @@ This above example will get the last 5 Objective Results for our `Must be good` 
 they are allowed.
 
 
+### As controls
+
+You can use controls provided by `chaostoolkit-reliably` to track your experiments
+withing your Reliably network. Each time you run an experiment, it will create:
+
+* An entity for the experiment as a whole (If it doesn't already exist)
+* An entity for the specific version of the experiment (If it doesn't already exist)
+* An entity for the specific run of that experiment version
+* Several entities for the events that take place in your experiment
+
+You can also related the whole collection of entities to any other Reliably entities
+already in your network.
+
+A full example of using the controls is below:
+
+```json
+"controls": [
+    {
+        "name": "chaosreliably",
+        "provider": {
+            "type": "python",
+            "module": "chaosreliably.controls.experiment",
+            "arguments": {
+                "commit_hash": "59f9f577e2d90719098f4d23d26329ce41f2d0bd",
+                "source": "https://github.com/my-org/my-repo/exp.json",
+                "user": "MyName",
+                "experiment_related_to_labels": [
+                    {
+                        "name": "99.9% of our requests are in the 2xx class",
+                        "service": "My amazing service"
+                    }
+                ]
+            }
+        }
+    }
+],
+```
+
+This will create entities that would appear similar to this:
+
+![Experiment entities on reliably](./images/experiment-entities-on-reliably.png)
+
+
 ### As Safeguards
 
 Safeguards, provided by the

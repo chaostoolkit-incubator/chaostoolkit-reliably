@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.4.0...HEAD
 
+### Changed
+
+* Fixed documentation regarding control usage
+
 ## [0.4.0][]
 
 [0.4.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.3.0...0.4.0
