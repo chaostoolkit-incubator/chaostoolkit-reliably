@@ -2,9 +2,13 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.4.0...HEAD
 
-### Changed
+## [0.4.0][]
+
+[0.4.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.3.0...0.4.0
+
+### Changed
 
 * Fixed labels sent to Reliably to use alias field names
 * Corrected docstring examples of control usage
