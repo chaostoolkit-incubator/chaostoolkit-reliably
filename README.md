@@ -145,7 +145,7 @@ A full example of using the controls is below:
 
 This will create entities that would appear similar to this:
 
-![Experiment entities on reliably](./images/experiment-entities-on-reliably.png)
+![Experiment entities on reliably](https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/raw/master/images/experiment-entities-on-reliably.png)
 
 
 ### As Safeguards
