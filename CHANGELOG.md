@@ -4,6 +4,11 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.4.2...HEAD
 
+### Added
+
+* Read `RELIABLY_TOKEN`, `RELIABLY_HOST` and `RELIABLY_ORG` environment
+  variables when secrets have not been provided. They are common.
+
 ## [0.4.2][]
 
 [0.4.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.4.1...0.4.2
