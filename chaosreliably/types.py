@@ -46,12 +46,15 @@ class ChaosToolkitType(Enum):
 
 class EntityContextExperimentLabels(BaseModel):
     type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT.value, alias="entity-type", const=True
+        default=ChaosToolkitType.EXPERIMENT.value,
+        alias="entity-type",
+        const=True,
     )
-    title: str = Field(alias="ctk_experiment_title")
+    name: str = Field(alias="name")
 
 
 class EntityContextExperimentVersionLabels(BaseModel):
+    name: str
     type: str = Field(
         default=ChaosToolkitType.EXPERIMENT_VERSION.value,
         alias="entity-type",
@@ -62,16 +65,36 @@ class EntityContextExperimentVersionLabels(BaseModel):
 
 
 class EntityContextExperimentRunLabels(BaseModel):
+    name: str
     type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_RUN.value, alias="entity-type", const=True
+        default=ChaosToolkitType.EXPERIMENT_RUN.value,
+        alias="entity-type",
+        const=True,
     )
-    id: UUID4 = Field(default_factory=lambda: uuid4(), alias="ctk_run_id", const=True)
+    id: UUID4 = Field(
+        default_factory=lambda: uuid4(), alias="ctk_run_id", const=True
+    )
     timestamp: datetime = Field(
         alias="ctk_run_timestamp",
         default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         const=True,
     )
     user: str = Field(alias="ctk_run_user")
+
+
+class EntityContextExperimentEventLabels(BaseModel):
+    type: str = Field(
+        default=ChaosToolkitType.EXPERIMENT_EVENT.value,
+        alias="entity-type",
+        const=True,
+    )
+    event_type: str = Field(alias="ctk_event_type")
+    timestamp: datetime = Field(
+        alias="ctk_event_timestamp",
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        const=True,
+    )
+    name: str = Field(alias="name")
 
 
 class EventType(Enum):
@@ -87,28 +110,30 @@ class EventType(Enum):
     ROLLBACK_START = "ROLLBACK_START"
 
 
-class EntityContextExperimentEventLabels(BaseModel):
-    type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_EVENT.value, alias="entity-type", const=True
-    )
-    event_type: str = Field(alias="ctk_event_type")
+class EntityContextExperimentResultEventAnnotations(BaseModel):
     timestamp: datetime = Field(
         alias="ctk_event_timestamp",
         default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         const=True,
     )
-    name: str = Field(alias="ctk_event_name")
-    output: str = Field(alias="ctk_event_output")
+    output: Optional[str] = Field(alias="ctk_event_output")
+    status: str = Field(alias="ctk_experiment_run_status")
+    deviated: Optional[str] = Field(alias="ctk_experiment_run_deviated")
+    duration: Optional[str] = Field(alias="ctk_experiment_run_duration")
+    started: Optional[datetime] = Field(alias="ctk_experiment_run_started")
+    ended: Optional[datetime] = Field(alias="ctk_experiment_run_ended")
+    node: Optional[str] = Field(alias="ctk_experiment_run_node")
 
 
 class EntityContextMetadata(BaseModel):
+    annotations: Optional[EntityContextExperimentResultEventAnnotations]
+    related_to: OPTIONAL_DICT_LIST = RELATED_TO
     labels: Union[
         EntityContextExperimentLabels,
-        EntityContextExperimentVersionLabels,
         EntityContextExperimentRunLabels,
+        EntityContextExperimentVersionLabels,
         EntityContextExperimentEventLabels,
     ]
-    related_to: OPTIONAL_DICT_LIST = RELATED_TO
 
 
 class EntityContext(BaseModel):

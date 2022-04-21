@@ -22,13 +22,13 @@ def get_objective_results_by_labels(
     """
     For a given set of Objective labels, return all of the Ojective Results
 
-    :param labels: Dict[str, str] representing the Objective Labels for the Objective
-        to retrieve results for
+    :param labels: Dict[str, str] representing the Objective Labels for the
+        Objective to retrieve results for
     :param limit: int representing how many results to retrieve - Default 1
     :param configuration: Configuration object provided by Chaos Toolkit
     :param secrets: Secret object provided by Chaos Toolkit
-    :returns: List[ObjectiveResult] representing the Objective Results for the given
-        Objective
+    :returns: List[ObjectiveResult] representing the Objective Results for the
+        given Objective
 
     """
     encoded_labels = quote(
@@ -52,8 +52,8 @@ def slo_is_met(
     """
     For a given set of Objective labels, return whether the Objective was met
 
-    :param labels: Dict[str, str] representing the Objective Labels for the Objective
-        to retrieve results for
+    :param labels: Dict[str, str] representing the Objective Labels for the
+        Objective to retrieve results for
     :param limit: int representing how many results to retrieve - Default 1
     :param configuration: Configuration object provided by Chaos Toolkit
     :param secrets: Secret object provided by Chaos Toolkit

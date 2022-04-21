@@ -4,9 +4,17 @@ from typing import Dict, Generator, List
 
 import httpx
 import yaml
-from chaoslib.discovery.discover import discover_probes, initialize_discovery_result
+from chaoslib.discovery.discover import (
+    discover_probes,
+    initialize_discovery_result,
+)
 from chaoslib.exceptions import ActivityFailed
-from chaoslib.types import Configuration, DiscoveredActivities, Discovery, Secrets
+from chaoslib.types import (
+    Configuration,
+    DiscoveredActivities,
+    Discovery,
+    Secrets,
+)
 from logzero import logger
 
 __version__ = "0.4.2"

@@ -16,13 +16,13 @@ build:
 lint:
 	flake8 chaosreliably/ tests/
 	isort --check-only --profile black chaosreliably/ tests/
-	black --check --diff chaosreliably/ tests/
+	black --check --diff --line-length=80 chaosreliably/ tests/
 	mypy chaosreliably/ tests/
 
 .PHONY: format
 format:
 	isort --profile black chaosreliably/ tests/
-	black chaosreliably/ tests/
+	black --line-length=80 chaosreliably/ tests/
 
 .PHONY: tests
 tests:

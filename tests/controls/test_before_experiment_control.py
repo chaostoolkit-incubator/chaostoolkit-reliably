@@ -17,7 +17,7 @@ from chaosreliably.types import (
 @patch("chaosreliably.controls.experiment._create_experiment_run")
 @patch("chaosreliably.controls.experiment._create_experiment_version")
 @patch("chaosreliably.controls.experiment._create_experiment")
-def test_that_create_experiment_entities_for_before_experiment_control_creates_entities(
+def test_that_create_experiment_entities_for_before_experiment_control_creates_entities(  # noqa: E501
     mock_create_experiment: MagicMock,
     mock_create_experiment_version: MagicMock,
     mock_create_experiment_run: MagicMock,
@@ -25,17 +25,18 @@ def test_that_create_experiment_entities_for_before_experiment_control_creates_e
 ) -> None:
     title = "A title"
     commit_hash = "59f9f577e2d90719098f4d23d26329ce41f2d0bd"
-    source = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json"
+    source = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json"  # noqa: E501
     user = "TestUser"
     name = f"Experiment: {title} - Started"
     experiment_context = EntityContext(
         metadata=EntityContextMetadata(
-            labels=EntityContextExperimentLabels(title=title),
+            labels=EntityContextExperimentLabels(name=title),
         )
     )
     experiment_version_context = EntityContext(
         metadata=EntityContextMetadata(
             labels=EntityContextExperimentVersionLabels(
+                name=title,
                 commit_hash=commit_hash,
                 source=source,
             ),
@@ -44,7 +45,7 @@ def test_that_create_experiment_entities_for_before_experiment_control_creates_e
     )
     experiment_run_context = EntityContext(
         metadata=EntityContextMetadata(
-            labels=EntityContextExperimentRunLabels(user=user),
+            labels=EntityContextExperimentRunLabels(name=title, user=user),
             related_to=[experiment_version_context.metadata.labels],
         )
     )
@@ -62,8 +63,12 @@ def test_that_create_experiment_entities_for_before_experiment_control_creates_e
     mock_create_experiment_version.return_value = (
         experiment_version_context.metadata.labels
     )
-    mock_create_experiment_run.return_value = experiment_run_context.metadata.labels
-    mock_create_experiment_event.return_value = experiment_event_context.metadata.labels
+    mock_create_experiment_run.return_value = (
+        experiment_run_context.metadata.labels
+    )
+    mock_create_experiment_event.return_value = (
+        experiment_event_context.metadata.labels
+    )
 
     experiment_run_labels = (
         experiment._create_experiment_entities_for_before_experiment_control(
@@ -79,7 +84,10 @@ def test_that_create_experiment_entities_for_before_experiment_control_creates_e
     assert experiment_run_labels == experiment_run_context.metadata.labels
 
     mock_create_experiment.assert_called_once_with(
-        experiment_title=title, configuration=None, secrets=None, related_to_labels=[]
+        experiment_title=title,
+        configuration=None,
+        secrets=None,
+        related_to_labels=[],
     )
     mock_create_experiment_version.assert_called_once_with(
         commit_hash=commit_hash,
@@ -116,7 +124,7 @@ def test_that_create_experiment_entities_for_before_experiment_control_creates_e
 ) -> None:
     title = "A title"
     commit_hash = "59f9f577e2d90719098f4d23d26329ce41f2d0bd"
-    source = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json"
+    source = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json"  # noqa: E501
     user = "TestUser"
     name = f"Experiment: {title} - Started"
     related_to_labels = [
@@ -125,13 +133,14 @@ def test_that_create_experiment_entities_for_before_experiment_control_creates_e
     ]
     experiment_context = EntityContext(
         metadata=EntityContextMetadata(
-            labels=EntityContextExperimentLabels(title=title),
+            labels=EntityContextExperimentLabels(name=title),
             related_to=related_to_labels,
         )
     )
     experiment_version_context = EntityContext(
         metadata=EntityContextMetadata(
             labels=EntityContextExperimentVersionLabels(
+                name=title,
                 commit_hash=commit_hash,
                 source=source,
             ),
@@ -140,7 +149,7 @@ def test_that_create_experiment_entities_for_before_experiment_control_creates_e
     )
     experiment_run_context = EntityContext(
         metadata=EntityContextMetadata(
-            labels=EntityContextExperimentRunLabels(user=user),
+            labels=EntityContextExperimentRunLabels(name=title, user=user),
             related_to=[experiment_version_context.metadata.labels],
         )
     )
@@ -158,8 +167,12 @@ def test_that_create_experiment_entities_for_before_experiment_control_creates_e
     mock_create_experiment_version.return_value = (
         experiment_version_context.metadata.labels
     )
-    mock_create_experiment_run.return_value = experiment_run_context.metadata.labels
-    mock_create_experiment_event.return_value = experiment_event_context.metadata.labels
+    mock_create_experiment_run.return_value = (
+        experiment_run_context.metadata.labels
+    )
+    mock_create_experiment_event.return_value = (
+        experiment_event_context.metadata.labels
+    )
 
     experiment_run_labels = (
         experiment._create_experiment_entities_for_before_experiment_control(
@@ -213,11 +226,11 @@ def test_before_experiment_control_calls_create_experiment_entities(
     configuration = {"random_config": {"hi": "hello"}, "thing": 123}
     title = "A title"
     commit_hash = "59f9f577e2d90719098f4d23d26329ce41f2d0bd"
-    source = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json"
+    source = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json"  # noqa: E501
     user = "TestUser"
     experiment_run_context = EntityContext(
         metadata=EntityContextMetadata(
-            labels=EntityContextExperimentRunLabels(user=user)
+            labels=EntityContextExperimentRunLabels(name=title, user=user)
         )
     )
     mock_create_experiment_entities.return_value = (
@@ -248,7 +261,8 @@ def test_before_experiment_control_calls_create_experiment_entities(
     assert "chaosreliably" in configuration
     chaosreliably = cast(Dict[str, Any], configuration["chaosreliably"])
     assert (
-        chaosreliably["experiment_run_labels"] == experiment_run_context.metadata.labels
+        chaosreliably["experiment_run_labels"]
+        == experiment_run_context.metadata.labels
     )
 
 
@@ -261,7 +275,7 @@ def test_before_experiment_control_calls_create_experiment_entities_when_experim
     configuration = {"random_config": {"hi": "hello"}, "thing": 123}
     title = "A title"
     commit_hash = "59f9f577e2d90719098f4d23d26329ce41f2d0bd"
-    source = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json"
+    source = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json"  # noqa: E501
     user = "TestUser"
     related_to_labels = [
         {"name": "SLO Name 1", "service": "My services name"},
@@ -269,7 +283,7 @@ def test_before_experiment_control_calls_create_experiment_entities_when_experim
     ]
     experiment_run_context = EntityContext(
         metadata=EntityContextMetadata(
-            labels=EntityContextExperimentRunLabels(user=user),
+            labels=EntityContextExperimentRunLabels(name=title, user=user),
             related_to=related_to_labels,
         )
     )
@@ -302,7 +316,8 @@ def test_before_experiment_control_calls_create_experiment_entities_when_experim
     assert "chaosreliably" in configuration
     chaosreliably = cast(Dict[str, Any], configuration["chaosreliably"])
     assert (
-        chaosreliably["experiment_run_labels"] == experiment_run_context.metadata.labels
+        chaosreliably["experiment_run_labels"]
+        == experiment_run_context.metadata.labels
     )
 
 
@@ -318,9 +333,9 @@ def test_that_before_experiment_control_does_nothing_if_kwargs_not_present(
         context={"title": "a-title"}, **{"configuration": None, "secrets": None}
     )
     mock_logger.debug.assert_called_once_with(
-        "The parameters: `commit_hash`, `source`, and `user` are required for the "
-        "chaosreliably controls, please provide them. This Experiment Run will not "
-        "be tracked with Reliably."
+        "The parameters: `commit_hash`, `source`, and `user` are required for "
+        "the chaosreliably controls, please provide them. This Experiment Run "
+        "will not be tracked with Reliably."
     )
     mock_create_experiment_entities.assert_not_called()
 
@@ -332,7 +347,9 @@ def test_that_before_experiment_control_does_nothing_if_kwargs_not_present(
 def test_that_an_exception_does_not_get_raised_and_warning_logged(
     mock_create_experiment_entities: MagicMock, mock_logger: MagicMock
 ) -> None:
-    mock_create_experiment_entities.side_effect = Exception("An exception happened")
+    mock_create_experiment_entities.side_effect = Exception(
+        "An exception happened"
+    )
     experiment.before_experiment_control(
         context={"title": "a-title"},
         **{
@@ -344,7 +361,8 @@ def test_that_an_exception_does_not_get_raised_and_warning_logged(
         },
     )
     mock_logger.debug.assert_called_once_with(
-        "An error occurred: An exception happened, whilst running the Before Experiment"
-        " control, no further entities will be created, the Experiment execution won't"
-        " be affected"
+        "An error occurred: An exception happened, whilst running the Before "
+        "Experiment control, no further entities will be created, the "
+        "Experiment execution won't be affected",
+        exc_info=True,
     )

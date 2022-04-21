@@ -8,8 +8,10 @@ from chaosreliably.types import EntityContextExperimentRunLabels, EventType
 def test_after_experiment_control_calls_create_experiment_event(
     mock_create_experiment_event: MagicMock,
 ) -> None:
-    run_labels = EntityContextExperimentRunLabels(user="TestUser")
-    configuration = {"chaosreliably": {"experiment_run_labels": run_labels.dict()}}
+    run_labels = EntityContextExperimentRunLabels(name="hello", user="TestUser")
+    configuration = {
+        "chaosreliably": {"experiment_run_labels": run_labels.dict()}
+    }
     title = "A Test Experiment Title"
     journal = {
         "chaoslib-version": None,
@@ -27,7 +29,11 @@ def test_after_experiment_control_calls_create_experiment_event(
     }
 
     experiment.after_experiment_control(
-        context={"title": title, "description": "A test description", "method": []},
+        context={
+            "title": title,
+            "description": "A test description",
+            "method": [],
+        },
         **{"state": journal, "configuration": configuration, "secrets": None},
     )
 
@@ -71,5 +77,6 @@ def test_than_an_exception_does_not_get_raised_and_warning_logged(
 
     mock_logger.debug.assert_called_once_with(
         "An error occurred: 'chaosreliably', while running the After Experiment"
-        " control, the Experiment execution won't be affected."
+        " control, the Experiment execution won't be affected.",
+        exc_info=True,
     )

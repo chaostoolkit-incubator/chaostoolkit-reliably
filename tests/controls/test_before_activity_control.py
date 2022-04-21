@@ -8,9 +8,11 @@ from chaosreliably.types import EntityContextExperimentRunLabels, EventType
 def test_before_activity_control_calls_create_experiment_event(
     mock_create_experiment_event: MagicMock,
 ) -> None:
-    run_labels = EntityContextExperimentRunLabels(user="TestUser")
+    run_labels = EntityContextExperimentRunLabels(name="hello", user="TestUser")
     name = "A Test Activity"
-    configuration = {"chaosreliably": {"experiment_run_labels": run_labels.dict()}}
+    configuration = {
+        "chaosreliably": {"experiment_run_labels": run_labels.dict()}
+    }
     activity = {
         "type": "action",
         "name": name,
@@ -56,6 +58,7 @@ def test_that_an_exception_does_not_get_raised_and_warning_logged(
     )
 
     mock_logger.debug.assert_called_once_with(
-        "An error occurred: 'chaosreliably', while running the Before Activity control,"
-        " the Experiment execution won't be affected."
+        "An error occurred: 'chaosreliably', while running the Before "
+        "Activity control, the Experiment execution won't be affected.",
+        exc_info=True,
     )
