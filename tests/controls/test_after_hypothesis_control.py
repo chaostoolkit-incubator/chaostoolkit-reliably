@@ -1,75 +1,58 @@
-from typing import Any, Dict, cast
 from unittest.mock import MagicMock, patch
 
 from chaosreliably.controls import experiment
-from chaosreliably.types import EntityContextExperimentRunLabels, EventType
+from chaosreliably.types import EventType
 
 
-@patch("chaosreliably.controls.experiment._create_experiment_event")
-def test_after_hypothesis_control_calls_create_experiment_event(
-    mock_create_experiment_event: MagicMock,
+@patch("chaosreliably.controls.experiment.create_run_event")
+def test_after_hypothesis_control_calls_create_run_event(
+    mock_create_run_event: MagicMock,
 ) -> None:
-    run_labels = EntityContextExperimentRunLabels(name="hello", user="TestUser")
-    title = "Check our test system is OK"
-    probe = {
-        "type": "probe",
-        "name": "test-probe",
-        "tolerance": True,
-        "provider": {
-            "type": "python",
-            "module": "test.module",
-            "func": "test_func",
-        },
-    }
-    state = {
-        "steady_state_met": False,
-        "probes": [
-            {
-                "activity": probe,
-                "output": False,
-                "status": "succeeded",
-                "start": "2021-08-17T08:34:46.884325",
-                "end": "2021-08-17T08:34:46.891386",
-                "duration": 0.007061,
-                "tolerance_met": False,
-            }
-        ],
-    }
-    configuration = {
-        "chaosreliably": {"experiment_run_labels": run_labels.dict()}
-    }
+    configuration = {"chaosreliably": {"run_ref": "run-123"}}
+    ssh = {}  # type: ignore
+    state = {}  # type: ignore
+    x = {}  # type: ignore
 
     experiment.after_hypothesis_control(
-        context={"title": title, "probes": [probe]},
-        **cast(
-            Dict[str, Any],
-            {
-                "state": state,
-                "configuration": configuration,
-                "secrets": None,
-            },
-        )
+        context=ssh,
+        experiment=x,
+        experiment_ref="XYZ",
+        state=state,
+        configuration=configuration,
+        secrets=None,
     )
 
-    mock_create_experiment_event.assert_called_once_with(
+    mock_create_run_event.assert_called_once_with(
+        "XYZ",
+        "run-123",
         event_type=EventType.HYPOTHESIS_END,
-        name=title,
+        experiment=x,
         output=state,
-        experiment_run_labels=run_labels,
+        experiment_run_labels={"experiment_run_ref": "run-123"},
         configuration=configuration,
         secrets=None,
     )
 
 
 @patch("chaosreliably.controls.experiment.logger")
+@patch("chaosreliably.controls.experiment.create_run_event", autospec=True)
 def test_that_an_exception_does_not_get_raised_and_warning_logged(
+    mock_create_run_event: MagicMock,
     mock_logger: MagicMock,
 ) -> None:
+    configuration = {"chaosreliably": {"run_ref": "run-123"}}
+    ssh = {}  # type: ignore
+    state = {}  # type: ignore
+    x = {}  # type: ignore
+
+    mock_create_run_event.side_effect = Exception("'chaosreliably'")
     experiment.after_hypothesis_control(
-        context={"title": "test-title", "probes": []},
-        **cast(
-            Dict[str, Any], {"state": {}, "configuration": {}, "secrets": None}
-        )
+        context=ssh,
+        experiment=x,
+        experiment_ref="XYZ",
+        state=state,
+        configuration=configuration,
+        secrets=None,
     )
     mock_logger.debug.assert_called_once_with(
         "An error occurred: 'chaosreliably', while running the After "

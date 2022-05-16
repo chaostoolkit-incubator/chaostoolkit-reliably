@@ -23,14 +23,17 @@ def all_objective_results_ok(value: List[ObjectiveResult]) -> bool:
     :returns: bool representing whether all the Objective Results were OK or
         not
     """
+    if not value:
+        logger.warning("No objective results were found so we must bail out")
+        return False
+
     not_ok_results = []
 
     for result in value:
         if result.spec.remaining_percent < 0:
             not_ok_results.append(
                 [
-                    result.metadata.labels["from"],
-                    result.metadata.labels["to"],
+                    result.metadata.labels["createdAt"],
                     result.spec.objective_percent,
                     result.spec.actual_percent,
                     result.spec.remaining_percent,
@@ -40,8 +43,7 @@ def all_objective_results_ok(value: List[ObjectiveResult]) -> bool:
 
     if not_ok_results:
         headers = [
-            "From",
-            "To",
+            "Date",
             "Objective %",
             "Actual %",
             "Remaining %",

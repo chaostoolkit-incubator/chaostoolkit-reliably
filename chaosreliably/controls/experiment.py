@@ -1,9 +1,12 @@
+import secrets as secrets_module
 from datetime import datetime, timezone
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Optional, Type, Union, cast
 
+from chaoslib.exceptions import InvalidControl
 from chaoslib.types import (
     Activity,
     Configuration,
+    Control,
     Experiment,
     Hypothesis,
     Journal,
@@ -14,14 +17,16 @@ from logzero import logger
 
 from chaosreliably import get_session
 from chaosreliably.types import (
-    EntityContext,
-    EntityContextExperimentEventLabels,
-    EntityContextExperimentLabels,
-    EntityContextExperimentResultEventAnnotations,
-    EntityContextExperimentRunLabels,
-    EntityContextExperimentVersionLabels,
-    EntityContextMetadata,
     EventType,
+    ExperimentEntity,
+    ExperimentLabels,
+    ExperimentMetadata,
+    ExperimentRunEntity,
+    ExperimentRunEventEntity,
+    ExperimentRunEventLabels,
+    ExperimentRunEventMetadata,
+    ExperimentRunLabels,
+    ExperimentRunMetadata,
 )
 
 __all__ = [
@@ -38,8 +43,23 @@ __all__ = [
 ]
 
 
+def validate_control(control: Control) -> None:
+    """
+    Ensures the control defines an identifier for the experiment. It will
+    be more stable than the title.
+    """
+    xid = control.get("provider", {}).get("arguments", {}).get("experiment_ref")
+    if not xid:
+        raise InvalidControl(
+            "\nThe `chaostoolkit-reliably` control expects an argument called "
+            "`experiment_ref`.\nIt can be any random string which must remain "
+            "stable across time."
+        )
+
+
 def before_experiment_control(
     context: Experiment,
+    experiment_ref: str,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
@@ -74,78 +94,61 @@ def before_experiment_control(
         `experiment_related_to_labels` (List[Dict[str, str]]) representing
         labels of entities the Experiment relates to
 
-    Examples
-    --------
-    # Experiment has no relation to any Reliably entity
-    "controls": [
-        {
-            "name": "chaosreliably",
-            "provider": {
-                "type": "python",
-                "module": "chaosreliably.controls.experiment",
-                "arguments": {
-                    "commit_hash": "59f9f577e2d90719098f4d23d26329ce41f2d0bd",
-                    "source": "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json",  # Noqa
-                    "user": "A users name"
+    ```json
+    {
+        "controls": [
+            {
+                "name": "chaosreliably",
+                "provider": {
+                    "type": "python",
+                    "module": "chaosreliably.controls.experiment",
+                    "arguments": {
+                        "experiment_ref": "xyz1234"
+                    }
                 }
             }
-        }
-    ]
-
-    # Experiment relates to a Reliably Entity
-    "controls": [
-        {
-            "name": "chaosreliably",
-            "provider": {
-                "type": "python",
-                "module": "chaosreliably.controls.experiment",
-                "arguments": {
-                    "commit_hash": "59f9f577e2d90719098f4d23d26329ce41f2d0bd",
-                    "source": "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/exp.json",  # Noqa
-                    "user": "A users name",
-                    "experiment_related_to_labels": [
-                        {
-                            "name": "must-be-good-slo",
-                            "service": "must-be-good-service"
-                        }
-                    ]
-                }
-            }
-        }
-    ]
+        ]
+    }
+    ```
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        commit_hash = kwargs.get("commit_hash")
-        source = kwargs.get("source")
-        user = kwargs.get("user")
-        if not commit_hash or not source or not user:
-            logger.debug(
-                "The parameters: `commit_hash`, `source`, and `user` are "
-                "required for the chaosreliably controls, please provide "
-                "them. This Experiment Run will not be tracked with Reliably."
-            )
-            return
 
-        experiment_related_to_labels = kwargs.get(
-            "experiment_related_to_labels", []
-        )
-
-        experiment_run_labels = (
-            _create_experiment_entities_for_before_experiment_control(
-                experiment_title=context["title"],
-                commit_hash=commit_hash,
-                source=source,
-                user=user,
-                configuration=configuration,
-                secrets=reliably_secrets,
-                experiment_related_to_labels=experiment_related_to_labels,
-            )
-        )
-
+        run_ref = secrets_module.token_hex(8)
         configuration.update(
-            {"chaosreliably": {"experiment_run_labels": experiment_run_labels}}
+            {
+                "chaosreliably": {
+                    "experiment_ref": experiment_ref,
+                    "run_ref": run_ref,
+                    "start_time": datetime.utcnow()
+                    .replace(tzinfo=timezone.utc)
+                    .isoformat(),
+                }
+            }
         )
+
+        x = get_experiment(experiment_ref, configuration, reliably_secrets)
+        if not x:
+            logger.debug(
+                "Experiment does not yet exist in Reliably, creating it now"
+            )
+            labels = collect_all_objective_labels(context)
+            create_experiment(
+                experiment_ref, context, configuration, reliably_secrets, labels
+            )
+        else:
+            mark_experiment_as_running(x, configuration, reliably_secrets)
+
+        logger.debug(f"Creating experiment run with reference: {run_ref}")
+        create_run(
+            experiment_ref,
+            run_ref,
+            context,
+            {"experiment_ref": experiment_ref},
+            configuration,
+            reliably_secrets,
+        )
+
     except Exception as ex:
         logger.debug(
             f"An error occurred: {ex}, whilst running the Before Experiment "
@@ -157,6 +160,7 @@ def before_experiment_control(
 
 def after_experiment_control(
     context: Experiment,
+    experiment_ref: str,
     state: Journal,
     configuration: Configuration = None,
     secrets: Secrets = None,
@@ -180,16 +184,23 @@ def after_experiment_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        _create_experiment_event(
+        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        create_run_event(
+            experiment_ref=experiment_ref,
+            run_ref=run_ref,
             event_type=EventType.EXPERIMENT_END,
-            name=f"Experiment: {context['title']} - Ended",
+            experiment=context,
             output=state,
-            experiment_run_labels=configuration["chaosreliably"][
-                "experiment_run_labels"
-            ],
+            experiment_run_labels={
+                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
+            },
             configuration=configuration,
             secrets=reliably_secrets,
         )
+        complete_experiment(experiment_ref, state, configuration, secrets)
+
+        complete_run(run_ref, context, state, configuration, secrets)
     except Exception as ex:
         logger.debug(
             f"An error occurred: {ex}, while running the After Experiment "
@@ -200,6 +211,8 @@ def after_experiment_control(
 
 def before_hypothesis_control(
     context: Hypothesis,
+    experiment: Experiment,
+    experiment_ref: str,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
@@ -222,13 +235,15 @@ def before_hypothesis_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        _create_experiment_event(
+        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        create_run_event(
+            experiment_ref,
+            run_ref,
             event_type=EventType.HYPOTHESIS_START,
-            name=context["title"],
+            experiment=experiment,
             output=None,
-            experiment_run_labels=configuration["chaosreliably"][
-                "experiment_run_labels"
-            ],
+            experiment_run_labels={"experiment_run_ref": run_ref},
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -242,7 +257,9 @@ def before_hypothesis_control(
 
 def after_hypothesis_control(
     context: Hypothesis,
+    experiment: Experiment,
     state: Dict[str, Any],
+    experiment_ref: str,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
@@ -266,13 +283,17 @@ def after_hypothesis_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        _create_experiment_event(
+        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        create_run_event(
+            experiment_ref,
+            run_ref,
             event_type=EventType.HYPOTHESIS_END,
-            name=context["title"],
+            experiment=experiment,
             output=state,
-            experiment_run_labels=configuration["chaosreliably"][
-                "experiment_run_labels"
-            ],
+            experiment_run_labels={
+                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
+            },
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -286,6 +307,8 @@ def after_hypothesis_control(
 
 def before_method_control(
     context: Experiment,
+    experiment: Experiment,
+    experiment_ref: str,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
@@ -306,13 +329,17 @@ def before_method_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        _create_experiment_event(
+        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        create_run_event(
+            experiment_ref,
+            run_ref,
             event_type=EventType.METHOD_START,
-            name=f"{context['title']} - Method Start",
+            experiment=experiment,
             output=None,
-            experiment_run_labels=configuration["chaosreliably"][
-                "experiment_run_labels"
-            ],
+            experiment_run_labels={
+                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
+            },
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -326,7 +353,9 @@ def before_method_control(
 
 def after_method_control(
     context: Experiment,
+    experiment: Experiment,
     state: List[Run],
+    experiment_ref: str,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
@@ -350,13 +379,17 @@ def after_method_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        _create_experiment_event(
+
+        cfg = configuration["chaosreliably"]
+        run_ref = cfg["run_ref"]
+
+        create_run_event(
+            experiment_ref,
+            run_ref,
             event_type=EventType.METHOD_END,
-            name=f"{context['title']} - Method End",
+            experiment=experiment,
             output=state,
-            experiment_run_labels=configuration["chaosreliably"][
-                "experiment_run_labels"
-            ],
+            experiment_run_labels={"experiment_run_ref": cfg["run_ref"]},
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -370,6 +403,8 @@ def after_method_control(
 
 def before_rollback_control(
     context: Experiment,
+    experiment: Experiment,
+    experiment_ref: str,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
@@ -390,13 +425,17 @@ def before_rollback_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        _create_experiment_event(
+        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        create_run_event(
+            experiment_ref,
+            run_ref,
             event_type=EventType.ROLLBACK_START,
-            name=f"{context['title']} - Rollback Start",
+            experiment=experiment,
             output=None,
-            experiment_run_labels=configuration["chaosreliably"][
-                "experiment_run_labels"
-            ],
+            experiment_run_labels={
+                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
+            },
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -410,7 +449,9 @@ def before_rollback_control(
 
 def after_rollback_control(
     context: Experiment,
+    experiment: Experiment,
     state: List[Run],
+    experiment_ref: str,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
@@ -434,13 +475,17 @@ def after_rollback_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        _create_experiment_event(
+        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        create_run_event(
+            experiment_ref,
+            run_ref,
             event_type=EventType.ROLLBACK_END,
-            name=f"{context['title']} - Rollback End",
+            experiment=experiment,
             output=state,
-            experiment_run_labels=configuration["chaosreliably"][
-                "experiment_run_labels"
-            ],
+            experiment_run_labels={
+                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
+            },
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -454,6 +499,8 @@ def after_rollback_control(
 
 def before_activity_control(
     context: Activity,
+    experiment: Experiment,
+    experiment_ref: str,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
@@ -474,13 +521,17 @@ def before_activity_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        _create_experiment_event(
+        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        create_run_event(
+            experiment_ref,
+            run_ref,
             event_type=EventType.ACTIVITY_START,
-            name=context["name"],
+            experiment=experiment,
             output=None,
-            experiment_run_labels=configuration["chaosreliably"][
-                "experiment_run_labels"
-            ],
+            experiment_run_labels={
+                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
+            },
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -494,7 +545,9 @@ def before_activity_control(
 
 def after_activity_control(
     context: Activity,
+    experiment: Experiment,
     state: Run,
+    experiment_ref: str,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
@@ -517,13 +570,17 @@ def after_activity_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        _create_experiment_event(
+        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        create_run_event(
+            experiment_ref,
+            run_ref,
             event_type=EventType.ACTIVITY_END,
-            name=context["name"],
+            experiment=experiment,
             output=state,
-            experiment_run_labels=configuration["chaosreliably"][
-                "experiment_run_labels"
-            ],
+            experiment_run_labels={
+                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
+            },
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -538,11 +595,71 @@ def after_activity_control(
 ###############################################################################
 # Private functions
 ###############################################################################
-def _create_entity_context_on_reliably(
-    entity_context: EntityContext,
+def collect_all_objective_labels(
+    experiment: Experiment,
+) -> List[Dict[str, str]]:
+    probes = experiment.get("steady-state-hypothesis", {}).get("probes", [])
+    labels = []
+    for probe in probes:
+        p = probe["provider"]
+        if p["module"] == "chaosreliably.slo.probes":
+            a = p.get("arguments", {}).get("labels")
+            if a:
+                labels.append(a.copy())
+    return labels
+
+
+def get_entity(
+    endpoint: str,
+    qs: Dict[str, str],
+    entity_type: Union[Type[ExperimentEntity], Type[ExperimentRunEntity]],
     configuration: Configuration,
     secrets: Secrets,
-) -> EntityContext:
+) -> Optional[Union[ExperimentEntity, ExperimentRunEntity]]:
+    with get_session("chaostoolkit.org/v1", configuration, secrets) as session:
+        resp = session.get(f"/{endpoint}", params=qs)
+        logger.debug(f"Response from {resp.url}: {resp.status_code}")
+        if resp.status_code == 200:
+            payload = resp.json()
+            if payload:
+                payload = sorted(
+                    payload,
+                    key=lambda x: x["metadata"]["annotations"][  # type: ignore
+                        "reliably.com/createdAt"
+                    ],
+                )
+                return entity_type.parse_obj(payload[-1])
+    return None
+
+
+def get_experiment(
+    experiment_ref: str, configuration: Configuration, secrets: Secrets
+) -> Optional[ExperimentEntity]:
+    qs = {"labels": f"experiment_ref={experiment_ref}"}
+    return cast(
+        ExperimentEntity,
+        get_entity("experiment", qs, ExperimentEntity, configuration, secrets),
+    )
+
+
+def get_experiment_run(
+    run_ref: str, configuration: Configuration, secrets: Secrets
+) -> Optional[ExperimentRunEntity]:
+    qs = {"labels": f"experiment_run_ref={run_ref}"}
+    return cast(
+        ExperimentRunEntity,
+        get_entity("run", qs, ExperimentRunEntity, configuration, secrets),
+    )
+
+
+def send_to_reliably(
+    entity: Union[
+        ExperimentEntity, ExperimentRunEntity, ExperimentRunEventEntity
+    ],
+    endpoint: str,
+    configuration: Configuration,
+    secrets: Secrets,
+) -> None:
     """
     For a given EntityContext, create it on the Reliably services.
 
@@ -550,28 +667,28 @@ def _create_entity_context_on_reliably(
         service
     :param configuration: Configuration object provided by Chaos Toolkit
     :param secrets: Secret object provided by Chaos Toolkit
-    :returns: EntityContext representing the EntityContext that was just
-        created
     """
-    with get_session(configuration, secrets) as session:
-        url = "/entitycontext"
-        j = entity_context.json(by_alias=True, indent=2)
-        logger.debug(j)
-        resp = session.post(url, content=entity_context.json(by_alias=True))
+    with get_session("chaostoolkit.org/v1", configuration, secrets) as session:
+        j = entity.json(by_alias=True, exclude_none=True, indent=2)
+        logger.debug(f"Payload sent:\n{j}")
+        resp = session.put(f"/{endpoint}", content=j)
+
         try:
-            logger.debug(resp.json())
-        finally:
-            pass
+            logger.debug(f"Response received from {resp.url}: {resp.json()}")
+        except Exception:
+            logger.debug(
+                f"Error response received from {resp.url}: {resp.text}"
+            )
         resp.raise_for_status()
-        return entity_context
 
 
-def _create_experiment(
-    experiment_title: str,
+def create_experiment(
+    experiment_ref: str,
+    experiment: Experiment,
     configuration: Configuration,
     secrets: Secrets,
-    related_to_labels: List[Dict[str, str]] = [],
-) -> EntityContextExperimentLabels:
+    objective_labels: Optional[List[Dict[str, str]]] = None,
+) -> None:
     """
     For a given Experiment title, create a Experiment Entity Context
     on the Reliably services.
@@ -579,116 +696,185 @@ def _create_experiment(
     :param experiment_title: str representing the name of the Experiment
     :param configuration: Configuration object provided by Chaos Toolkit
     :param secrets: Secret object provided by Chaos Toolkit
-    :returns: EntityContextExperimentLabels representing the metadata labels of
-        the created entity - used for `relatedTo` properties in Reliably
     """
-    experiment_entity = EntityContext(
-        metadata=EntityContextMetadata(
-            labels=EntityContextExperimentLabels(name=experiment_title),
-            related_to=related_to_labels,
+    entity = ExperimentEntity(
+        metadata=ExperimentMetadata(
+            labels=ExperimentLabels(ref=experiment_ref),
+            annotations={
+                "title": experiment.get("title"),
+                "last_results": "",
+                "previous_deviated": "",
+                "currently_running": "true",
+            },
+            related_to=objective_labels,
         )
     )
 
-    created_entity = _create_entity_context_on_reliably(
-        entity_context=experiment_entity,
+    send_to_reliably(
+        entity=entity,
+        endpoint="experiment",
         configuration=configuration,
         secrets=secrets,
     )
-    return cast(EntityContextExperimentLabels, created_entity.metadata.labels)
 
 
-def _create_experiment_version(
-    commit_hash: str,
-    source: str,
-    experiment_labels: EntityContextExperimentLabels,
-    configuration: Configuration,
-    secrets: Secrets,
-) -> EntityContextExperimentVersionLabels:
+def mark_experiment_as_running(
+    entity: ExperimentEntity, configuration: Configuration, secrets: Secrets
+) -> None:
     """
-    For a given commit hash, source link, and Experiment labels, create a
-    ExperimentVersion Entity Context on the Reliably services.
+    For a given Experiment title, create a Experiment Entity Context
+    on the Reliably services.
 
-    :param commit_hash: str representing the SHA1 Hash of the current commit of
-        the Experiments repo at the time of running it
-    :param source: str representing the URL to the source control location
-        of the Experiment being run
-    :param experiment_labels: EntityContextExperimentLabels object representing
-        the labels of the Experiment this version is related to
+    :param experiment_title: str representing the name of the Experiment
     :param configuration: Configuration object provided by Chaos Toolkit
     :param secrets: Secret object provided by Chaos Toolkit
-    :returns: EntityContextExperimentVersionLabels representing the metadata
-        labels of the created entity - used for `relatedTo` properties in
-        Reliably
     """
-    experiment_version_entity = EntityContext(
-        metadata=EntityContextMetadata(
-            labels=EntityContextExperimentVersionLabels(
-                name=experiment_labels.name,
-                commit_hash=commit_hash,
-                source=source,
-            ),
-            related_to=[experiment_labels],
-        )
-    )
+    if not entity.metadata.annotations:
+        entity.metadata.annotations = {}
 
-    created_entity = _create_entity_context_on_reliably(
-        entity_context=experiment_version_entity,
+    entity.metadata.annotations["currently_running"] = "true"
+
+    send_to_reliably(
+        entity=entity,
+        endpoint="experiment",
         configuration=configuration,
         secrets=secrets,
     )
-    return cast(
-        EntityContextExperimentVersionLabels, created_entity.metadata.labels
+
+
+def complete_experiment(
+    experiment_ref: str,
+    state: Journal,
+    configuration: Configuration,
+    secrets: Secrets,
+) -> None:
+    """
+    For a given Experiment title, create a Experiment Entity Context
+    on the Reliably services.
+
+    :param experiment_title: str representing the name of the Experiment
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    """
+    x = get_experiment(experiment_ref, configuration, secrets)
+    if not x:
+        logger.debug(
+            f"Experiment with ref '{experiment_ref}' could not be found in "
+            "Reliably. Cannot mark experiment as complete."
+        )
+        return
+
+    if not x.metadata.annotations:
+        x.metadata.annotations = {}
+
+    x.metadata.annotations["currently_running"] = "false"
+    lr = x.metadata.annotations["last_results"]
+    lasts = lr.split(",") if lr else []
+    if lasts:
+        d = lasts[-1] == "1"
+        x.metadata.annotations["previous_deviated"] = "true" if d else "false"
+    lasts.append("1" if state.get("deviated") else "0")
+    x.metadata.annotations["last_results"] = ",".join(
+        lasts[5:] if len(lasts) > 5 else lasts
+    )
+
+    send_to_reliably(
+        entity=x,
+        endpoint="experiment",
+        configuration=configuration,
+        secrets=secrets,
     )
 
 
-def _create_experiment_run(
-    user: str,
-    experiment_version_labels: EntityContextExperimentVersionLabels,
+def create_run(
+    experiment_ref: str,
+    run_ref: str,
+    experiment: Experiment,
+    experiment_labels: Dict[str, Any],
     configuration: Configuration,
     secrets: Secrets,
-) -> EntityContextExperimentRunLabels:
+) -> None:
     """
-    For a given user and Experiment Version labels, create a ExperimentRun
+    For a given user and Experiment labels, create a ExperimentRun
     Entity Context on the Reliably services.
 
     :param user: str representing the name of the user that is running the
         Experiment
-    :param experiment_version_labels: EntityContextExperimentVersionLabels
+    :param experiment_labels: EntityContextExperimentLabels
         object representing the labels of the Experiment Version this run is
         related to
     :param configuration: Configuration object provided by Chaos Toolkit
     :param secrets: Secret object provided by Chaos Toolkit
-    :returns: EntityContextExperimentRunLabels representing the metadata labels
-        of the created entity - used for `relatedTo` properties in Reliably
     """
-    experiment_run_entity = EntityContext(
-        metadata=EntityContextMetadata(
-            name=experiment_version_labels.name,
-            labels=EntityContextExperimentRunLabels(
-                user=user, name=experiment_version_labels.name
+    entity = ExperimentRunEntity(
+        metadata=ExperimentRunMetadata(
+            labels=ExperimentRunLabels(
+                ref=run_ref, experiment_ref=experiment_ref
             ),
-            related_to=[experiment_version_labels],
+            annotations={
+                "name": "Run",
+                "title": experiment.get("title"),
+                "status": "started",
+            },
+            related_to=[experiment_labels],
         )
     )
 
-    created_entity = _create_entity_context_on_reliably(
-        entity_context=experiment_run_entity,
+    send_to_reliably(
+        entity=entity,
+        endpoint="run",
         configuration=configuration,
         secrets=secrets,
     )
-    return cast(
-        EntityContextExperimentRunLabels, created_entity.metadata.labels
+
+
+def complete_run(
+    run_ref: str,
+    experiment: Experiment,
+    state: Journal,
+    configuration: Configuration,
+    secrets: Secrets,
+) -> None:
+    """
+    For a given Experiment title, create a Experiment Entity Context
+    on the Reliably services.
+
+    :param experiment_title: str representing the name of the Experiment
+    :param configuration: Configuration object provided by Chaos Toolkit
+    :param secrets: Secret object provided by Chaos Toolkit
+    """
+    x = get_experiment_run(run_ref, configuration, secrets)
+    if not x:
+        logger.debug(
+            f"Experiment run with ref '{run_ref}' could not be found in "
+            "Reliably. Cannot mark experiment run as complete."
+        )
+        return
+
+    if not x.metadata.annotations:
+        x.metadata.annotations = {}
+
+    a = x.metadata.annotations
+    a.update(prepare_annotations_dict(experiment, state))  # type: ignore
+
+    send_to_reliably(
+        entity=x,
+        endpoint="run",
+        configuration=configuration,
+        secrets=secrets,
     )
 
 
-def _create_experiment_event(
+def create_run_event(
+    experiment_ref: str,
+    run_ref: str,
     event_type: EventType,
-    name: str,
+    experiment: Experiment,
     output: Any,
-    experiment_run_labels: EntityContextExperimentRunLabels,
+    experiment_run_labels: Dict[str, Any],
     configuration: Configuration,
     secrets: Secrets,
-) -> EntityContextExperimentEventLabels:
+) -> None:
     """
     For a given event type, name, output, and Experiment Run labels, create a
     ExperimentEvent Entity Context on the Reliably services.
@@ -702,103 +888,64 @@ def _create_experiment_event(
         representing the labels of the Experiment Run this Event is related to
     :param configuration: Configuration object provided by Chaos Toolkit
     :param secrets: Secret object provided by Chaos Toolkit
-    :returns: EntityContextExperimentEventLabels representing the metadata
-        labels of the created entity - used for `relatedTo` properties in
-        Reliably
     """
     # until we have figured out where to store large outputs, we will not be
     # sending it. Instead, we'll send enough information to make sense of the
     # results.
 
-    s = e = None
-    if output and ("start" in output) and ("end" in output):
-        utc = timezone.utc
-        s = datetime.fromisoformat(output.get("start")).replace(tzinfo=utc)
-        e = datetime.fromisoformat(output.get("end")).replace(tzinfo=utc)
     output = output or {}
-    experiment_event_entity = EntityContext(
-        metadata=EntityContextMetadata(
-            labels=EntityContextExperimentEventLabels(
-                event_type=event_type.value,
-                name=name,
+    annotations = prepare_annotations_dict(experiment, output)
+    annotations["name"] = event_type.value.replace("_", " ").title()
+    entity = ExperimentRunEventEntity(
+        metadata=ExperimentRunEventMetadata(
+            labels=ExperimentRunEventLabels(
+                event_type=event_type,
+                ref=secrets_module.token_hex(8),
+                experiment_run_ref=run_ref,
+                experiment_ref=experiment_ref,
             ),
-            annotations=EntityContextExperimentResultEventAnnotations(
-                status=output.get("status", "unknown"),
-                deviated=str(output.get("deviated")).lower(),
-                duration=str(output.get("duration")),
-                started=s,
-                ended=e,
-                node=output.get("node"),
-            ),
+            annotations=annotations,
             related_to=[experiment_run_labels],
         )
     )
 
-    created_entity = _create_entity_context_on_reliably(
-        entity_context=experiment_event_entity,
+    send_to_reliably(
+        entity=entity,
+        endpoint="event",
         configuration=configuration,
         secrets=secrets,
-    )
-    return cast(
-        EntityContextExperimentEventLabels, created_entity.metadata.labels
     )
 
 
-def _create_experiment_entities_for_before_experiment_control(
-    experiment_title: str,
-    commit_hash: str,
-    source: str,
-    user: str,
-    configuration: Configuration,
-    secrets: Secrets,
-    experiment_related_to_labels: List[Dict[str, str]] = [],
-) -> EntityContextExperimentRunLabels:
-    """
-    For a given Experiment title, commit hash, source link and user, create
-    an Experiment, Experiment Version, Experiment Run, and Experiment start
-    Entity Context on the Reliably services.
+def prepare_annotations_dict(
+    experiment: Experiment, output: Optional[Dict[str, Any]]
+) -> Dict[str, Optional[str]]:
+    output = output or {}
 
-    If the Experiment and version already exist, new ones will not be created,
-    however a new run is *always* created.
+    s = e = d = t = None
+    if output:
+        if ("start" in output) and ("end" in output):
+            utc = timezone.utc
+            s = (
+                datetime.fromisoformat(cast(str, output.get("start")))
+                .replace(tzinfo=utc)
+                .isoformat()
+            )
+            e = (
+                datetime.fromisoformat(cast(str, output.get("end")))
+                .replace(tzinfo=utc)
+                .isoformat()
+            )
 
-    :param experiment_title: str representing the name of the Experiment
-    :param commit_hash: str representing the SHA1 Hash of the current commit of
-        the Experiments repo at the time of running it
-    :param source: str representing the URL to the source control location
-        of the Experiment being run
-    :param user: str representing the name of the user that is running the
-        Experiment
-    :param configuration: Configuration object provided by Chaos Toolkit
-    :param secrets: Secret object provided by Chaos Toolkit
-    :returns: EntityContextExperimentRunLabels representing the metadata labels
-        of the Experiment Run entity - used for updating the configuration of
-        the Experiment so that Events may relate to it
-    """
-    experiment_labels = _create_experiment(
-        experiment_title=experiment_title,
-        configuration=configuration,
-        secrets=secrets,
-        related_to_labels=experiment_related_to_labels,
-    )
-    experiment_version_labels = _create_experiment_version(
-        commit_hash=commit_hash,
-        source=source,
-        experiment_labels=experiment_labels,
-        configuration=configuration,
-        secrets=secrets,
-    )
-    experiment_run_labels = _create_experiment_run(
-        user=user,
-        experiment_version_labels=experiment_version_labels,
-        configuration=configuration,
-        secrets=secrets,
-    )
-    _ = _create_experiment_event(
-        event_type=EventType.EXPERIMENT_START,
-        name=f"Experiment: {experiment_title} - Started",
-        output=None,
-        experiment_run_labels=experiment_run_labels,
-        configuration=configuration,
-        secrets=secrets,
-    )
-    return experiment_run_labels
+    d = output.get("deviated")
+    t = output.get("duration")
+
+    return {
+        "title": experiment.get("title"),
+        "status": output.get("status", "unknown"),
+        "deviated": str(d).lower() if d else None,
+        "duration": str(t) if t else None,
+        "started": s,
+        "ended": e,
+        "node": cast(str, output.get("node")),
+    }

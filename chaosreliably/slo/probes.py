@@ -1,16 +1,43 @@
 from typing import Dict, List
-from urllib.parse import quote
 
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Configuration, Secrets
 from logzero import logger
 
 from chaosreliably import get_session
-from chaosreliably.types import ObjectiveResult
+from chaosreliably.types import (
+    ObjectiveEntities,
+    ObjectiveEntity,
+    ObjectiveResult,
+)
 
+from .. import encoded_selector
 from .tolerances import all_objective_results_ok
 
 __all__ = ["get_objective_results_by_labels", "slo_is_met"]
+
+
+def get_objective_by_label(
+    labels: Dict[str, str],
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+) -> ObjectiveEntity:
+    s = encoded_selector(labels)
+
+    with get_session("reliably.com/v1", configuration, secrets) as session:
+        resp = session.get(f"/objective?selector={s}")
+        logger.debug(f"Fetched objective from: {resp.url}")
+        if resp.status_code != 200:
+            raise ActivityFailed(f"Failed to retrieve objective: {resp.text}")
+        o = resp.json()
+        logger.debug(f"Return objective: {o}")
+        objectives = ObjectiveEntities.parse_list(o)
+        if not objectives:
+            raise ActivityFailed(
+                "No objectives found to match the given labels"
+            )
+
+        return objectives[0]
 
 
 def get_objective_results_by_labels(
@@ -31,16 +58,18 @@ def get_objective_results_by_labels(
         given Objective
 
     """
-    encoded_labels = quote(
-        ",".join([f"{key}={value}" for key, value in labels.items()])
-    )
-    with get_session(configuration, secrets) as session:
-        url = f"/objectiveresult?objective-match={encoded_labels}"
-        resp = session.get(url, params={"limit": limit})
-        logger.debug(f"Fetched SLO results from: {resp.url}")
+    o = get_objective_by_label(labels, configuration, secrets)
+    s = encoded_selector(o.spec.selector)
+    qs = f"selector={s}&limit={limit}"
+
+    with get_session("reliably.com/v1", configuration, secrets) as session:
+        resp = session.get(f"/objective_result?{qs}")
+        logger.debug(f"Fetched objective results from: {resp.url}")
         if resp.status_code != 200:
             raise ActivityFailed(f"Failed to retrieve SLO results: {resp.text}")
-        return ObjectiveResult.parse_list(resp.json())
+        o = resp.json()
+        logger.debug(f"Return objective result: {o}")
+        return ObjectiveResult.parse_list(o)
 
 
 def slo_is_met(

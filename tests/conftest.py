@@ -84,8 +84,7 @@ def not_ok_table_contents() -> Any:
 @fixture
 def not_ok_table(not_ok_table_contents: Any) -> str:
     headers = [
-        "From",
-        "To",
+        "Date",
         "Objective %",
         "Actual %",
         "Remaining %",

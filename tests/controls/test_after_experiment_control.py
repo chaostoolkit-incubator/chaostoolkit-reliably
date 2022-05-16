@@ -1,18 +1,18 @@
 from unittest.mock import MagicMock, patch
 
 from chaosreliably.controls import experiment
-from chaosreliably.types import EntityContextExperimentRunLabels, EventType
+from chaosreliably.types import EventType
 
 
-@patch("chaosreliably.controls.experiment._create_experiment_event")
+@patch("chaosreliably.controls.experiment.create_run_event")
+@patch("chaosreliably.controls.experiment.complete_experiment")
+@patch("chaosreliably.controls.experiment.complete_run")
 def test_after_experiment_control_calls_create_experiment_event(
-    mock_create_experiment_event: MagicMock,
+    mock_complete_run: MagicMock,
+    mock_complete_experiment: MagicMock,
+    mock_create_run_event: MagicMock,
 ) -> None:
-    run_labels = EntityContextExperimentRunLabels(name="hello", user="TestUser")
-    configuration = {
-        "chaosreliably": {"experiment_run_labels": run_labels.dict()}
-    }
-    title = "A Test Experiment Title"
+    configuration = {"chaosreliably": {"run_ref": "run-123"}}
     journal = {
         "chaoslib-version": None,
         "platform": None,
@@ -27,52 +27,60 @@ def test_after_experiment_control_calls_create_experiment_event(
         "end": None,
         "duration": None,
     }
+    x = {}  # type: ignore
 
     experiment.after_experiment_control(
-        context={
-            "title": title,
-            "description": "A test description",
-            "method": [],
-        },
-        **{"state": journal, "configuration": configuration, "secrets": None},
-    )
-
-    mock_create_experiment_event.assert_called_once_with(
-        event_type=EventType.EXPERIMENT_END,
-        name=f"Experiment: {title} - Ended",
-        output=journal,
-        experiment_run_labels=run_labels,
+        context=x,
+        experiment_ref="XYZ",
+        state=journal,
         configuration=configuration,
         secrets=None,
     )
 
+    mock_create_run_event.assert_called_once_with(
+        experiment_ref="XYZ",
+        run_ref="run-123",
+        event_type=EventType.EXPERIMENT_END,
+        experiment=x,
+        output=journal,
+        experiment_run_labels={"experiment_run_ref": "run-123"},
+        configuration=configuration,
+        secrets=None,
+    )
+
+    mock_complete_experiment.assert_called_once_with(
+        "XYZ",
+        journal,
+        configuration,
+        None,
+    )
+
+    mock_complete_run.assert_called_once_with(
+        "run-123",
+        x,
+        journal,
+        configuration,
+        None,
+    )
+
 
 @patch("chaosreliably.controls.experiment.logger")
+@patch("chaosreliably.controls.experiment.create_run_event", autospec=True)
 def test_than_an_exception_does_not_get_raised_and_warning_logged(
+    mock_create_run_event: MagicMock,
     mock_logger: MagicMock,
 ) -> None:
-    journal = {
-        "chaoslib-version": None,
-        "platform": None,
-        "node": None,
-        "experiment": None,
-        "start": None,
-        "status": None,
-        "deviated": None,
-        "steady_states": None,
-        "run": None,
-        "rollbacks": None,
-        "end": None,
-        "duration": None,
-    }
+    configuration = {"chaosreliably": {"run_ref": "run-123"}}
+    x = {}  # type: ignore
+    journal = {}  # type: ignore
 
+    mock_create_run_event.side_effect = Exception("'chaosreliably'")
     experiment.after_experiment_control(
-        context={
-            "title": "A Test Experiment Title",
-            "description": "A test description",
-            "method": [],
-        },
-        **{"state": journal, "configuration": {}, "secrets": None},
+        context=x,
+        experiment_ref="XYZ",
+        state=journal,
+        configuration=configuration,
+        secrets=None,
     )
 
     mock_logger.debug.assert_called_once_with(
