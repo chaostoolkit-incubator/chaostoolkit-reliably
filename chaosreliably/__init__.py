@@ -1,4 +1,6 @@
+import json
 import os
+from base64 import urlsafe_b64encode
 from contextlib import contextmanager
 from typing import Dict, Generator, List
 
@@ -18,25 +20,32 @@ from chaoslib.types import (
 from logzero import logger
 
 __version__ = "0.5.0"
-__all__ = ["get_session", "discover"]
+__all__ = ["get_session", "discover", "encoded_selector"]
 RELIABLY_CONFIG_PATH = "~/.config/reliably/config.yaml"
 RELIABLY_HOST = "reliably.com"
 
 
 @contextmanager
 def get_session(
-    configuration: Configuration = None, secrets: Secrets = None
+    api_version: str = "reliably.com/v1",
+    configuration: Configuration = None,
+    secrets: Secrets = None,
 ) -> Generator[httpx.Client, None, None]:
+    c = configuration or {}
+    verify_tls = c.get("reliably_verify_tls", True)
+    use_http = c.get("reliably_use_http", True)
+    scheme = "http" if use_http else "https"
+    logger.debug(f"Reliably client TLS verification: {verify_tls}")
     auth_info = get_auth_info(configuration, secrets)
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer {}".format(auth_info["token"]),
     }
-    with httpx.Client() as client:
+    with httpx.Client(verify=verify_tls) as client:
         client.headers = httpx.Headers(headers)
         client.base_url = httpx.URL(
-            f"https://{auth_info['host']}/api/entities/"
-            f"{auth_info['org']}/reliably.com/v1"
+            f"{scheme}://{auth_info['host']}/api/entities/"
+            f"{auth_info['org']}/{api_version}"
         )
         yield client
 
@@ -53,6 +62,15 @@ def discover(discover_system: bool = True) -> Discovery:
     discovery["activities"].extend(load_exported_activities())
 
     return discovery
+
+
+def encoded_selector(labels: Dict[str, str]) -> str:
+    """
+    Base64 URL-safe encoded labels mapping, suitable for query-strings.
+    """
+    return urlsafe_b64encode(
+        json.dumps(labels, indent=False).encode("utf-8")
+    ).decode("utf-8")
 
 
 ###############################################################################

@@ -1,77 +1,58 @@
 from unittest.mock import MagicMock, patch
 
 from chaosreliably.controls import experiment
-from chaosreliably.types import EntityContextExperimentRunLabels, EventType
+from chaosreliably.types import EventType
 
 
-@patch("chaosreliably.controls.experiment._create_experiment_event")
-def test_after_activity_control_calls_create_experiment_event(
-    mock_create_experiment_event: MagicMock,
+@patch("chaosreliably.controls.experiment.create_run_event")
+def test_after_activity_control_calls_create_run_event(
+    mock_create_run_event: MagicMock,
 ) -> None:
-    run_labels = EntityContextExperimentRunLabels(name="hello", user="TestUser")
-    name = "A Test Activity"
-    configuration = {
-        "chaosreliably": {"experiment_run_labels": run_labels.dict()}
-    }
-    activity = {
-        "type": "action",
-        "name": name,
-        "provider": {
-            "type": "python",
-            "module": "test.module",
-            "func": "test_func",
-        },
-        "controls": [],
-    }
-    run = {
-        "activity": activity,
-        "output": None,
-        "status": "succeeded",
-        "start": "2021-08-17T08:34:46.884325",
-        "end": "2021-08-17T08:34:46.891386",
-        "duration": 0.007061,
-    }
+    configuration = {"chaosreliably": {"run_ref": "run-123"}}
+    activity = {}  # type: ignore
+    run = {}  # type: ignore
+    x = {}  # type: ignore
 
     experiment.after_activity_control(
         context=activity,
-        **{"state": run, "configuration": configuration, "secrets": None}
+        experiment=x,
+        experiment_ref="XYZ",
+        state=run,
+        configuration=configuration,
+        secrets=None,
     )
 
-    mock_create_experiment_event.assert_called_once_with(
+    mock_create_run_event.assert_called_once_with(
+        "XYZ",
+        "run-123",
         event_type=EventType.ACTIVITY_END,
-        name=name,
+        experiment=x,
         output=run,
-        experiment_run_labels=run_labels,
+        experiment_run_labels={"experiment_run_ref": "run-123"},
         configuration=configuration,
         secrets=None,
     )
 
 
 @patch("chaosreliably.controls.experiment.logger")
+@patch("chaosreliably.controls.experiment.create_run_event", autospec=True)
 def test_that_an_exception_does_not_get_raised_and_warning_logged(
+    mock_create_run_event: MagicMock,
     mock_logger: MagicMock,
 ) -> None:
-    activity = {
-        "type": "action",
-        "name": "A Test Activity",
-        "provider": {
-            "type": "python",
-            "module": "test.module",
-            "func": "test_func",
-        },
-        "controls": [],
-    }
-    run = {
-        "activity": activity,
-        "output": None,
-        "status": "succeeded",
-        "start": "2021-08-17T08:34:46.884325",
-        "end": "2021-08-17T08:34:46.891386",
-        "duration": 0.007061,
-    }
+    configuration = {"chaosreliably": {"run_ref": "run-123"}}
+    activity = {}  # type: ignore
+    run = {}  # type: ignore
+    x = {}  # type: ignore
 
+    mock_create_run_event.side_effect = Exception("'chaosreliably'")
     experiment.after_activity_control(
-        context=activity, **{"state": run, "configuration": {}, "secrets": None}
+        context=activity,
+        experiment=x,
+        experiment_ref="XYZ",
+        state=run,
+        configuration=configuration,
+        secrets=None,
     )
 
     mock_logger.debug.assert_called_once_with(

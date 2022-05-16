@@ -1,12 +1,8 @@
-from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
-from uuid import uuid4
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field, parse_obj_as
-from pydantic.networks import HttpUrl
-from pydantic.types import UUID4
 
 OPTIONAL_DICT_LIST = Optional[List[Dict[str, Any]]]
 RELATED_TO = Field(alias="relatedTo", default=[])
@@ -19,7 +15,8 @@ class BaseModel(PydanticBaseModel):
 
 class ObjectiveResultMetadata(BaseModel):
     labels: Dict[str, str]
-    related_to: OPTIONAL_DICT_LIST = RELATED_TO
+    annotations: Optional[Dict[str, str]]
+    related_to: Optional[List[Dict[str, Any]]] = Field(alias="relatedTo")
 
 
 class ObjectiveResultSpec(BaseModel):
@@ -30,71 +27,12 @@ class ObjectiveResultSpec(BaseModel):
 
 
 class ObjectiveResult(BaseModel):
+    id: str
     metadata: ObjectiveResultMetadata
     spec: ObjectiveResultSpec
 
     def parse_list(obj: Any) -> "List[ObjectiveResult]":
         return parse_obj_as(List[ObjectiveResult], obj)
-
-
-class ChaosToolkitType(Enum):
-    EXPERIMENT: str = "chaos-toolkit-experiment"
-    EXPERIMENT_EVENT: str = "chaos-toolkit-experiment-event"
-    EXPERIMENT_RUN: str = "chaos-toolkit-experiment-run"
-    EXPERIMENT_VERSION: str = "chaos-toolkit-experiment-version"
-
-
-class EntityContextExperimentLabels(BaseModel):
-    type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT.value,
-        alias="entity-type",
-        const=True,
-    )
-    name: str = Field(alias="name")
-
-
-class EntityContextExperimentVersionLabels(BaseModel):
-    name: str
-    type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_VERSION.value,
-        alias="entity-type",
-        const=True,
-    )
-    commit_hash: str = Field(alias="ctk_commit_hash")
-    source: HttpUrl = Field(alias="ctk_source")
-
-
-class EntityContextExperimentRunLabels(BaseModel):
-    name: str
-    type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_RUN.value,
-        alias="entity-type",
-        const=True,
-    )
-    id: UUID4 = Field(
-        default_factory=lambda: uuid4(), alias="ctk_run_id", const=True
-    )
-    timestamp: datetime = Field(
-        alias="ctk_run_timestamp",
-        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
-        const=True,
-    )
-    user: str = Field(alias="ctk_run_user")
-
-
-class EntityContextExperimentEventLabels(BaseModel):
-    type: str = Field(
-        default=ChaosToolkitType.EXPERIMENT_EVENT.value,
-        alias="entity-type",
-        const=True,
-    )
-    event_type: str = Field(alias="ctk_event_type")
-    timestamp: datetime = Field(
-        alias="ctk_event_timestamp",
-        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
-        const=True,
-    )
-    name: str = Field(alias="name")
 
 
 class EventType(Enum):
@@ -110,31 +48,86 @@ class EventType(Enum):
     ROLLBACK_START = "ROLLBACK_START"
 
 
-class EntityContextExperimentResultEventAnnotations(BaseModel):
-    timestamp: datetime = Field(
-        alias="ctk_event_timestamp",
-        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
-        const=True,
-    )
-    output: Optional[str] = Field(alias="ctk_event_output")
-    status: str = Field(alias="ctk_experiment_run_status")
-    deviated: Optional[str] = Field(alias="ctk_experiment_run_deviated")
-    duration: Optional[str] = Field(alias="ctk_experiment_run_duration")
-    started: Optional[datetime] = Field(alias="ctk_experiment_run_started")
-    ended: Optional[datetime] = Field(alias="ctk_experiment_run_ended")
-    node: Optional[str] = Field(alias="ctk_experiment_run_node")
+class ExperimentLabels(BaseModel):
+    ref: str = Field(alias="experiment_ref")
 
 
-class EntityContextMetadata(BaseModel):
-    annotations: Optional[EntityContextExperimentResultEventAnnotations]
-    related_to: OPTIONAL_DICT_LIST = RELATED_TO
-    labels: Union[
-        EntityContextExperimentLabels,
-        EntityContextExperimentRunLabels,
-        EntityContextExperimentVersionLabels,
-        EntityContextExperimentEventLabels,
-    ]
+class ExperimentMetadata(BaseModel):
+    labels: ExperimentLabels
+    annotations: Optional[Dict[str, str]]
+    related_to: Optional[List[Dict[str, str]]] = Field(alias="relatedTo")
 
 
-class EntityContext(BaseModel):
-    metadata: EntityContextMetadata
+class ExperimentSpec(BaseModel):
+    pass
+
+
+class ExperimentEntity(BaseModel):
+    metadata: ExperimentMetadata
+    spec: Optional[ExperimentSpec]
+
+
+class ExperimentRunLabels(BaseModel):
+    ref: str = Field(alias="experiment_run_ref")
+    experiment_ref: str = Field(alias="experiment_ref")
+
+
+class ExperimentRunMetadata(BaseModel):
+    labels: ExperimentRunLabels
+    annotations: Optional[Dict[str, str]]
+    related_to: Optional[List[Dict[str, str]]] = Field(alias="relatedTo")
+
+
+class ExperimentRunSpec(BaseModel):
+    pass
+
+
+class ExperimentRunEntity(BaseModel):
+    metadata: ExperimentRunMetadata
+    spec: Optional[ExperimentRunSpec]
+
+
+class ExperimentRunEventLabels(BaseModel):
+    event_type: EventType = Field(alias="experiment_run_event_type")
+    ref: str = Field(alias="experiment_run_event_ref")
+    experiment_run_ref: str = Field(alias="experiment_run_ref")
+    experiment_ref: str = Field(alias="experiment_ref")
+
+
+class ExperimentRunEventMetadata(BaseModel):
+    labels: ExperimentRunEventLabels
+    annotations: Dict[str, Optional[str]]
+    related_to: Optional[List[Dict[str, str]]] = Field(alias="relatedTo")
+
+
+class ExperimentRunEventSpec(BaseModel):
+    pass
+
+
+class ExperimentRunEventEntity(BaseModel):
+    metadata: ExperimentRunEventMetadata
+    spec: Optional[ExperimentRunEventSpec]
+
+
+class ObjectiveMetadata(BaseModel):
+    labels: Dict[str, str]
+    annotations: Optional[Dict[str, str]]
+    related_to: Optional[List[Dict[str, str]]] = Field(alias="relatedTo")
+
+
+class ObjectiveSpec(BaseModel):
+    selector: Dict[str, str] = Field(alias="indicatorSelector")
+    target: float = Field(alias="objectivePercent")
+    window: str
+
+
+class ObjectiveEntity(BaseModel):
+    metadata: ObjectiveMetadata
+    spec: ObjectiveSpec
+
+
+class ObjectiveEntities(BaseModel):
+    __root__: List[ObjectiveEntity]
+
+    def parse_list(obj: Any) -> "List[ObjectiveEntity]":
+        return parse_obj_as(List[ObjectiveEntity], obj)
