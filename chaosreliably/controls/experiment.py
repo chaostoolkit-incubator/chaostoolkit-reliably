@@ -15,7 +15,7 @@ from chaoslib.types import (
 )
 from logzero import logger
 
-from chaosreliably import get_session
+from chaosreliably import encoded_selector, get_session
 from chaosreliably.types import (
     EventType,
     ExperimentEntity,
@@ -25,8 +25,11 @@ from chaosreliably.types import (
     ExperimentRunEventEntity,
     ExperimentRunEventLabels,
     ExperimentRunEventMetadata,
+    ExperimentRunEventSpec,
     ExperimentRunLabels,
     ExperimentRunMetadata,
+    ExperimentRunSpec,
+    ExperimentSpec,
 )
 
 __all__ = [
@@ -137,7 +140,9 @@ def before_experiment_control(
                 experiment_ref, context, configuration, reliably_secrets, labels
             )
         else:
-            mark_experiment_as_running(x, configuration, reliably_secrets)
+            mark_experiment_as_running(
+                x, context, configuration, reliably_secrets
+            )
 
         logger.debug(f"Creating experiment run with reference: {run_ref}")
         create_run(
@@ -616,8 +621,9 @@ def get_entity(
     configuration: Configuration,
     secrets: Secrets,
 ) -> Optional[Union[ExperimentEntity, ExperimentRunEntity]]:
+    q = encoded_selector(qs)
     with get_session("chaostoolkit.org/v1", configuration, secrets) as session:
-        resp = session.get(f"/{endpoint}", params=qs)
+        resp = session.get(f"/{endpoint}?selector={q}")
         logger.debug(f"Response from {resp.url}: {resp.status_code}")
         if resp.status_code == 200:
             payload = resp.json()
@@ -635,7 +641,7 @@ def get_entity(
 def get_experiment(
     experiment_ref: str, configuration: Configuration, secrets: Secrets
 ) -> Optional[ExperimentEntity]:
-    qs = {"labels": f"experiment_ref={experiment_ref}"}
+    qs = {"experiment_ref": experiment_ref}
     return cast(
         ExperimentEntity,
         get_entity("experiment", qs, ExperimentEntity, configuration, secrets),
@@ -645,7 +651,7 @@ def get_experiment(
 def get_experiment_run(
     run_ref: str, configuration: Configuration, secrets: Secrets
 ) -> Optional[ExperimentRunEntity]:
-    qs = {"labels": f"experiment_run_ref={run_ref}"}
+    qs = {"experiment_run_ref": run_ref}
     return cast(
         ExperimentRunEntity,
         get_entity("run", qs, ExperimentRunEntity, configuration, secrets),
@@ -669,9 +675,15 @@ def send_to_reliably(
     :param secrets: Secret object provided by Chaos Toolkit
     """
     with get_session("chaostoolkit.org/v1", configuration, secrets) as session:
-        j = entity.json(by_alias=True, exclude_none=True, indent=2)
+        j = entity.json(
+            by_alias=True, exclude_none=True, indent=False, sort_keys=True
+        )
         logger.debug(f"Payload sent:\n{j}")
-        resp = session.put(f"/{endpoint}", content=j)
+        resp = session.put(
+            f"/{endpoint}",
+            headers={"Content-Type": "application/json"},
+            content=j,
+        )
 
         try:
             logger.debug(f"Response received from {resp.url}: {resp.json()}")
@@ -707,7 +719,8 @@ def create_experiment(
                 "currently_running": "true",
             },
             related_to=objective_labels,
-        )
+        ),
+        spec=ExperimentSpec(experiment=experiment),
     )
 
     send_to_reliably(
@@ -719,7 +732,10 @@ def create_experiment(
 
 
 def mark_experiment_as_running(
-    entity: ExperimentEntity, configuration: Configuration, secrets: Secrets
+    entity: ExperimentEntity,
+    experiment: Experiment,
+    configuration: Configuration,
+    secrets: Secrets,
 ) -> None:
     """
     For a given Experiment title, create a Experiment Entity Context
@@ -733,6 +749,11 @@ def mark_experiment_as_running(
         entity.metadata.annotations = {}
 
     entity.metadata.annotations["currently_running"] = "true"
+    if not entity.spec:
+        entity.spec = ExperimentSpec(experiment=experiment)
+    else:
+        # always keep the most up to date version
+        entity.spec.experiment = experiment
 
     send_to_reliably(
         entity=entity,
@@ -857,6 +878,8 @@ def complete_run(
     a = x.metadata.annotations
     a.update(prepare_annotations_dict(experiment, state))  # type: ignore
 
+    x.spec = ExperimentRunSpec(experiment=experiment, result=state)
+
     send_to_reliably(
         entity=x,
         endpoint="run",
@@ -909,6 +932,9 @@ def create_run_event(
         )
     )
 
+    if output:
+        entity.spec = ExperimentRunEventSpec(result=output)
+
     send_to_reliably(
         entity=entity,
         endpoint="event",
@@ -920,10 +946,13 @@ def create_run_event(
 def prepare_annotations_dict(
     experiment: Experiment, output: Optional[Dict[str, Any]]
 ) -> Dict[str, Optional[str]]:
-    output = output or {}
+    s = e = d = t = status = node = None
+    if isinstance(output, dict):
+        status = output.get("status", "unknown")
+        node = cast(str, output.get("node"))
+        d = output.get("deviated")
+        t = output.get("duration")
 
-    s = e = d = t = None
-    if output:
         if ("start" in output) and ("end" in output):
             utc = timezone.utc
             s = (
@@ -937,15 +966,12 @@ def prepare_annotations_dict(
                 .isoformat()
             )
 
-    d = output.get("deviated")
-    t = output.get("duration")
-
     return {
         "title": experiment.get("title"),
-        "status": output.get("status", "unknown"),
+        "status": status,
         "deviated": str(d).lower() if d else None,
         "duration": str(t) if t else None,
         "started": s,
         "ended": e,
-        "node": cast(str, output.get("node")),
+        "node": node,
     }

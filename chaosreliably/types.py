@@ -4,6 +4,15 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field, parse_obj_as
 
+try:
+    import ujson as jsonlib
+except ImportError:
+    try:
+        import simplejson as jsonlib  # type: ignore
+    except ImportError:
+        import json as jsonlib  # type: ignore
+
+
 OPTIONAL_DICT_LIST = Optional[List[Dict[str, Any]]]
 RELATED_TO = Field(alias="relatedTo", default=[])
 
@@ -11,6 +20,9 @@ RELATED_TO = Field(alias="relatedTo", default=[])
 class BaseModel(PydanticBaseModel):
     class Config:
         allow_population_by_field_name = True
+        use_enum_values = True
+        json_loads = jsonlib.loads
+        json_dumps = jsonlib.dumps
 
 
 class ObjectiveResultMetadata(BaseModel):
@@ -59,7 +71,7 @@ class ExperimentMetadata(BaseModel):
 
 
 class ExperimentSpec(BaseModel):
-    pass
+    experiment: Optional[Any]
 
 
 class ExperimentEntity(BaseModel):
@@ -79,7 +91,8 @@ class ExperimentRunMetadata(BaseModel):
 
 
 class ExperimentRunSpec(BaseModel):
-    pass
+    experiment: Optional[Any]
+    result: Optional[Any]
 
 
 class ExperimentRunEntity(BaseModel):
@@ -101,7 +114,7 @@ class ExperimentRunEventMetadata(BaseModel):
 
 
 class ExperimentRunEventSpec(BaseModel):
-    pass
+    result: Optional[Any]
 
 
 class ExperimentRunEventEntity(BaseModel):

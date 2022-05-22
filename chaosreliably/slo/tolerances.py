@@ -56,5 +56,5 @@ def all_objective_results_ok(value: List[ObjectiveResult]) -> bool:
         )
         return False
     else:
-        logger.info("All Objective Results were OK.")
+        logger.debug("All Objective Results were OK.")
         return True

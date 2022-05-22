@@ -8,6 +8,7 @@
 
 * Read `RELIABLY_TOKEN`, `RELIABLY_HOST` and `RELIABLY_ORG` environment
   variables when secrets have not been provided. They are common.
+* Spec element to send to Reliably: contains the experiment and the output at various points in time
 
 ### Changed
 

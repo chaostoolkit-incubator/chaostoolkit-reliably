@@ -11,3 +11,5 @@ pytest-httpx
 types-freezegun
 types-PyYAML
 types-tabulate
+types-ujson
+types-simplejson
