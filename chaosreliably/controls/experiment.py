@@ -126,6 +126,7 @@ def before_experiment_control(
                     "start_time": datetime.utcnow()
                     .replace(tzinfo=timezone.utc)
                     .isoformat(),
+                    "refs": populate_event_refs(),
                 }
             }
         )
@@ -152,6 +153,19 @@ def before_experiment_control(
             {"experiment_ref": experiment_ref},
             configuration,
             reliably_secrets,
+        )
+
+        create_run_event(
+            experiment_ref,
+            run_ref,
+            event_ref=configuration["chaosreliably"]["refs"]["experiment"],
+            event_type=EventType.EXPERIMENT_START,
+            experiment=context,
+            output=None,
+            title=context.get("title"),
+            experiment_run_labels={"experiment_run_ref": run_ref},
+            configuration=configuration,
+            secrets=reliably_secrets,
         )
 
     except Exception as ex:
@@ -189,14 +203,18 @@ def after_experiment_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        c = configuration["chaosreliably"]
+        run_ref = c["run_ref"]
 
         create_run_event(
             experiment_ref=experiment_ref,
             run_ref=run_ref,
+            event_ref=c["refs"]["experiment"],
             event_type=EventType.EXPERIMENT_END,
             experiment=context,
             output=state,
+            title=context.get("title"),
             experiment_run_labels={
                 "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
             },
@@ -240,14 +258,18 @@ def before_hypothesis_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        c = configuration["chaosreliably"]
+        run_ref = c["run_ref"]
 
         create_run_event(
             experiment_ref,
             run_ref,
+            c["refs"]["hypo"],
             event_type=EventType.HYPOTHESIS_START,
             experiment=experiment,
             output=None,
+            title="Steady-State Hypothesis",
             experiment_run_labels={"experiment_run_ref": run_ref},
             configuration=configuration,
             secrets=reliably_secrets,
@@ -288,17 +310,22 @@ def after_hypothesis_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        c = configuration["chaosreliably"]
+        run_ref = c["run_ref"]
+        hypo_ref = c["refs"]["hypo"]
+        # hypothesis can run many times, we need to differentiate them
+        c["refs"]["hypo"] = secrets_module.token_hex(8)
 
         create_run_event(
             experiment_ref,
             run_ref,
+            event_ref=hypo_ref,
             event_type=EventType.HYPOTHESIS_END,
             experiment=experiment,
             output=state,
-            experiment_run_labels={
-                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
-            },
+            title="Steady-State Hypothesis",
+            experiment_run_labels={"experiment_run_ref": run_ref},
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -336,15 +363,18 @@ def before_method_control(
         reliably_secrets = secrets.get("reliably", None) if secrets else None
         run_ref = configuration["chaosreliably"]["run_ref"]
 
+        c = configuration["chaosreliably"]
+        run_ref = c["run_ref"]
+
         create_run_event(
             experiment_ref,
             run_ref,
+            c["refs"]["method"],
             event_type=EventType.METHOD_START,
             experiment=experiment,
             output=None,
-            experiment_run_labels={
-                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
-            },
+            title="Method",
+            experiment_run_labels={"experiment_run_ref": run_ref},
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -385,16 +415,18 @@ def after_method_control(
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
 
-        cfg = configuration["chaosreliably"]
-        run_ref = cfg["run_ref"]
+        c = configuration["chaosreliably"]
+        run_ref = c["run_ref"]
 
         create_run_event(
             experiment_ref,
             run_ref,
+            c["refs"]["method"],
             event_type=EventType.METHOD_END,
             experiment=experiment,
             output=state,
-            experiment_run_labels={"experiment_run_ref": cfg["run_ref"]},
+            title="Method",
+            experiment_run_labels={"experiment_run_ref": run_ref},
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -430,17 +462,19 @@ def before_rollback_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        c = configuration["chaosreliably"]
+        run_ref = c["run_ref"]
 
         create_run_event(
             experiment_ref,
             run_ref,
+            c["refs"]["rollback"],
             event_type=EventType.ROLLBACK_START,
             experiment=experiment,
             output=None,
-            experiment_run_labels={
-                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
-            },
+            title="Rollbacks",
+            experiment_run_labels={"experiment_run_ref": run_ref},
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -480,14 +514,18 @@ def after_rollback_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        c = configuration["chaosreliably"]
+        run_ref = c["run_ref"]
 
         create_run_event(
             experiment_ref,
             run_ref,
+            event_ref=c["refs"]["rollback"],
             event_type=EventType.ROLLBACK_END,
             experiment=experiment,
             output=state,
+            title="Rollbacks",
             experiment_run_labels={
                 "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
             },
@@ -526,17 +564,20 @@ def before_activity_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        c = configuration["chaosreliably"]
+        run_ref = c["run_ref"]
+        c["refs"]["activity"] = secrets_module.token_hex(8)
 
         create_run_event(
             experiment_ref,
             run_ref,
+            c["refs"]["activity"],
             event_type=EventType.ACTIVITY_START,
             experiment=experiment,
             output=None,
-            experiment_run_labels={
-                "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
-            },
+            title=f"Activity {context.get('name')}",
+            experiment_run_labels={"experiment_run_ref": run_ref},
             configuration=configuration,
             secrets=reliably_secrets,
         )
@@ -575,14 +616,18 @@ def after_activity_control(
     """
     try:
         reliably_secrets = secrets.get("reliably", None) if secrets else None
-        run_ref = configuration["chaosreliably"]["run_ref"]
+
+        c = configuration["chaosreliably"]
+        run_ref = c["run_ref"]
 
         create_run_event(
             experiment_ref,
             run_ref,
+            event_ref=c["refs"]["activity"],
             event_type=EventType.ACTIVITY_END,
             experiment=experiment,
             output=state,
+            title=context.get("name"),
             experiment_run_labels={
                 "experiment_run_ref": configuration["chaosreliably"]["run_ref"]
             },
@@ -876,7 +921,7 @@ def complete_run(
         x.metadata.annotations = {}
 
     a = x.metadata.annotations
-    a.update(prepare_annotations_dict(experiment, state))  # type: ignore
+    a.update(prepare_annotations_dict(state))  # type: ignore
 
     x.spec = ExperimentRunSpec(experiment=experiment, result=state)
 
@@ -891,8 +936,10 @@ def complete_run(
 def create_run_event(
     experiment_ref: str,
     run_ref: str,
+    event_ref: str,
     event_type: EventType,
     experiment: Experiment,
+    title: str,
     output: Any,
     experiment_run_labels: Dict[str, Any],
     configuration: Configuration,
@@ -916,14 +963,13 @@ def create_run_event(
     # sending it. Instead, we'll send enough information to make sense of the
     # results.
 
-    output = output or {}
-    annotations = prepare_annotations_dict(experiment, output)
-    annotations["name"] = event_type.value.replace("_", " ").title()
+    annotations = prepare_annotations_dict(output)
+    annotations["name"] = title
     entity = ExperimentRunEventEntity(
         metadata=ExperimentRunEventMetadata(
             labels=ExperimentRunEventLabels(
                 event_type=event_type,
-                ref=secrets_module.token_hex(8),
+                ref=event_ref,
                 experiment_run_ref=run_ref,
                 experiment_ref=experiment_ref,
             ),
@@ -944,17 +990,19 @@ def create_run_event(
 
 
 def prepare_annotations_dict(
-    experiment: Experiment, output: Optional[Dict[str, Any]]
+    output: Optional[Dict[str, Any]]
 ) -> Dict[str, Optional[str]]:
+    utc = timezone.utc
     s = e = d = t = status = node = None
+    s = e = datetime.utcnow().replace(tzinfo=utc).isoformat()
+
     if isinstance(output, dict):
         status = output.get("status", "unknown")
         node = cast(str, output.get("node"))
-        d = output.get("deviated")
+        d = output.get("deviated", output.get("steady_state_met"))
         t = output.get("duration")
 
         if ("start" in output) and ("end" in output):
-            utc = timezone.utc
             s = (
                 datetime.fromisoformat(cast(str, output.get("start")))
                 .replace(tzinfo=utc)
@@ -967,7 +1015,6 @@ def prepare_annotations_dict(
             )
 
     return {
-        "title": experiment.get("title"),
         "status": status,
         "deviated": str(d).lower() if d else None,
         "duration": str(t) if t else None,
@@ -975,3 +1022,27 @@ def prepare_annotations_dict(
         "ended": e,
         "node": node,
     }
+
+
+def populate_event_refs() -> Dict[str, str]:
+    """
+    Create uniq random strings to identify each step of the run.
+
+    Activities do not have a static one like this because they can be
+    used in many places so we generate a new one for each activity run.
+    """
+    refs = {}
+
+    r = secrets_module.token_hex(8)
+    refs["experiment"] = r
+
+    r = secrets_module.token_hex(8)
+    refs["hypo"] = r
+
+    r = secrets_module.token_hex(8)
+    refs["method"] = r
+
+    r = secrets_module.token_hex(8)
+    refs["rollback"] = r
+
+    return refs

@@ -84,7 +84,12 @@ def test_than_an_exception_does_not_get_raised_and_warning_logged(
     mock_get_experiment: MagicMock,
     mock_logger: MagicMock,
 ) -> None:
-    configuration = {"chaosreliably": {"run_ref": "run-123"}}
+    configuration = {
+        "chaosreliably": {
+            "run_ref": "run-123",
+            "refs": experiment.populate_event_refs(),
+        }
+    }
     x = {}  # type: ignore
 
     mock_get_experiment.side_effect = Exception("'chaosreliably'")

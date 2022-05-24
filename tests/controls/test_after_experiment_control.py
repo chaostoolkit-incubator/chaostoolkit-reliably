@@ -12,7 +12,8 @@ def test_after_experiment_control_calls_create_experiment_event(
     mock_complete_experiment: MagicMock,
     mock_create_run_event: MagicMock,
 ) -> None:
-    configuration = {"chaosreliably": {"run_ref": "run-123"}}
+    refs = experiment.populate_event_refs()
+    configuration = {"chaosreliably": {"run_ref": "run-123", "refs": refs}}
     journal = {
         "chaoslib-version": None,
         "platform": None,
@@ -27,7 +28,7 @@ def test_after_experiment_control_calls_create_experiment_event(
         "end": None,
         "duration": None,
     }
-    x = {}  # type: ignore
+    x = {"title": "hello"}
 
     experiment.after_experiment_control(
         context=x,
@@ -40,9 +41,11 @@ def test_after_experiment_control_calls_create_experiment_event(
     mock_create_run_event.assert_called_once_with(
         experiment_ref="XYZ",
         run_ref="run-123",
+        event_ref=refs["experiment"],
         event_type=EventType.EXPERIMENT_END,
         experiment=x,
         output=journal,
+        title="hello",
         experiment_run_labels={"experiment_run_ref": "run-123"},
         configuration=configuration,
         secrets=None,
@@ -70,7 +73,12 @@ def test_than_an_exception_does_not_get_raised_and_warning_logged(
     mock_create_run_event: MagicMock,
     mock_logger: MagicMock,
 ) -> None:
-    configuration = {"chaosreliably": {"run_ref": "run-123"}}
+    configuration = {
+        "chaosreliably": {
+            "run_ref": "run-123",
+            "refs": experiment.populate_event_refs(),
+        }
+    }
     x = {}  # type: ignore
     journal = {}  # type: ignore
 

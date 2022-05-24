@@ -8,7 +8,8 @@ from chaosreliably.types import EventType
 def test_before_rollback_control_calls_create_run_event(
     mock_create_run_event: MagicMock,
 ) -> None:
-    configuration = {"chaosreliably": {"run_ref": "run-123"}}
+    refs = experiment.populate_event_refs()
+    configuration = {"chaosreliably": {"run_ref": "run-123", "refs": refs}}
     context = {}  # type: ignore
     x = {}  # type: ignore
 
@@ -23,9 +24,11 @@ def test_before_rollback_control_calls_create_run_event(
     mock_create_run_event.assert_called_once_with(
         "XYZ",
         "run-123",
+        refs["rollback"],
         event_type=EventType.ROLLBACK_START,
         experiment=x,
         output=None,
+        title="Rollbacks",
         experiment_run_labels={"experiment_run_ref": "run-123"},
         configuration=configuration,
         secrets=None,
@@ -38,7 +41,12 @@ def test_that_an_exception_does_not_get_raised_and_warning_logged(
     mock_create_run_event: MagicMock,
     mock_logger: MagicMock,
 ) -> None:
-    configuration = {"chaosreliably": {"run_ref": "run-123"}}
+    configuration = {
+        "chaosreliably": {
+            "run_ref": "run-123",
+            "refs": experiment.populate_event_refs(),
+        }
+    }
     context = {}  # type: ignore
     x = {}  # type: ignore
 

@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.6.0...HEAD
 
+### Changed
+
+* Ensure events are properly referenced
+
 ## [0.6.0][]
 
 [0.6.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.5.0...0.6.0
