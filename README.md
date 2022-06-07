@@ -86,6 +86,7 @@ deviated during a Chaos Toolkit experiment. Here is a simple example:
         {
             "name": "Our 'Must be good' SLO results must be OK",
             "type": "probe",
+            "tolerance": true,
             "provider": {
                 "type": "python",
                 "module": "chaosreliably.slo.probes",
@@ -95,7 +96,6 @@ deviated during a Chaos Toolkit experiment. Here is a simple example:
                     "limit": 5
                 }
             },
-            "tolerance": true,
         }
     ]
 }
@@ -108,15 +108,7 @@ they are allowed.
 ### As controls
 
 You can use controls provided by `chaostoolkit-reliably` to track your experiments
-withing your Reliably network. Each time you run an experiment, it will create:
-
-* An entity for the experiment as a whole (If it doesn't already exist)
-* An entity for the specific version of the experiment (If it doesn't already exist)
-* An entity for the specific run of that experiment version
-* Several entities for the events that take place in your experiment
-
-You can also related the whole collection of entities to any other Reliably entities
-already in your network.
+within Reliably. 
 
 A full example of using the controls is below:
 
@@ -128,25 +120,20 @@ A full example of using the controls is below:
             "type": "python",
             "module": "chaosreliably.controls.experiment",
             "arguments": {
-                "commit_hash": "59f9f577e2d90719098f4d23d26329ce41f2d0bd",
-                "source": "https://github.com/my-org/my-repo/exp.json",
-                "user": "MyName",
-                "experiment_related_to_labels": [
-                    {
-                        "name": "99.9% of our requests are in the 2xx class",
-                        "service": "My amazing service"
-                    }
-                ]
+                "experiment_ref": "a81c7b966a673190"
             }
         }
     }
 ],
 ```
 
-This will create entities that would appear similar to this:
+The `experiment_ref` argument is a random string that is used by reliably to
+reference this particular experiment. It can be any string but should as
+unique as possible to prevent collision. In such case, the experiment would
+be overwritten in your organisation.
 
-![Experiment entities on reliably](https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/raw/master/images/experiment-entities-on-reliably.png)
-
+Once set, you should not change this value or Reliably will not be able to
+attach runs to that experiment.
 
 ### As Safeguards
 
