@@ -1,6 +1,6 @@
 import json
 import os
-from base64 import urlsafe_b64encode
+from base64 import standard_b64encode, urlsafe_b64encode
 from contextlib import contextmanager
 from typing import Dict, Generator, List
 
@@ -15,6 +15,7 @@ from chaoslib.types import (
     Configuration,
     DiscoveredActivities,
     Discovery,
+    Experiment,
     Secrets,
 )
 from logzero import logger
@@ -33,7 +34,7 @@ def get_session(
 ) -> Generator[httpx.Client, None, None]:
     c = configuration or {}
     verify_tls = c.get("reliably_verify_tls", True)
-    use_http = c.get("reliably_use_http", True)
+    use_http = c.get("reliably_use_http", False)
     scheme = "http" if use_http else "https"
     logger.debug(f"Reliably client TLS verification: {verify_tls}")
     auth_info = get_auth_info(configuration, secrets)
@@ -70,6 +71,15 @@ def encoded_selector(labels: Dict[str, str]) -> str:
     """
     return urlsafe_b64encode(
         json.dumps(labels, indent=False).encode("utf-8")
+    ).decode("utf-8")
+
+
+def encoded_experiment(experiment: Experiment) -> str:
+    """
+    Base64 encoded experiment
+    """
+    return standard_b64encode(
+        json.dumps(experiment, indent=False).encode("utf-8")
     ).decode("utf-8")
 
 

@@ -15,7 +15,7 @@ from chaoslib.types import (
 )
 from logzero import logger
 
-from chaosreliably import encoded_selector, get_session
+from chaosreliably import encoded_experiment, encoded_selector, get_session
 from chaosreliably.types import (
     EventType,
     ExperimentEntity,
@@ -765,7 +765,7 @@ def create_experiment(
             },
             related_to=objective_labels,
         ),
-        spec=ExperimentSpec(experiment=experiment),
+        spec=ExperimentSpec(experiment=encoded_experiment(experiment)),
     )
 
     send_to_reliably(
@@ -795,10 +795,10 @@ def mark_experiment_as_running(
 
     entity.metadata.annotations["currently_running"] = "true"
     if not entity.spec:
-        entity.spec = ExperimentSpec(experiment=experiment)
+        entity.spec = ExperimentSpec(experiment=encoded_experiment(experiment))
     else:
         # always keep the most up to date version
-        entity.spec.experiment = experiment
+        entity.spec.experiment = encoded_experiment(experiment)
 
     send_to_reliably(
         entity=entity,

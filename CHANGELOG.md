@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.7.0...HEAD
 
+### Changed
+
+* Always send the experiment encoded in standard base64
+
 ## [0.7.0][]
 
 [0.7.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.6.0...0.7.0

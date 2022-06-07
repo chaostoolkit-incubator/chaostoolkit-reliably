@@ -71,7 +71,7 @@ class ExperimentMetadata(BaseModel):
 
 
 class ExperimentSpec(BaseModel):
-    experiment: Optional[Any]
+    experiment: str
 
 
 class ExperimentEntity(BaseModel):
