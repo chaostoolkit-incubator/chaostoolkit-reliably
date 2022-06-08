@@ -15,7 +15,7 @@ def test_using_config_file() -> None:
         yaml.safe_dump(
             {
                 "auths": {
-                    "reliably.com": {"token": "12345", "username": "jane"}
+                    "app.reliably.com": {"token": "12345", "username": "jane"}
                 },
                 "currentOrg": {"name": "test-org"},
             },
@@ -27,7 +27,7 @@ def test_using_config_file() -> None:
 
         auth_info = get_auth_info({"reliably_config_path": f.name})
         assert auth_info["token"] == "12345"
-        assert auth_info["host"] == "reliably.com"
+        assert auth_info["host"] == "app.reliably.com"
         assert auth_info["org"] == "test-org"
 
 
@@ -96,17 +96,15 @@ def test_missing_token_from_secrets() -> None:
 
 
 def test_missing_host_from_secrets() -> None:
-    with pytest.raises(ActivityFailed) as ex:
-        get_auth_info(
-            {
-                "reliably_config_path": "",
-            },
-            {"token": "78890", "org": "an-org"},
-        )
-    assert str(ex.value) == (
-        "Make sure to provide the Reliably host as a secret or via the "
-        "Reliably's configuration's file."
+    auth_info = get_auth_info(
+        {
+            "reliably_config_path": "",
+        },
+        {"token": "78890", "org": "an-org"},
     )
+    assert auth_info["token"] == "78890"
+    assert auth_info["host"] == "app.reliably.com"
+    assert auth_info["org"] == "an-org"
 
 
 def test_missing_org_from_secrets() -> None:

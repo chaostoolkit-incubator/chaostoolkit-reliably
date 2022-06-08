@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.8.0...HEAD
 
+### Changed
+
+* Always load settings from the config file first if it exists
+
 ## [0.8.0][]
 
 [0.8.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.7.0...0.8.0

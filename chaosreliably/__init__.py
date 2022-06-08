@@ -23,7 +23,7 @@ from logzero import logger
 __version__ = "0.8.0"
 __all__ = ["get_session", "discover", "encoded_selector"]
 RELIABLY_CONFIG_PATH = "~/.config/reliably/config.yaml"
-RELIABLY_HOST = "reliably.com"
+RELIABLY_HOST = "app.reliably.com"
 
 
 @contextmanager
@@ -37,6 +37,7 @@ def get_session(
     use_http = c.get("reliably_use_http", False)
     scheme = "http" if use_http else "https"
     logger.debug(f"Reliably client TLS verification: {verify_tls}")
+    logger.debug(f"Reliably client scheme: {scheme}")
     auth_info = get_auth_info(configuration, secrets)
     headers = {
         "Content-Type": "application/json",
@@ -94,19 +95,23 @@ def get_auth_info(
     reliably_token = None
     reliably_org = None
 
+    secrets = secrets or {}
+    reliably_host = secrets.get(
+        "host", os.getenv("RELIABLY_HOST", RELIABLY_HOST)
+    )
+    logger.debug(f"Connecting to Reliably: {reliably_host}")
+
     configuration = configuration or {}
     reliably_config_path = os.path.expanduser(
         configuration.get("reliably_config_path", RELIABLY_CONFIG_PATH)
     )
     if reliably_config_path and not os.path.isfile(reliably_config_path):
+        logger.debug(
+            f"No Reliably configuration file found at {reliably_config_path}"
+        )
         reliably_config_path = None
 
-    secrets = secrets or {}
-    reliably_token = secrets.get("token", os.getenv("RELIABLY_TOKEN"))
-    reliably_host = secrets.get("host", os.getenv("RELIABLY_HOST"))
-    reliably_org = secrets.get("org", os.getenv("RELIABLY_ORG"))
-
-    if not reliably_token and reliably_config_path:
+    if reliably_config_path:
         logger.debug(f"Loading Reliably config from: {reliably_config_path}")
         with open(reliably_config_path) as f:
             try:
@@ -116,8 +121,6 @@ def get_auth_info(
                     "Failed parsing Reliably configuration at "
                     "'{}': {}".format(reliably_config_path, str(ye))
                 )
-        reliably_host = reliably_host or RELIABLY_HOST
-        logger.debug(f"Connecting to Reliably: {reliably_host}")
         auth_hosts = config.get("auths", {})
         for auth_host, values in auth_hosts.items():
             if auth_host == reliably_host:
@@ -127,12 +130,12 @@ def get_auth_info(
         if current_org:
             reliably_org = current_org.get("name")
 
-    if (
-        not reliably_config_path
-        and not reliably_token
-        and not reliably_host
-        and not reliably_org
-    ):
+    reliably_token = secrets.get(
+        "token", os.getenv("RELIABLY_TOKEN", reliably_token)
+    )
+    reliably_org = secrets.get("org", os.getenv("RELIABLY_ORG", reliably_org))
+
+    if not reliably_config_path and not reliably_token and not reliably_org:
         raise ActivityFailed(
             "Make sure to login against Reliably's services and/or provide "
             "the correct authentication information to the experiment."
