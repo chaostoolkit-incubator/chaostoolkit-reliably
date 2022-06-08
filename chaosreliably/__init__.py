@@ -20,7 +20,7 @@ from chaoslib.types import (
 )
 from logzero import logger
 
-__version__ = "0.8.0"
+__version__ = "0.8.1"
 __all__ = ["get_session", "discover", "encoded_selector"]
 RELIABLY_CONFIG_PATH = "~/.config/reliably/config.yaml"
 RELIABLY_HOST = "app.reliably.com"
