@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import ujson
 from chaoslib.types import Configuration, Experiment, Journal, Secrets
@@ -38,7 +38,7 @@ def complete_run(
     state: Journal,
     configuration: Configuration,
     secrets: Secrets,
-) -> Dict[str, Any] | None:
+) -> Optional[Dict[str, Any]]:
     with get_session(configuration, secrets) as session:
         resp = session.post(
             f"/{org_id}/experiments/{exp_id}/executions",
