@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.8.1...HEAD
 
+### Changed
+
+* Migrate to new Reliably API
+
 ## [0.8.1][]
 
 [0.8.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.8.0...0.8.1
