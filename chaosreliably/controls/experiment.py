@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional
 
+import opentracing  # type: ignore
 import ujson
 from chaoslib.types import Configuration, Experiment, Journal, Secrets
 from logzero import logger
@@ -18,14 +19,24 @@ def after_experiment_control(
     secrets: Secrets = None,
     **kwargs: Any,
 ) -> None:
+
+    tracer = opentracing.global_tracer()
+    scope = tracer.scope_manager.active
+    span = scope.span if scope else None
+    if span:
+        span.set_tag("reliably-control", "started")
+
     try:
         complete_run(org_id, exp_id, context, state, configuration, secrets)
     except Exception as ex:
         logger.debug(
-            f"An error occurred: {ex}, while running the After Experiment "
-            "control, the Experiment execution won't be affected.",
+            f"An error occurred: {ex}, while running the after-experiment "
+            "control, the execution won't be affected.",
             exc_info=True,
         )
+    finally:
+        if span:
+            span.set_tag("reliably-control", "finished")
 
 
 ###############################################################################

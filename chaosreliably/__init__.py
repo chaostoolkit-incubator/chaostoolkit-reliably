@@ -12,6 +12,15 @@ from chaoslib.types import (
 )
 from logzero import logger
 
+try:
+    from opentelemetry.instrumentation.httpx import (  # type: ignore
+        HTTPXClientInstrumentor,
+    )
+
+    HTTPXClientInstrumentor().instrument()
+except ImportError:
+    pass
+
 __version__ = "0.9.0"
 __all__ = ["get_session", "discover"]
 RELIABLY_HOST = "app.reliably.com"
