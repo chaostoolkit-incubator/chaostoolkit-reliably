@@ -1,11 +1,12 @@
-from typing import Any, Dict, Optional, Tuple, cast
+import os
+from typing import Any, Dict, Optional, cast
 
 import opentracing  # type: ignore
 import ujson
 from chaoslib.types import Configuration, Experiment, Journal, Secrets
 from logzero import logger
 
-from chaosreliably import get_session
+from chaosreliably import RELIABLY_HOST, get_session
 
 __all__ = ["after_experiment_control"]
 
@@ -32,8 +33,16 @@ def after_experiment_control(
         )
 
         if result:
-            url, payload = result
+            payload = result
             extension = get_reliably_extension_from_journal(state)
+
+            exec_id = payload["id"]
+
+            host = secrets.get(
+                "host", os.getenv("RELIABLY_HOST", RELIABLY_HOST)
+            )
+
+            url = f"https://{host}/executions/view/?id={exec_id}&exp={exp_id}"
             extension["execution_url"] = url
     except Exception as ex:
         logger.debug(
@@ -56,7 +65,7 @@ def complete_run(
     state: Journal,
     configuration: Configuration,
     secrets: Secrets,
-) -> Optional[Tuple[str, Dict[str, Any]]]:
+) -> Optional[Dict[str, Any]]:
     with get_session(configuration, secrets) as session:
         resp = session.post(
             f"/{org_id}/experiments/{exp_id}/executions",
@@ -64,7 +73,7 @@ def complete_run(
         )
         logger.debug(f"Response from {resp.url}: {resp.status_code}")
         if resp.status_code == 201:
-            return (str(resp.url), resp.json())
+            return cast(Dict[str, Any], resp.json())
     return None
 
 

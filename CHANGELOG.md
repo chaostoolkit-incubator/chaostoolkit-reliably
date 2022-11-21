@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.9.2...HEAD
 
+### Fixed
+
+* Fix URL to execution
+
 ## [0.9.2][]
 
 [0.9.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.9.1...0.9.2
