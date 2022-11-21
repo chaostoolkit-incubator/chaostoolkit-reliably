@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Any, Dict, Optional, cast
 
@@ -44,6 +45,8 @@ def after_experiment_control(
 
             url = f"https://{host}/executions/view/?id={exec_id}&exp={exp_id}"
             extension["execution_url"] = url
+
+            add_runtime_extra(extension)
     except Exception as ex:
         logger.debug(
             f"An error occurred: {ex}, while running the after-experiment "
@@ -87,3 +90,14 @@ def get_reliably_extension_from_journal(journal: Journal) -> Dict[str, Any]:
     extension = {"name": "reliably"}
     extensions.append(extension)
     return cast(Dict[str, Any], extension)
+
+
+def add_runtime_extra(extension: Dict[str, Any]) -> None:
+    extra = os.getenv("RELIABLY_EXECUTION_EXTRA")
+    if not extra:
+        return
+
+    try:
+        extension["extra"] = json.loads(extra)
+    except Exception:
+        pass
