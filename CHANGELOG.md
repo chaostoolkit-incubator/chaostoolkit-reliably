@@ -7,6 +7,7 @@
 ### Changed
 
 * Migrate to new Reliably API
+* Add execution url and payload into the journal
 
 ## [0.8.1][]
 

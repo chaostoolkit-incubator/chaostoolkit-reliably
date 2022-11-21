@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple, cast
 
 import opentracing  # type: ignore
 import ujson
@@ -27,7 +27,15 @@ def after_experiment_control(
         span.set_tag("reliably-control", "started")
 
     try:
-        complete_run(org_id, exp_id, context, state, configuration, secrets)
+        result = complete_run(
+            org_id, exp_id, context, state, configuration, secrets
+        )
+
+        if result:
+            url, payload = result
+            extension = get_reliably_extension_from_journal(state)
+            extension["execution_url"] = url
+            extension["execution_info"] = payload
     except Exception as ex:
         logger.debug(
             f"An error occurred: {ex}, while running the after-experiment "
@@ -49,14 +57,25 @@ def complete_run(
     state: Journal,
     configuration: Configuration,
     secrets: Secrets,
-) -> Optional[Dict[str, Any]]:
+) -> Optional[Tuple[str, Dict[str, Any]]]:
     with get_session(configuration, secrets) as session:
         resp = session.post(
             f"/{org_id}/experiments/{exp_id}/executions",
             json={"result": ujson.dumps(state)},
         )
         logger.debug(f"Response from {resp.url}: {resp.status_code}")
-        if resp.status_code == 200:
-            payload = resp.json()
-            return payload  # type: ignore
+        if resp.status_code == 201:
+            return (str(resp.url), resp.json())
     return None
+
+
+def get_reliably_extension_from_journal(journal: Journal) -> Dict[str, Any]:
+    experiment = journal.get("experiment")
+    extensions = experiment.get("extensions", [])
+    for extension in extensions:
+        if extension["name"] == "reliably":
+            return cast(Dict[str, Any], extension)
+
+    extension = {"name": "reliably"}
+    extensions.append(extension)
+    return cast(Dict[str, Any], extension)
