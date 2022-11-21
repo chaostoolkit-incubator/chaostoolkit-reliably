@@ -35,7 +35,6 @@ def after_experiment_control(
             url, payload = result
             extension = get_reliably_extension_from_journal(state)
             extension["execution_url"] = url
-            extension["execution_info"] = payload
     except Exception as ex:
         logger.debug(
             f"An error occurred: {ex}, while running the after-experiment "

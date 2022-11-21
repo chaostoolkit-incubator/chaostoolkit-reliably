@@ -2,7 +2,19 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.9.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.9.2...HEAD
+
+## [0.9.2][]
+
+[0.9.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.9.1...0.9.2
+
+### Changed
+
+* Removing the execution payload from the extension
+
+## [0.9.1][]
+
+[0.9.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.9.0...0.9.1
 
 ### Fixed
 
