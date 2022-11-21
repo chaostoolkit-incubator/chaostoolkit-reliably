@@ -71,7 +71,7 @@ def complete_run(
 
 def get_reliably_extension_from_journal(journal: Journal) -> Dict[str, Any]:
     experiment = journal.get("experiment")
-    extensions = experiment.get("extensions", [])
+    extensions = experiment.setdefault("extensions", [])
     for extension in extensions:
         if extension["name"] == "reliably":
             return cast(Dict[str, Any], extension)
