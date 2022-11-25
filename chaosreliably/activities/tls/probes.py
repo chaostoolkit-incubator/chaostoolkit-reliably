@@ -29,9 +29,7 @@ def get_certificate_info(host: str, port: int = 443) -> Dict[str, Any]:
                     f"endpoint {host}:{port} has no certificate"
                 )
 
-            cert_data = x509.load_der_x509_certificate(
-                cert, default_backend()  # type: ignore
-            )
+            cert_data = x509.load_der_x509_certificate(cert, default_backend())
 
             conn_info["conn"].update(  # type: ignore
                 {

@@ -17,9 +17,7 @@ from chaoslib.types import (
 from logzero import logger
 
 try:
-    from opentelemetry.instrumentation.httpx import (  # type: ignore
-        HTTPXClientInstrumentor,
-    )
+    from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
 
     HTTPXClientInstrumentor().instrument()
 except ImportError:
