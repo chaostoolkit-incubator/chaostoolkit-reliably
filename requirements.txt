@@ -3,3 +3,4 @@ httpx
 pydantic
 ujson
 httpx
+cryptography

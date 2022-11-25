@@ -6,4 +6,4 @@ def test_that_discover_returns_correct_discovery() -> None:
     assert discovery["extension"]["name"] == "chaostoolkit-reliably"
     assert discovery["extension"]["version"] == __version__
     names = [activity["name"] for activity in discovery["activities"]]
-    assert len(names) == 2
+    assert len(names) == 8

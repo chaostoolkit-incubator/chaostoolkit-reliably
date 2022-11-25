@@ -8,6 +8,8 @@
 
 * Probe to measure duration of a single HTTP request
 * Tolerance to validate this duration is below a certain value
+* Probe to capture the TLS certificate of a remote endpoint
+* Tolerances to validate aspects of the certificate
 
 ## [0.9.4][]
 
