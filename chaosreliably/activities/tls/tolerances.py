@@ -122,14 +122,13 @@ def parse_duration(duration: str) -> timedelta:
     value = int(duration[:-1])
     unit = duration[-1]
 
-    match unit:
-        case "s":
-            return timedelta(seconds=value)
-        case "m":
-            return timedelta(minutes=value)
-        case "d":
-            return timedelta(days=value)
-        case "w":
-            return timedelta(weeks=value)
+    if unit == "s":
+        return timedelta(seconds=value)
+    elif unit == "m":
+        return timedelta(minutes=value)
+    elif unit == "d":
+        return timedelta(days=value)
+    elif unit == "w":
+        return timedelta(weeks=value)
 
     return timedelta(weeks=1)
