@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from chaoslib.exceptions import InvalidActivity
 from logzero import logger
@@ -14,7 +14,7 @@ __all__ = [
 
 
 def expire_in_more_than(
-    duration: str = "7d", value: Dict[str, Any] | None = None
+    duration: str = "7d", value: Optional[Dict[str, Any]] = None
 ) -> bool:
     """
     Verifies that the certificate expires in more than the given duration.
@@ -33,7 +33,7 @@ def expire_in_more_than(
 def has_subject_alt_names(
     alt_names: List[str],
     strict: bool = True,
-    value: Dict[str, Any] | None = None,
+    value: Optional[Dict[str, Any]] = None,
 ) -> bool:
     """
     Validates the certficate covers at least the given list of alternative
@@ -56,7 +56,9 @@ def has_subject_alt_names(
 
 
 def has_fingerprint(
-    fingerprint: str, hash: str = "sha256", value: Dict[str, Any] | None = None
+    fingerprint: str,
+    hash: str = "sha256",
+    value: Optional[Dict[str, Any]] = None,
 ) -> bool:
     """
     Validate the fingerprint of the certificate. The hash is one of
@@ -71,7 +73,7 @@ def has_fingerprint(
     return fp == fingerprint  # type: ignore
 
 
-def is_issued_by(issuer: str, value: Dict[str, Any] | None = None) -> bool:
+def is_issued_by(issuer: str, value: Optional[Dict[str, Any]] = None) -> bool:
     """
     Validate the issue of the certificate.
     """
@@ -80,10 +82,10 @@ def is_issued_by(issuer: str, value: Dict[str, Any] | None = None) -> bool:
 
 def verify_tls_cert(
     expire_after: str = "7d",
-    alt_names: List[str] | None = None,
-    fingerprint_sha256: str | None = None,
-    issuer: str | None = None,
-    value: Dict[str, Any] | None = None,
+    alt_names: Optional[List[str]] = None,
+    fingerprint_sha256: Optional[str] = None,
+    issuer: Optional[str] = None,
+    value: Optional[Dict[str, Any]] = None,
 ) -> bool:
     """
     Performs a range of checks on the certificate of the remote endpoint:
