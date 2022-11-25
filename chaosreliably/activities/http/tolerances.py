@@ -1,7 +1,7 @@
 __all__ = ["response_time_must_be_under"]
 
 
-def response_time_must_be_under(latency: float, value: float) -> bool:
+def response_time_must_be_under(latency: float, value: float = 0.) -> bool:
     """
     Validates the response time is under the given latency.
 
