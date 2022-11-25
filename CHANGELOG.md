@@ -4,6 +4,11 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.9.4...HEAD
 
+### Added
+
+* Probe to measure duration of a single HTTP request
+* Tolerance to validate this duration is below a certain value
+
 ## [0.9.4][]
 
 [0.9.4]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.9.3...0.9.4

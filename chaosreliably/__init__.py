@@ -3,7 +3,11 @@ from contextlib import contextmanager
 from typing import Dict, Generator, List
 
 import httpx
-from chaoslib.discovery.discover import initialize_discovery_result
+from chaoslib.discovery.discover import (
+    discover_activities,
+    discover_probes,
+    initialize_discovery_result,
+)
 from chaoslib.types import (
     Configuration,
     DiscoveredActivities,
@@ -89,6 +93,12 @@ def load_exported_activities() -> List[DiscoveredActivities]:
     Extract metadata from actions, probes and tolerances
     exposed by this extension.
     """
-    activities = []  # type: ignore
+    activities = []
+    activities.extend(
+        discover_activities(
+            "chaosreliably.activities.http.tolerances", "tolerance"
+        )
+    )
+    activities.extend(discover_probes("chaosreliably.activities.http.probes"))
 
     return activities
