@@ -4,6 +4,11 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.10.0...HEAD
 
+### Changed
+
+* Send planning status back to Reliably
+* Add span attributes and tags
+
 ## [0.10.0][]
 
 [0.10.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.9.4...0.10.0
