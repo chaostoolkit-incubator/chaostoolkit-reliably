@@ -7,5 +7,3 @@ pytest
 pytest-cov
 pytest-sugar
 pytest-httpx
-types-ujson
-types-simplejson

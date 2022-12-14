@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.11.0...HEAD
 
+### Changed
+
+* Remove ujson to be more portable
+
 ## [0.11.0][]
 
 [0.11.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.10.0...0.11.0

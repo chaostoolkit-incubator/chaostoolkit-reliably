@@ -3,7 +3,6 @@ import os
 from typing import Any, Dict, Optional, cast
 
 import opentracing  # type: ignore
-import ujson
 from chaoslib.types import Configuration, Experiment, Journal, Secrets
 from logzero import logger
 
@@ -87,7 +86,7 @@ def complete_run(
     with get_session(configuration, secrets) as session:
         resp = session.post(
             f"/{org_id}/experiments/{exp_id}/executions",
-            json={"result": ujson.dumps(state)},
+            json={"result": json.dumps(state)},
         )
         logger.debug(f"Response from {resp.url}: {resp.status_code}")
         if resp.status_code == 201:
