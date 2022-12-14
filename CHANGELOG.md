@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.12.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.12.1...HEAD
+
+## [0.12.1][]
+
+[0.12.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.12.0...0.12.1
+
+### Changed
+
+* Remove ujson from setup.cfg
 
 ## [0.12.0][]
 
