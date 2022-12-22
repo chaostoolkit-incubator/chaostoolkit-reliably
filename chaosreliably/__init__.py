@@ -24,7 +24,7 @@ try:
 except ImportError:
     pass
 
-__version__ = "0.12.1"
+__version__ = "0.13.0"
 __all__ = ["get_session", "discover", "parse_duration"]
 RELIABLY_HOST = "app.reliably.com"
 
