@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.12.1...HEAD
 
+### Added
+
+* GitHub probe and tolerance to compute the ratio of closed PRs over a priod of time
+
 ## [0.12.1][]
 
 [0.12.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.12.0...0.12.1

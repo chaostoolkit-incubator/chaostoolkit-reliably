@@ -1,8 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from chaoslib.exceptions import InvalidActivity
 from logzero import logger
+
+from chaosreliably import parse_duration
 
 __all__ = [
     "expire_in_more_than",
@@ -115,22 +117,3 @@ def verify_tls_cert(
             return False
 
     return True
-
-
-##############################################################################
-# Private functions
-##############################################################################
-def parse_duration(duration: str) -> timedelta:
-    value = int(duration[:-1])
-    unit = duration[-1]
-
-    if unit == "s":
-        return timedelta(seconds=value)
-    elif unit == "m":
-        return timedelta(minutes=value)
-    elif unit == "d":
-        return timedelta(days=value)
-    elif unit == "w":
-        return timedelta(weeks=value)
-
-    return timedelta(weeks=1)

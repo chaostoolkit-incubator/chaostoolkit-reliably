@@ -1,5 +1,6 @@
 import os
 from contextlib import contextmanager
+from datetime import timedelta
 from typing import Dict, Generator, List
 
 import httpx
@@ -24,7 +25,7 @@ except ImportError:
     pass
 
 __version__ = "0.12.1"
-__all__ = ["get_session", "discover"]
+__all__ = ["get_session", "discover", "parse_duration"]
 RELIABLY_HOST = "app.reliably.com"
 
 
@@ -104,5 +105,27 @@ def load_exported_activities() -> List[DiscoveredActivities]:
         )
     )
     activities.extend(discover_probes("chaosreliably.activities.tls.probes"))
+    activities.extend(
+        discover_activities(
+            "chaosreliably.activities.gh.tolerances", "tolerance"
+        )
+    )
+    activities.extend(discover_probes("chaosreliably.activities.gh.probes"))
 
     return activities
+
+
+def parse_duration(duration: str) -> timedelta:
+    value = int(duration[:-1])
+    unit = duration[-1]
+
+    if unit == "s":
+        return timedelta(seconds=value)
+    elif unit == "m":
+        return timedelta(minutes=value)
+    elif unit == "d":
+        return timedelta(days=value)
+    elif unit == "w":
+        return timedelta(weeks=value)
+
+    return timedelta(weeks=1)
