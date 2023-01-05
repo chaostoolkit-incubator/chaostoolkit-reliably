@@ -36,7 +36,7 @@ def closed_pr_ratio(
     """
     secrets = secrets or {}
     gh_token = secrets.get("github", {}).get("token")
-    gh_token = os.getenv("GITHUB_TOKEN")
+    gh_token = os.getenv("GITHUB_TOKEN", gh_token)
 
     if not gh_token:
         raise InvalidActivity(

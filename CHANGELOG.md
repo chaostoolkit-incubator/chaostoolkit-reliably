@@ -4,6 +4,11 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.14.0...HEAD
 
+### Fixed
+
+* Use the github token from secrets when provided but let the `GITHUB_TOKEN`
+  value take precedence
+
 ## [0.14.0][]
 
 [0.14.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.13.0...0.14.0
