@@ -17,13 +17,6 @@ from chaoslib.types import (
 )
 from logzero import logger
 
-try:
-    from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
-
-    HTTPXClientInstrumentor().instrument()
-except ImportError:
-    pass
-
 __version__ = "0.13.0"
 __all__ = ["get_session", "discover", "parse_duration"]
 RELIABLY_HOST = "app.reliably.com"
@@ -36,16 +29,16 @@ def get_session(
 ) -> Generator[httpx.Client, None, None]:
     c = configuration or {}
     verify_tls = c.get("reliably_verify_tls", True)
+    with_http2 = True if verify_tls else False
     use_http = c.get("reliably_use_http", False)
     scheme = "http" if use_http else "https"
-    logger.debug(f"Reliably client TLS verification: {verify_tls}")
-    logger.debug(f"Reliably client scheme: {scheme}")
     auth_info = get_auth_info(configuration, secrets)
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer {}".format(auth_info["token"]),
     }
-    with httpx.Client(verify=verify_tls) as client:
+
+    with httpx.Client(verify=verify_tls, http2=with_http2) as client:
         client.headers = httpx.Headers(headers)
         client.base_url = httpx.URL(
             f"{scheme}://{auth_info['host']}/api/v1/organization"

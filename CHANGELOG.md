@@ -4,6 +4,11 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.13.0...HEAD
 
+### Changed
+
+* Fully removed Open Telemetry support for now as the underlying library
+  doesn't play well with having many tracers enabled
+
 ## [0.13.0][]
 
 [0.13.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.12.1...0.12.0
