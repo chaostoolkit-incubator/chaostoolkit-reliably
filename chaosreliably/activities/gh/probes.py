@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from urllib.parse import urlparse
 
 import httpx
 from chaoslib.exceptions import ActivityFailed, InvalidActivity
@@ -51,6 +52,9 @@ def closed_pr_ratio(
     total_opened = 0
     total_closed_during_period = 0
     total_opened_during_period = 0
+
+    p = urlparse(repo)
+    repo = p.path
 
     api_url = f"https://api.github.com/repos/{repo}/pulls"
     page = 1

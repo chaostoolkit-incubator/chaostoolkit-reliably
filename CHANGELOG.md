@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.14.1...HEAD
 
+### Changed
+
+* In case the repo is given as its full URL, just pick the path from it
+
 ## [0.14.1][]
 
 [0.14.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.14.0...0.14.1
