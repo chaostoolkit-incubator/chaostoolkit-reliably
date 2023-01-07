@@ -17,7 +17,7 @@ from chaoslib.types import (
 )
 from logzero import logger
 
-__version__ = "0.14.2"
+__version__ = "0.15.0"
 __all__ = ["get_session", "discover", "parse_duration"]
 RELIABLY_HOST = "app.reliably.com"
 
