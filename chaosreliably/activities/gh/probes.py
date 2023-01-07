@@ -54,7 +54,7 @@ def closed_pr_ratio(
     total_opened_during_period = 0
 
     p = urlparse(repo)
-    repo = p.path.strip('/')
+    repo = p.path.strip("/")
 
     api_url = f"https://api.github.com/repos/{repo}/pulls"
     page = 1

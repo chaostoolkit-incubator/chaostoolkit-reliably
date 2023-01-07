@@ -7,6 +7,7 @@
 ### Changed
 
 * Strip path of its '/' boundaries
+* Add `ratio_above` tolerance
 
 ## [0.14.2][]
 
