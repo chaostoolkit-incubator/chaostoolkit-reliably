@@ -4,6 +4,13 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.15.0...HEAD
 
+### Added
+
+* `pr_duration` probe to collect the duration of all, or a subset, of
+  a GitHub repository's pull-requests
+* `percentile_under` tolerance to compute the percentiles of a list of
+  of values
+
 ## [0.15.0][]
 
 [0.15.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.14.2...0.15.0

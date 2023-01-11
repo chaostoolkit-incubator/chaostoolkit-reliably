@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from typing import List, Optional
 from urllib.parse import urlparse
 
 import httpx
@@ -9,7 +10,7 @@ from logzero import logger
 
 from chaosreliably import parse_duration
 
-__all__ = ["closed_pr_ratio"]
+__all__ = ["closed_pr_ratio", "pr_duration"]
 
 
 def closed_pr_ratio(
@@ -71,6 +72,7 @@ def closed_pr_ratio(
                 "base": base,
                 "direction": "desc",
                 "state": "all",
+                "sort": "created",
                 "page": page,
             },
         )
@@ -122,3 +124,95 @@ def closed_pr_ratio(
     )
 
     return ratio
+
+
+def pr_duration(
+    repo: str,
+    base: str = "main",
+    window: Optional[str] = "5d",
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+) -> List[float]:
+    """
+    Get a list of opened pull-requests durations.
+
+    If you don't set a window (by setting `window` to `None`), then it returns
+    the duration of all PRs that were ever opened in this repository. Otherwise,
+    only return the durations for PRs that were opened or closed within that
+    window.
+
+    The `repo` should be given as `owner/repo` and the window should be given
+    as a pattern like this: `<int>s|m|d|w` (seconds, minutes, days, weeks).
+    """
+    secrets = secrets or {}
+    gh_token = secrets.get("github", {}).get("token")
+    gh_token = os.getenv("GITHUB_TOKEN", gh_token)
+
+    if not gh_token:
+        raise InvalidActivity(
+            "`pr_opened_duration` requires a github token as a secret or via "
+            "the GITHUB_TOKEN environment variable"
+        )
+
+    today = datetime.today()
+    start_period = None
+    if window:
+        duration = parse_duration(window)
+        start_period = today - duration
+
+    durations = []
+    p = urlparse(repo)
+    repo = p.path.strip("/")
+
+    api_url = f"https://api.github.com/repos/{repo}/pulls"
+    page = 1
+    carry_on = True
+    while carry_on:
+        r = httpx.get(
+            api_url,
+            headers={
+                "accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+                "Authorization": f"Bearer {gh_token}",
+            },
+            params={
+                "base": base,
+                "direction": "desc",
+                "state": "all",
+                "sort": "created",
+                "page": page,
+            },
+        )
+
+        if r.status_code > 399:
+            logger.debug(f"failed to get PR for repo '{repo}': {r.json()}")
+            raise ActivityFailed(f"failed to retrieve PR for repo '{repo}'")
+
+        pulls = r.json()
+        if not pulls:
+            break
+
+        closed_at = created_at = None
+        page = page + 1
+        for pull in pulls:
+            closed_at = pull["closed_at"]
+            if closed_at:
+                closed_dt = datetime.strptime(closed_at, "%Y-%m-%dT%H:%M:%SZ")
+                if start_period and closed_dt < start_period:
+                    continue
+
+            created_at = pull["created_at"]
+            if created_at:
+                created_dt = datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ")
+                if start_period and created_dt < start_period:
+                    continue
+            else:
+                continue
+
+            # deal with PRs that aren't closed yet
+            if not closed_at:
+                closed_dt = today
+
+            durations.append((closed_dt - created_dt).total_seconds())
+
+    return durations
