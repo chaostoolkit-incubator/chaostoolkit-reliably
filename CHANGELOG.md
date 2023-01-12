@@ -4,6 +4,11 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.16.0...HEAD
 
+### Added
+
+* `inject_gradual_traffic_into_endpoint` action to perform some mild traffic
+  against an endpoint
+
 ## [0.16.0][]
 
 [0.16.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.15.0...0.16.0

@@ -5,6 +5,7 @@ from typing import Dict, Generator, List
 
 import httpx
 from chaoslib.discovery.discover import (
+    discover_actions,
     discover_activities,
     discover_probes,
     initialize_discovery_result,
@@ -104,6 +105,7 @@ def load_exported_activities() -> List[DiscoveredActivities]:
         )
     )
     activities.extend(discover_probes("chaosreliably.activities.gh.probes"))
+    activities.extend(discover_actions("chaosreliably.activities.load.actions"))
 
     return activities
 

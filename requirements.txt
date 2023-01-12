@@ -4,3 +4,4 @@ pydantic
 httpx[http2]
 cryptography
 boltons
+locust
