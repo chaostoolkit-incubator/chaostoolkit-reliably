@@ -5,7 +5,7 @@ import pkgutil
 import shutil
 import subprocess
 import tempfile
-from typing import Any, Dict, cast
+from typing import Any, Dict, Optional, cast
 from urllib.parse import urlparse
 
 from chaoslib import decode_bytes
@@ -22,6 +22,7 @@ def inject_gradual_traffic_into_endpoint(
     step_additional_vu: int = 1,
     vu_per_second_rate: int = 1,
     test_duration: int = 30,
+    results_json_filepath: Optional[str] = None,
     configuration: Configuration = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
@@ -100,5 +101,9 @@ def inject_gradual_traffic_into_endpoint(
 
         logger.debug(f"locust exit code: {p.returncode}")
         logger.debug(f"locust stderr: {stderr}")
+
+        if results_json_filepath:
+            with open(results_json_filepath, "w") as f:
+                f.write(stdout)
 
         return cast(Dict[str, Any], json.loads(stdout))
