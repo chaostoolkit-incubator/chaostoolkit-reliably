@@ -19,7 +19,7 @@ class UserTasks(TaskSet):
 
 
 class WebsiteUser(HttpUser):
-    wait_time = between(0.5, 1.5)
+    wait_time = between(1, 10)
     tasks = [UserTasks]
 
 
