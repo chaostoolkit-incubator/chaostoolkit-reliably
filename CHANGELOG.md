@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.17.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.17.1...HEAD
+
+## [0.17.1][]
+
+[0.17.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.17.0...0.17.1
+
+### Changed
+
+* do not fail `inject_gradual_traffic_into_endpoint` when errors were met
+  by a load test
 
 ## [0.17.0][]
 

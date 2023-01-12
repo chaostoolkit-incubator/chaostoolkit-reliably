@@ -98,10 +98,6 @@ def inject_gradual_traffic_into_endpoint(
         stdout = decode_bytes(p.stdout)
         stderr = decode_bytes(p.stderr)
 
-        if p.returncode != 0:
-            logger.debug(f"load test failed: {stderr}")
-            raise ActivityFailed("load test failed")
-
         logger.debug(f"locust exit code: {p.returncode}")
         logger.debug(f"locust stderr: {stderr}")
 
