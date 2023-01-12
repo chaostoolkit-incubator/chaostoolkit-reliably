@@ -18,7 +18,7 @@ from chaoslib.types import (
 )
 from logzero import logger
 
-__version__ = "0.18.0"
+__version__ = "0.18.1"
 __all__ = ["get_session", "discover", "parse_duration"]
 RELIABLY_HOST = "app.reliably.com"
 
@@ -105,6 +105,7 @@ def load_exported_activities() -> List[DiscoveredActivities]:
         )
     )
     activities.extend(discover_probes("chaosreliably.activities.gh.probes"))
+    activities.extend(discover_probes("chaosreliably.activities.load.probes"))
     activities.extend(discover_actions("chaosreliably.activities.load.actions"))
 
     return activities
