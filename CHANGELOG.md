@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.4...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.5...HEAD
+
+## [0.18.5][]
+
+[0.18.5]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.4...0.18.5
+
+### Changed
+
+* Creating execution on Reliably as soon as it starts
 
 ## [0.18.4][]
 
