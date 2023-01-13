@@ -104,15 +104,18 @@ def verify_tls_cert(
     if expire_in_more_than(expire_after, value) is False:
         return False
 
-    if alt_names is not None:
-        if has_subject_alt_names(alt_names, True, value) is False:
+    if alt_names not in ("", None):  # type: ignore
+        if (
+            has_subject_alt_names(alt_names, True, value)  # type: ignore
+            is False
+        ):
             return False
 
-    if fingerprint_sha256 is not None:
+    if fingerprint_sha256:
         if has_fingerprint(fingerprint_sha256, "sha256", value) is False:
             return False
 
-    if issuer is not None:
+    if issuer:
         if is_issued_by(issuer, value) is False:
             return False
 

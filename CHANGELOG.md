@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.3...HEAD
+
+## [0.18.3][]
+
+[0.18.3]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.2...0.18.3
+
+### Changed 
+
+* be more tolerant on default values
 
 ## [0.18.2][]
 
