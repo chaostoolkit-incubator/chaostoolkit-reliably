@@ -80,6 +80,8 @@ def inject_gradual_traffic_into_endpoint(
             "--headless",
             "--loglevel",
             "INFO",
+            "--exit-code-on-error",
+            "0",
         ]
         try:
             p = subprocess.run(

@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.3...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.4...HEAD
+
+## [0.18.4][]
+
+[0.18.4]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.3...0.18.4
+
+### Changed 
+
+* does not change the exit code on locust failed tests
 
 ## [0.18.3][]
 
