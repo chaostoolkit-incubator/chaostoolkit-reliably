@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.5...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.6...HEAD
+
+## [0.18.6][]
+
+[0.18.6]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.5...0.18.6
+
+### Changed
+
+* Pass config and secrets to handler
 
 ## [0.18.5][]
 

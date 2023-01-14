@@ -78,7 +78,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                 "completed",
                 None,
                 self.configuration,
-                self.self.secrets,
+                self.secrets,
             )
         except Exception as ex:
             set_plan_status(
@@ -95,7 +95,11 @@ def configure_control(
     secrets: Secrets = None,
     **kwargs: Any,
 ) -> None:
-    event_registry.register(ReliablyHandler(org_id, exp_id))
+    event_registry.register(
+        ReliablyHandler(
+            org_id, exp_id, configuration=configuration, secrets=secrets
+        )
+    )
 
 
 ###############################################################################
