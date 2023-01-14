@@ -3,7 +3,14 @@ import os
 from typing import Any, Dict, Optional, cast
 
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
-from chaoslib.types import Configuration, Experiment, Journal, Secrets
+from chaoslib.types import (
+    Configuration,
+    Experiment,
+    Journal,
+    Schedule,
+    Secrets,
+    Settings,
+)
 from logzero import logger
 
 from chaosreliably import RELIABLY_HOST, get_session
@@ -16,17 +23,24 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self,
         org_id: str,
         exp_id: str,
-        configuration: Configuration = None,
-        secrets: Secrets = None,
     ) -> None:
         RunEventHandler.__init__(self)
         self.org_id = org_id
         self.exp_id = exp_id
         self.exec_id = None
+
+    def running(
+        self,
+        experiment: Experiment,
+        journal: Journal,
+        configuration: Configuration,
+        secrets: Secrets,
+        schedule: Schedule,
+        settings: Settings,
+    ) -> None:
         self.configuration = configuration
         self.secrets = secrets
 
-    def started(self, experiment: Experiment, journal: Journal) -> None:
         try:
             result = create_run(
                 self.org_id,
@@ -42,6 +56,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                 extension = get_reliably_extension_from_journal(journal)
 
                 self.exec_id = payload["id"]
+                logger.debug(f"Reliably execution: {self.exec_id}")
 
                 host = self.secrets.get(
                     "host", os.getenv("RELIABLY_HOST", RELIABLY_HOST)
@@ -95,11 +110,8 @@ def configure_control(
     secrets: Secrets = None,
     **kwargs: Any,
 ) -> None:
-    event_registry.register(
-        ReliablyHandler(
-            org_id, exp_id, configuration=configuration, secrets=secrets
-        )
-    )
+    logger.debug("Configure Reliably's experiment control")
+    event_registry.register(ReliablyHandler(org_id, exp_id))
 
 
 ###############################################################################

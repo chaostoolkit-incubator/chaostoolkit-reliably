@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.6...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.19.0...HEAD
+
+## [0.19.0][]
+
+[0.19.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.18.6...0.19.0
+
+### Changed
+
+* Use the new `running` callback to initialize the execution
+* Bump to chaostoolkit-lib 1.30.0+
 
 ## [0.18.6][]
 

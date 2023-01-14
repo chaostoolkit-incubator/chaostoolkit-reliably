@@ -1,4 +1,4 @@
-chaostoolkit-lib>=1.19.0
+chaostoolkit-lib>=1.30.0
 httpx
 pydantic
 httpx[http2]
