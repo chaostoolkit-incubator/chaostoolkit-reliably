@@ -1,7 +1,7 @@
 import io
 import json
-from logging import Formatter, StreamHandler
 import os
+from logging import Formatter, StreamHandler
 from typing import Any, Dict, Optional, cast
 
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
@@ -34,9 +34,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self.stream = io.StringIO()
         self.log_handler = StreamHandler(stream=self.stream)
         self.log_handler.setFormatter(
-            Formatter(
-                "[%(asctime)s] - %(levelname)s - %(message)s"
-            )
+            Formatter("[%(asctime)s] - %(levelname)s - %(message)s")
         )
 
         logger.addHandler(self.log_handler)
@@ -131,6 +129,7 @@ def configure_control(
 ) -> None:
     logger.debug("Configure Reliably's experiment control")
     event_registry.register(ReliablyHandler(org_id, exp_id))
+
 
 ###############################################################################
 # Private functions
