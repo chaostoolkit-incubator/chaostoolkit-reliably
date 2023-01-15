@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.19.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.20.0...HEAD
+
+## [0.20.0][]
+
+[0.20.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.19.0...0.20.0
+
+### Added
+
+* Capture log to send to Reliably
 
 ## [0.19.0][]
 

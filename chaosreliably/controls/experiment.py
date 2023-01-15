@@ -1,4 +1,6 @@
+import io
 import json
+from logging import Formatter, StreamHandler
 import os
 from typing import Any, Dict, Optional, cast
 
@@ -28,6 +30,16 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self.org_id = org_id
         self.exp_id = exp_id
         self.exec_id = None
+
+        self.stream = io.StringIO()
+        self.log_handler = StreamHandler(stream=self.stream)
+        self.log_handler.setFormatter(
+            Formatter(
+                "[%(asctime)s] - %(levelname)s - %(message)s"
+            )
+        )
+
+        logger.addHandler(self.log_handler)
 
     def running(
         self,
@@ -79,12 +91,19 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             )
 
     def finish(self, journal: Journal) -> None:
+        logger.removeHandler(self.log_handler)
+        self.log_handler.flush()
+
+        log = self.stream.getvalue()
+        self.stream.close()
+
         try:
             complete_run(
                 self.org_id,
                 self.exp_id,
                 self.exec_id,
                 journal,
+                log,
                 self.configuration,
                 self.secrets,
             )
@@ -113,7 +132,6 @@ def configure_control(
     logger.debug("Configure Reliably's experiment control")
     event_registry.register(ReliablyHandler(org_id, exp_id))
 
-
 ###############################################################################
 # Private functions
 ###############################################################################
@@ -140,13 +158,14 @@ def complete_run(
     exp_id: str,
     execution_id: Optional[str],
     state: Journal,
+    log: str,
     configuration: Configuration,
     secrets: Secrets,
 ) -> Optional[Dict[str, Any]]:
     with get_session(configuration, secrets) as session:
         resp = session.put(
             f"/{org_id}/experiments/{exp_id}/executions/{execution_id}/results",
-            json={"result": json.dumps(state)},
+            json={"result": json.dumps(state), "log": log},
         )
         if resp.status_code != 200:
             logger.error("Failed to update results on server")
