@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.21.0...HEAD
 
+### Added
+
+* New tolerances for GH to check under/greater or equal
+
 ## [0.21.0][]
 
 [0.21.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.20.0...0.21.0

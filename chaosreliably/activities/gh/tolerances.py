@@ -6,7 +6,13 @@ from logzero import logger
 
 from chaosreliably import parse_duration
 
-__all__ = ["ratio_under", "ratio_above", "percentile_under"]
+__all__ = [
+    "ratio_under",
+    "ratio_above",
+    "percentile_under",
+    "ratio_under_or_equal",
+    "ratio_above_or_equal",
+]
 
 
 def ratio_under(target: float, value: float = 0.0) -> bool:
@@ -24,6 +30,23 @@ def ratio_above(target: float, value: float = 0.0) -> bool:
     """
     logger.debug(f"Verify that ratio is above: {target}")
     return value > target
+
+
+def ratio_under_or_equal(target: float, value: float = 0.0) -> bool:
+    """
+    Validates the ratio returned by a probe is below the `target`.
+    """
+    logger.debug(f"Verify that ratio is below: {target}")
+    return value <= target
+
+
+def ratio_above_or_equal(target: float, value: float = 0.0) -> bool:
+    """
+    Validates the ratio returned by a probe is greater than the
+    `target`.
+    """
+    logger.debug(f"Verify that ratio is above: {target}")
+    return value >= target
 
 
 def percentile_under(
