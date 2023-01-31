@@ -1,11 +1,13 @@
 import io
 import json
 import os
+import secrets
 import threading
 import time
+from copy import deepcopy
 from datetime import datetime, timezone
 from logging import Formatter, StreamHandler
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, List, Optional, cast
 
 from chaoslib.exit import exit_gracefully, exit_ungracefully
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
@@ -14,6 +16,7 @@ from chaoslib.types import (
     Configuration,
     Experiment,
     Journal,
+    Run,
     Schedule,
     Secrets,
     Settings,
@@ -21,6 +24,8 @@ from chaoslib.types import (
 from logzero import logger
 
 from chaosreliably import RELIABLY_HOST, get_session
+from chaosreliably.activities.pauses import reset as reset_activity_pause
+from chaosreliably.types import AutoPause
 
 __all__ = ["configure_control"]
 
@@ -30,19 +35,24 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self,
         org_id: str,
         exp_id: str,
+        experiment: Experiment,
     ) -> None:
         RunEventHandler.__init__(self)
         self.org_id = org_id
         self.exp_id = exp_id
         self.exec_id = None  # type: Optional[str]
         self.started = datetime.utcnow().replace(tzinfo=timezone.utc)
+        self.experiment = deepcopy(experiment)
+        self.journal = None  # type: Journal
+        self.current_activities = []  # type: List[Activity]
 
         self.should_stop = threading.Event()
         self.should_pause = threading.Event()
         self.check_lock = threading.Lock()
         self.pause_duration = 0
+        self.paused_by_user = ""
+        self.paused_by_user_id = ""
         self.paused = False
-        self.should_resume = threading.Event()
         self.check_for_user_state = None  # type: Optional[threading.Thread]
 
         self.stream = io.StringIO()
@@ -74,10 +84,18 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             state = r.json()
             if state:
                 if state["current"] == "terminate":
+                    user = state.get("user", {})
+                    username = user.get("name", "")
+                    self.paused_by_user = ""
+                    self.paused_by_user_id = ""
+
                     logger.info(
-                        "Execution state was changed to `terminate`. "
+                        "Execution state was changed to `terminate` "
+                        f"by {username}. "
                         "Exiting now..."
                     )
+
+                    reset_activity_pause()
 
                     self.extension["termination"] = {
                         "timestamp": datetime.utcnow()
@@ -94,11 +112,18 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                     duration = state["duration"]
                     with self.check_lock:
                         if not self.paused:
+                            user = state.get("user", {})
+                            self.paused_by_user = user.get("name", "")
+                            self.paused_by_user_id = user.get("id", "")
+
                             m = (
                                 "Execution state was changed to `pause`. "
                                 "Pausing the execution of the current "
                                 "activity"
                             )
+                            if self.paused_by_user:
+                                m = f"{m}, requested by {self.paused_by_user},"
+
                             if duration:
                                 m = f"{m} for {duration}s"
                             else:
@@ -109,12 +134,19 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                             self.pause_duration = state["duration"]
                             self.should_pause.set()
                 elif state["current"] == "resume":
+                    reset_activity_pause()
+
                     with self.check_lock:
                         if self.paused:
+                            user = state.get("user", {})
+                            username = user.get("name", "")
+                            self.paused_by_user = ""
+                            self.paused_by_user_id = ""
+
                             logger.info(
-                                "Execution state was changed to `resume`."
+                                "Execution state was changed to `resume` "
+                                f"by {username}"
                             )
-                            self.should_resume.set()
 
             now = time.time()
             later = now + 10
@@ -133,8 +165,10 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         schedule: Schedule,
         settings: Settings,
     ) -> None:
+        self.experiment = experiment
         self.configuration = configuration
         self.secrets = secrets
+        self.journal = journal
 
         try:
             result = create_run(
@@ -211,6 +245,8 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         log = self.stream.getvalue()
         self.stream.close()
 
+        self.current_activities.clear()
+
         try:
             complete_run(
                 self.org_id,
@@ -246,61 +282,111 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                 self.secrets,
             )
 
+            self.experiment = (
+                self.configuration
+            ) = self.secrets = self.journal = None
+
         logger.info("Finished Reliably execution. Bye!")
+
+    def start_hypothesis_before(self, experiment: Experiment) -> None:
+        with self.check_lock:
+            self.current_activities = experiment.get(
+                "steady-state-hypothesis", {}
+            ).get("probes", [])
+
+    def start_hypothesis_after(self, experiment: Experiment) -> None:
+        ssh = self.experiment.get("steady-state-hypothesis")
+        if ssh:
+            with self.check_lock:
+                self.current_activities = ssh.get("probes", [])
+                experiment["steady-state-hypothesis"][
+                    "probes"
+                ] = self.current_activities
+
+    def start_method(self, experiment: Experiment) -> None:
+        with self.check_lock:
+            self.current_activities = experiment.get("method", [])
+
+    def start_rollbacks(self, experiment: Experiment) -> None:
+        with self.check_lock:
+            self.current_activities = experiment.get("rollbacks", [])
 
     def start_activity(self, activity: Activity) -> None:
         name = activity.get("name")
 
+        with self.check_lock:
+            if self.paused:
+                pause = {
+                    "before_activity": name,
+                    "start": datetime.utcnow()
+                    .replace(tzinfo=timezone.utc)
+                    .isoformat(),
+                    "duration": self.pause_duration,
+                }
+                self.extension["pauses"].append(pause)
+
+        send_journal(
+            self.org_id,
+            self.exp_id,
+            self.exec_id,
+            self.journal,
+            self.configuration,
+            self.secrets,
+        )
+
+    def activity_completed(self, activity: Activity, run: Run) -> None:
+        name = activity.get("name")
+
         if self.should_pause.is_set():
-            logger.info(f"Pausing execution before activity '{name}'")
+            self.should_pause.clear()
+
+            logger.info(f"Adding a pause activity after '{name}'")
 
             duration = 0
             with self.check_lock:
                 duration = self.pause_duration
-                self.should_pause = threading.Event()
 
-            pause = {
-                "before_activity": name,
-                "start": datetime.utcnow()
-                .replace(tzinfo=timezone.utc)
-                .isoformat(),
-                "duration": duration,
-            }
-            self.extension["pauses"].append(pause)
-
-            if not duration:
-                self.should_resume.wait()
-            else:
-                now = time.time()
-                later = now + duration
-                while time.time() < later:
-                    time.sleep(0.5)
-                    if self.should_resume.is_set():
-                        logger.info(
-                            f"Resuming execution so activity '{name}' can run"
-                        )
-                        break
-
-            pause["end"] = (
-                datetime.utcnow().replace(tzinfo=timezone.utc).isoformat()
-            )
-
-            logger.info("No longer in pause")
+            index = self.current_activities.index(activity)
             with self.check_lock:
-                self.paused = False
-                self.should_resume = threading.Event()
+                self.current_activities.insert(
+                    index + 1,
+                    make_user_pause(
+                        duration, self.paused_by_user, self.paused_by_user_id
+                    ),
+                )
+        else:
+            with self.check_lock:
+                if self.paused:
+                    self.paused = False
 
-            set_execution_state(
-                self.org_id,
-                self.exp_id,
-                self.exec_id,
-                {
-                    "current": "running",
-                    "started_on": self.started.isoformat(),
-                },
-                self.configuration,
-                self.secrets,
-            )
+                    self.extension["pauses"][-1]["end"] = (
+                        datetime.utcnow()
+                        .replace(tzinfo=timezone.utc)
+                        .isoformat()
+                    )
+
+                    set_execution_state(
+                        self.org_id,
+                        self.exp_id,
+                        self.exec_id,
+                        {
+                            "current": "running",
+                            "started_on": self.started.isoformat(),
+                        },
+                        self.configuration,
+                        self.secrets,
+                    )
+
+                    logger.info("No longer paused")
+
+        send_journal(
+            self.org_id,
+            self.exp_id,
+            self.exec_id,
+            self.journal,
+            self.configuration,
+            self.secrets,
+        )
 
 
 def configure_control(
@@ -308,17 +394,93 @@ def configure_control(
     event_registry: EventHandlerRegistry,
     exp_id: str,
     org_id: str,
+    autopause: Optional[AutoPause] = None,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
 ) -> None:
     logger.debug("Configure Reliably's experiment control")
-    event_registry.register(ReliablyHandler(org_id, exp_id))
+
+    if autopause:
+        amend_experiment_for_autopauses(experiment, autopause)
+
+    event_registry.register(ReliablyHandler(org_id, exp_id, experiment))
 
 
 ###############################################################################
 # Private functions
 ###############################################################################
+def amend_experiment_for_autopauses(
+    experiment: Experiment, autopause: AutoPause
+) -> None:
+    method = experiment.get("method")
+    if method and "method" in autopause:
+        p = autopause["method"]
+        after_actions = p.get("after_actions", True)
+        after_probes = p.get("after_probes", False)
+        pause_duration = p.get("pause_duration", 0)
+
+        activities = method[:]
+        for index, activity in enumerate(activities):
+            index = method.index(activity)
+            if after_probes and activity["type"] == "probe":
+                method.insert(index + 1, make_pause(pause_duration))
+            elif after_actions and activity["type"] == "action":
+                method.insert(index + 1, make_pause(pause_duration))
+
+    ssh_probes = experiment.get("steady-state-hypothesis", {}).get("probes")
+    if ssh_probes and "steady-state-hypothesis" in autopause:
+        p = autopause["steady-state-hypothesis"]
+        pause_duration = p.get("pause_duration", 0)
+
+        activities = ssh_probes[:]
+        for index, activity in enumerate(activities):
+            index = method.index(activity)
+            ssh_probes.insert(index + 1, make_pause(pause_duration))
+
+    rollbacks = experiment.get("rollbacks")
+    if rollbacks and "rollbacks" in autopause:
+        p = autopause["rollbacks"]
+        pause_duration = p.get("pause_duration", 0)
+
+        activities = rollbacks[:]
+        for index, activity in enumerate(activities):
+            index = method.index(activity)
+            rollbacks.insert(index + 1, make_pause(pause_duration))
+
+
+def make_pause(pause_duration: int = 0) -> Activity:
+    return {
+        "type": "action",
+        "name": f"reliably-pause-{secrets.token_hex(4)}",
+        "provider": {
+            "type": "python",
+            "module": "chaosreliably.activities.pauses",
+            "func": "pause_execution",
+            "arguments": {"duration": pause_duration},
+        },
+    }
+
+
+def make_user_pause(
+    pause_duration: int = 0, username: str = "", user_id: str = ""
+) -> Activity:
+    return {
+        "type": "action",
+        "name": f"reliably-pause-{secrets.token_hex(4)}",
+        "provider": {
+            "type": "python",
+            "module": "chaosreliably.activities.pauses",
+            "func": "pause_execution",
+            "arguments": {
+                "duration": pause_duration,
+                "username": username,
+                "user_id": user_id,
+            },
+        },
+    }
+
+
 def create_run(
     org_id: str,
     exp_id: str,
@@ -350,6 +512,24 @@ def complete_run(
         resp = session.put(
             f"/{org_id}/experiments/{exp_id}/executions/{execution_id}/results",
             json={"result": json.dumps(state), "log": log},
+        )
+        if resp.status_code != 200:
+            logger.error("Failed to update results on server")
+    return None
+
+
+def send_journal(
+    org_id: str,
+    exp_id: str,
+    execution_id: Optional[str],
+    state: Journal,
+    configuration: Configuration,
+    secrets: Secrets,
+) -> Optional[Dict[str, Any]]:
+    with get_session(configuration, secrets) as session:
+        resp = session.put(
+            f"/{org_id}/experiments/{exp_id}/executions/{execution_id}/results",
+            json={"result": json.dumps(state)},
         )
         if resp.status_code != 200:
             logger.error("Failed to update results on server")
@@ -421,3 +601,9 @@ def set_execution_state(
             logger.debug(
                 f"Failed to set execution state: {r.status_code}: {r.json()}"
             )
+
+
+def to_datetime(ts: str) -> datetime:
+    return datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S.%f").replace(
+        tzinfo=timezone.utc
+    )

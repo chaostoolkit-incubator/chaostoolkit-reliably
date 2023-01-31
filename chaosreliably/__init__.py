@@ -39,7 +39,9 @@ def get_session(
         "Authorization": "Bearer {}".format(auth_info["token"]),
     }
 
-    with httpx.Client(verify=verify_tls, http2=with_http2) as client:
+    with httpx.Client(
+        verify=verify_tls, http2=with_http2, timeout=30
+    ) as client:
         client.headers = httpx.Headers(headers)
         client.base_url = httpx.URL(
             f"{scheme}://{auth_info['host']}/api/v1/organization"

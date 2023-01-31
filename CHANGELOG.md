@@ -7,6 +7,7 @@
 ### Added
 
 * New tolerances for GH to check under/greater or equal
+* Better support for pauses
 
 ## [0.21.0][]
 

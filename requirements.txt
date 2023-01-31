@@ -1,6 +1,5 @@
-chaostoolkit-lib>=1.30.0
+chaostoolkit-lib>=1.33.1
 httpx
-pydantic
 httpx[http2]
 cryptography
 boltons
