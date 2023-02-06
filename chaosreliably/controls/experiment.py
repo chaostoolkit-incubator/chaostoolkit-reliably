@@ -549,14 +549,38 @@ def get_reliably_extension_from_journal(journal: Journal) -> Dict[str, Any]:
 
 
 def add_runtime_extra(extension: Dict[str, Any]) -> None:
-    extra = os.getenv("RELIABLY_EXECUTION_EXTRA")
-    if not extra:
-        return
+    extra = os.getenv("RELIABLY_EXECUTION_EXTRA", "[]")
 
     try:
         extension["extra"] = json.loads(extra)
     except Exception:
-        pass
+        logger.debug("Failed to parse RELIABLY_EXECUTION_EXTRA")
+        extension["extra"] = []
+
+    if "CI" in os.environ:
+        repo = os.getenv("GITHUB_SERVER_URL")
+        gh = os.getenv("GITHUB_SERVER_URL")
+        run_id = os.getenv("GITHUB_RUN_ID")
+
+        if repo and gh:
+            extension["extra"].append(
+                {
+                    "type": "url",
+                    "provider": "github",
+                    "topic": "repo",
+                    "value": f"{gh}/{repo}",
+                }
+            )
+
+        if repo and gh and run_id:
+            extension["extra"].append(
+                {
+                    "type": "url",
+                    "provider": "github",
+                    "topic": "run",
+                    "value": f"{gh}/{repo}/actions/runs/{run_id}",
+                }
+            )
 
 
 def set_plan_status(

@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.22.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.23.0...HEAD
+
+## [0.23.0][]
+
+[0.23.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.22.0...0.23.0
+
+### Added
+
+* More links in the extension extra block when a CI is detected
 
 ## [0.22.0][]
 
