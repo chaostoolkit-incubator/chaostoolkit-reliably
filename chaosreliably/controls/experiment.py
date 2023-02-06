@@ -558,7 +558,7 @@ def add_runtime_extra(extension: Dict[str, Any]) -> None:
         extension["extra"] = []
 
     if "CI" in os.environ:
-        repo = os.getenv("GITHUB_SERVER_URL")
+        repo = os.getenv("GITHUB_REPOSITORY")
         gh = os.getenv("GITHUB_SERVER_URL")
         run_id = os.getenv("GITHUB_RUN_ID")
 

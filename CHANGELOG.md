@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.23.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.23.1...HEAD
+
+## [0.23.1][]
+
+[0.23.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.23.0...0.23.1
+
+### Changed
+
+* Fix GitHub repo name
 
 ## [0.23.0][]
 
