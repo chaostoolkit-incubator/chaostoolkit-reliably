@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.23.1...HEAD
 
+### Added
+
+* Probe to generate SLO values from different providers
+
 ## [0.23.1][]
 
 [0.23.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.23.0...0.23.1
