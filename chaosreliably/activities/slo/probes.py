@@ -5,7 +5,6 @@ from typing import Any, Dict, List, cast
 
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Configuration, Secrets
-from logzero import logger
 from slo_generator.compute import compute
 
 __all__ = ["compute_slo"]
@@ -67,12 +66,8 @@ def replace_vars(
             try:
                 full_value = full_value.replace(f"${{{var}}}", ctx[var])
             except KeyError:
-                logger.debug(
-                    f'Environment variable "{var}" should be set.',
-                    exc_info=True,
-                )
                 raise ActivityFailed(
-                    "failed to replace variables in SLO/Config"
+                    f'Environment variable "{var}" should be set.',
                 )
 
         content = full_value

@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.25.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.25.1...HEAD
+
+## [0.25.1][]
+
+[0.25.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.25.0...0.25.1
+
+### Fixed
+
+* Missing `slo-generator` dependency in `setup.cfg`
 
 ## [0.25.0][]
 
