@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.25.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.26.0...HEAD
+
+## [0.26.0][]
+
+[0.26.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.25.1...0.26.0
+
+### Changed
+
+* Deploy sub-dependencies for the SLO generator
 
 ## [0.25.1][]
 

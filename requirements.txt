@@ -3,4 +3,4 @@ httpx[http2]
 cryptography
 boltons
 locust
-slo-generator
+slo-generator[cloud_monitoring, prometheus, datadog, dynatrace]
