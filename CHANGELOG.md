@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.24.0...HEAD
 
+### Added
+
+* Tolerance to check SLO error budget
+
 ## [0.24.0][]
 
 [0.24.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.23.1...0.24.0
