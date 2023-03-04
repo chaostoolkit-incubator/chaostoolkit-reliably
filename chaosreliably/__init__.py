@@ -18,6 +18,8 @@ from chaoslib.types import (
 )
 from logzero import logger
 
+from .__version__ import __version__
+
 __all__ = ["get_session", "discover", "parse_duration"]
 RELIABLY_HOST = "app.reliably.com"
 
