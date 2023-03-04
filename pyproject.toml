@@ -41,9 +41,7 @@ changelog = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/blo
 requires = ["pdm-pep517>=1.0.0"]
 build-backend = "pdm.pep517.api"
 
-[tool]
-
-[tool.pdm.dev-dependencies]
+[project.optional-dependencies]
 dev = [
     "black>=22.10.0",
     "isort>=5.10.1",
@@ -55,6 +53,8 @@ dev = [
     "mypy>=1.0.1",
     "bandit>=1.7.4",
 ]
+
+[tool]
 
 [tool.pdm]
 version = { source = "scm" }
