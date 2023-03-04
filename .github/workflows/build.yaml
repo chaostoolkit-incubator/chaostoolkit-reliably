@@ -28,7 +28,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pdm sync
+        pdm sync -dG dev
 
     - name: Run Lint
       run: |
