@@ -22,7 +22,7 @@ jobs:
         sleep 30s
       env:
         PDM_PUBLISH_USERNAME: __token__
-        PDM_PUBLISH_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        PDM_PUBLISH_PASSWORD: ${{ secrets.PYPI_PWD }}
 
     # push artifacts for other jobs to use
     - name: Upload packages as artifacts
