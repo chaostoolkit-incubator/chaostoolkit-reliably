@@ -1,7 +1,10 @@
-try:
+import sys
+
+if sys.version_info >= (3, 8):
     from importlib.metadata import PackageNotFoundError, version
-except ImportError:
-    from importlib_metadata import PackageNotFoundError, version  # type: ignore
+
+elif sys.version_info < (3, 8):
+    from importlib_metadata import PackageNotFoundError, version
 
 
 try:
