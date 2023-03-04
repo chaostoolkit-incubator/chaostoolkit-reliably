@@ -15,6 +15,7 @@ dependencies = [
     "boltons>=23.0.0",
     "locust>=2.15.0",
     "slo-generator[cloud_monitoring, prometheus, datadog, dynatrace]>=2.3.4",
+    "importlib-metadata~=1.2; python_version < '3.8'",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
