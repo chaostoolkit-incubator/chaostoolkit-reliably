@@ -44,7 +44,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self.started = datetime.utcnow().replace(tzinfo=timezone.utc)
         self.experiment = deepcopy(experiment)
         self.journal = None  # type: Journal
-        self.current_activities = []  # type: list[Activity]
+        self.current_activities = []  # type: ignore
 
         self.should_stop = threading.Event()
         self.should_pause = threading.Event()
