@@ -11,6 +11,7 @@
 - Swapped flake8 for ruff
 - Introduced bandit to capture basic security issues
 - Moved away from setuptools to pyproject.toml
+- Swapped flake8 for ruff as linter, much faster
 
 ## [0.27.0][]
 
