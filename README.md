@@ -1,5 +1,8 @@
 # Chaos Toolkit extension for Reliably
 
+[![Version](https://img.shields.io/pypi/v/chaostoolkit-reliably.svg)](https://img.shields.io/pypi/v/chaostoolkit-reliably.svg)
+[![Python versions](https://img.shields.io/pypi/pyversions/chaostoolkit-reliably.svg)](https://www.python.org/)
+[![License](https://img.shields.io/pypi/l/chaostoolkit-reliably.svg)](https://img.shields.io/pypi/l/chaostoolkit-reliably.svg)
 ![Build](https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/workflows/Build/badge.svg)
 
 [Chaos Toolkit][chaostoolkit] extension for [Reliably][reliably].
