@@ -7,7 +7,7 @@ import time
 from copy import deepcopy
 from datetime import datetime, timezone
 from logging import Formatter, StreamHandler
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, Optional, cast
 
 from chaoslib.exit import exit_gracefully, exit_ungracefully
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
@@ -44,7 +44,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self.started = datetime.utcnow().replace(tzinfo=timezone.utc)
         self.experiment = deepcopy(experiment)
         self.journal = None  # type: Journal
-        self.current_activities = []  # type: List[Activity]
+        self.current_activities = []  # type: list[Activity]
 
         self.should_stop = threading.Event()
         self.should_pause = threading.Event()

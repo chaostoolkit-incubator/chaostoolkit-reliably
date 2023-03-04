@@ -1,3 +1,0 @@
-chaostoolkit
-chaostoolkit-reliably
-chaostoolkit-addons

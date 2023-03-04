@@ -155,5 +155,6 @@ Thumbs.db
 .vscode/
 
 journal.json
+.ruff_cache/
 
 # End of https://www.toptal.com/developers/gitignore/api/python

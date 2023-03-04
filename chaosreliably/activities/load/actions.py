@@ -3,7 +3,7 @@ import os
 import os.path
 import pkgutil
 import shutil
-import subprocess
+import subprocess  # nosec
 import tempfile
 from typing import Any, Dict, Optional, cast
 from urllib.parse import urlparse
@@ -84,7 +84,7 @@ def inject_gradual_traffic_into_endpoint(
             "0",
         ]
         try:
-            p = subprocess.run(
+            p = subprocess.run(  # nosec
                 cmd,
                 timeout=test_duration + 5,
                 stdin=subprocess.DEVNULL,

@@ -11,27 +11,25 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Set up PDM
+      uses: pdm-project/setup-pdm@v3
       with:
-        python-version: '3.7'
-    - name: Install dependencies
+        python-version: "3.10"
+    - name: Publish wheels
       run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade setuptools wheel twine
-    - name: Build and publish
+        pdm publish
+        # try to give Pypi time to update its index. Unfortunate.
+        sleep 30s
       env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_PWD }}
-      run: |
-        python3 setup.py release
-        twine upload dist/*
+        PDM_PUBLISH_USERNAME: __token__
+        PDM_PUBLISH_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+
     # push artifacts for other jobs to use
     - name: Upload packages as artifacts
       uses: actions/upload-artifact@v2-preview
       with:
         name: chaostoolkit-reliably-packages
-        path: dist/chaostoolkit_reliably-*
+        path: dist/chaostoolkit*
 
   create-gh-release:
     runs-on: ubuntu-22.04

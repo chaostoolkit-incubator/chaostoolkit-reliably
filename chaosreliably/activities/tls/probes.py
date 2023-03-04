@@ -55,8 +55,8 @@ def get_certificate_info(host: str, port: int = 443) -> Dict[str, Any]:
 
             conn_info["cert"]["fingerprints"].update(  # type: ignore
                 {
-                    "md5": cert_data.fingerprint(hashes.MD5()).hex(),
-                    "sha1": cert_data.fingerprint(hashes.SHA1()).hex(),
+                    "md5": cert_data.fingerprint(hashes.MD5()).hex(),  # nosec
+                    "sha1": cert_data.fingerprint(hashes.SHA1()).hex(),  # nosec
                     "sha256": cert_data.fingerprint(hashes.SHA256()).hex(),
                 }
             )

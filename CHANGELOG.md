@@ -2,7 +2,23 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.26.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.27.0...HEAD
+
+
+### Changed
+
+- Switched to [pdm](https://pdm.fming.dev/latest/) for package management
+- Swapped flake8 for ruff
+- Introduced bandit to capture basic security issues
+- Moved away from setuptools to pyproject.toml
+
+## [0.27.0][]
+
+[0.27.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.26.0...0.27.0
+
+### Changed
+
+* Updated Readme
 
 ## [0.26.0][]
 

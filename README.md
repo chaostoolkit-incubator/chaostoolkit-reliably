@@ -2,7 +2,7 @@
 
 ![Build](https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/workflows/Build/badge.svg)
 
-[Reliably][reliably] support for the [Chaos Toolkit][chaostoolkit].
+[Chaos Toolkit][chaostoolkit] extension for [Reliably][reliably].
 
 [reliably]: https://reliably.com
 [chaostoolkit]: http://chaostoolkit.org/
@@ -20,35 +20,13 @@ $ pip install chaostoolkit-reliably
 
 ## Authentication
 
-To use this package, you must create have registered with Reliably services
-through their [CLI][configreliably].
+To use this package, you must create have registered with 
+[Reliably services](https://app.reliably.com/).
 
-[configreliably]: https://reliably.com/docs/getting-started/login/
-
-You have two ways to pass on the credentials information.
-
-The first one by specifying the path to the Reliably's configuration file,
-which defaults to `$HOME/.config/reliably/config.yaml`. The simplest way to
-achieve this is by running `$ reliably login` as this will generate the
-appropriate file.
-
-```json
-{
-    "configuration": {
-        "reliably_config_path": "~/.config/reliably/config.yaml"
-    }
-}
-```
-
-Because we use the default path, you may omit this configuration's entry
-altogether unless you need a specific different path.
-
-The second one is by setting some environment variables as secrets. This is
-for specific use case and usually not required.
+Then you need to set some environment variables as secrets.
 
 * `RELIABLY_TOKEN`: the token to authenticate against Reliably's API
-* `RELIABLY_ORG`: the Reliably organisation to use
-* `RELIABLY_HOST:`: the hostname to connect to, default to `reliably.com`
+* `RELIABLY_HOST:`: the hostname to connect to, default to `app.reliably.com`
 
 ```json
 {
@@ -58,14 +36,10 @@ for specific use case and usually not required.
                 "type": "env",
                 "key": "RELIABLY_TOKEN"
             },
-            "org": {
-                "type": "env",
-                "key": "RELIABLY_ORG"
-            },
             "host": {
                 "type": "env",
                 "key": "RELIABLY_HOST",
-                "default": "reliably.com"
+                "default": "app.reliably.com"
             }
         }
     }
@@ -74,30 +48,118 @@ for specific use case and usually not required.
 
 ## Usage
 
-### As Steady Steate Hypothesis
+### As Steady Steate Hypothesis or Method
 
-You can use Reliably's SLO as a mechanism to determine if your system has
-deviated during a Chaos Toolkit experiment. Here is a simple example:
+This extensions offers a
+[variety of probes and tolerances](https://chaostoolkit.org/drivers/reliably/)
+ready to be used in your steady-state blocks.
+
+For instance:
 
 ```json
-"steady-state-hypothesis": {
-    "title": "We do not consume all of our error budgets during the experiment",
+{
+  "version": "1.0.0",
+  "title": "SLO error-count-3h / Error budget 10%",
+  "description": "Monitor the health of our demo service from our users perspective and ensure they have a high-quality experience",
+  "runtime": {
+    "hypothesis": {
+      "strategy": "after-method-only"
+    }
+  },
+  "steady-state-hypothesis": {
+    "title": "Compute SLO and validate its Error Budget with our target",
     "probes": [
-        {
-            "name": "Our 'Must be good' SLO results must be OK",
-            "type": "probe",
-            "tolerance": true,
-            "provider": {
-                "type": "python",
-                "module": "chaosreliably.slo.probes",
-                "func": "slo_is_met",
-                "arguments": {
-                    "labels": {"name": "must-be-good", "service": "must-be-good-service"},
-                    "limit": 5
+      {
+        "type": "probe",
+        "name": "get-slo",
+        "tolerance": {
+          "type": "probe",
+          "name": "there-should-be-error-budget-left",
+          "provider": {
+            "type": "python",
+            "module": "chaosreliably.activities.slo.tolerances",
+            "func": "has_error_budget_left",
+            "arguments": {
+              "name": "cloudrun-service-availability"
+            }
+          }
+        },
+        "provider": {
+          "type": "python",
+          "module": "chaosreliably.activities.slo.probes",
+          "func": "compute_slo",
+          "arguments": {
+            "slo": {
+              "apiVersion": "sre.google.com/v2",
+              "kind": "ServiceLevelObjective",
+              "metadata": {
+                "name": "cloudrun-service-availability",
+                "labels": {
+                  "service_name": "cloudrun",
+                  "feature_name": "service",
+                  "slo_name": "availability"
                 }
+              },
+              "spec": {
+                "description": "Availability of Cloud Run service",
+                "backend": "cloud_monitoring_mql",
+                "method": "good_bad_ratio",
+                "exporters": [
+
+                ],
+                "service_level_indicator": {
+                  "filter_good": "fetch cloud_run_revision | metric 'run.googleapis.com/request_count' | filter resource.project_id == '${CLOUDRUN_PROJECT_ID}' | filter resource.service_name == '${CLOUDRUN_SERVICE_NAME}' | filter metric.response_code_class == '2xx'",
+                  "filter_valid": "fetch cloud_run_revision | metric 'run.googleapis.com/request_count' | filter resource.project_id == '${CLOUDRUN_PROJECT_ID}' | filter resource.service_name == '${CLOUDRUN_SERVICE_NAME}'"
+                },
+                "goal": 0.9
+              }
             },
+            "config": {
+              "backends": {
+                "cloud_monitoring_mql": {
+                  "project_id": "${STACKDRIVER_HOST_PROJECT_ID}"
+                }
+              },
+              "error_budget_policies": {
+                "default": {
+                  "steps": [
+                    {
+                      "name": "3 hours",
+                      "burn_rate_threshold": 9,
+                      "alert": false,
+                      "window": 10800,
+                      "message_alert": "Page the SRE team to defend the SLO",
+                      "message_ok": "Last 3 hours on track"
+                    }
+                  ]
+                }
+              }
+            }
+          }
         }
+      }
     ]
+  },
+  "method": [
+    {
+      "name": "inject-traffic-into-endpoint",
+      "type": "action",
+      "background": true,
+      "provider": {
+        "func": "inject_gradual_traffic_into_endpoint",
+        "type": "python",
+        "module": "chaosreliably.activities.load.actions",
+        "arguments": {
+          "endpoint": "${ENDPOINT}",
+          "step_duration": 30,
+          "test_duration": 300,
+          "step_additional_vu": 3,
+          "vu_per_second_rate": 1,
+          "results_json_filepath": "./load-test-results.json"
+        }
+      }
+    }
+  ]
 }
 ```
 
@@ -108,83 +170,15 @@ they are allowed.
 ### As controls
 
 You can use controls provided by `chaostoolkit-reliably` to track your experiments
-within Reliably. 
-
-A full example of using the controls is below:
-
-```json
-"controls": [
-    {
-        "name": "chaosreliably",
-        "provider": {
-            "type": "python",
-            "module": "chaosreliably.controls.experiment",
-            "arguments": {
-                "experiment_ref": "a81c7b966a673190"
-            }
-        }
-    }
-],
-```
-
-The `experiment_ref` argument is a random string that is used by reliably to
-reference this particular experiment. It can be any string but should as
-unique as possible to prevent collision. In such case, the experiment would
-be overwritten in your organisation.
-
-Once set, you should not change this value or Reliably will not be able to
-attach runs to that experiment.
-
-### As Safeguards
-
-Safeguards, provided by the
-[Chaos Toolkit addons extension](https://github.com/chaostoolkit/chaostoolkit-addons)
-gives you a nice way to interrupt an experiment as soon as error budgets have
-been consumed. This is orthogonal to the steady-state hypothesis as it is a
-mechanism to protect your system from being harmed too harshly by an experiment.
-
-```json
-"controls": [
-    {
-        "name": "safeguard",
-        "provider": {
-            "type": "python",
-            "module": "chaosaddons.controls.safeguards",
-            "arguments": {
-                "probes": [
-                    {
-                        "name": "we-do-not-have-enough-error-budget-left-to-carry-on",
-                        "type": "probe",
-                        "frequency": 5,
-                        "provider": {
-                            "type": "python",
-                            "module": "chaosreliably.slo.probes",
-                            "func": "slo_is_met",
-                            "arguments": {
-                                "labels": {"name": "must-be-good", "service": "must-be-good-service"},
-                                "limit": 5
-                            }
-                        },
-                        "tolerance": true
-                    }
-                ]
-            }
-        }
-    }
-]
-```
-
-As you can notice it is the same construct as for the steady-state, it's merely
-used with a different purpose. Here these probes will be executed every 5s
-during the experiment (this frequence is for demo purposes, you would usually only run it
-once every minute or less).
+within Reliably. The block is inserted automatically by Reliably when you
+import the experiment into Reliably.
 
 ## Contribute
 
 From a code perspective, if you wish to contribute, you will need to run a
 Python 3.6+ environment. Please, fork this project, write unit tests to cover
 the proposed changes, implement the changes, ensure they meet the formatting
-standards set out by `black`, `flake8`, `isort`, and `mypy`, add an entry into
+standards set out by `black`, `ruff`, `isort`, and `mypy`, add an entry into
 `CHANGELOG.md`, and then raise a PR to the repository for review
 
 Please refer to the [formatting](#formatting-and-linting) section for more
@@ -200,13 +194,19 @@ the rules of the DCO before submitting a PR.
 ### Develop
 
 If you wish to develop on this project, make sure to install the development
-dependencies. But first, [create a virtual environment][venv] and then install
-those dependencies.
+dependencies. First you will need to install globally
+[pdm](https://pdm.fming.dev/latest/) and create a virtual environment:
 
-[venv]: http://chaostoolkit.org/reference/usage/install/#create-a-virtual-environment
+```
+$ pdm create venv
+$ pdm use
+$ $(pdm venv activate)
+```
+
+Then install the dependencies:
 
 ```console
-$ make install-dev
+$ pdm sync -d
 ```
 
 ### Test
@@ -214,24 +214,25 @@ $ make install-dev
 To run the tests for the project execute the following:
 
 ```console
-$ make tests
+$ pdm run test
 ```
 
 ### Formatting and Linting
 
-We use a combination of [`black`][black], [`flake8`][flake8], [`isort`][isort],
-and [`mypy`][mypy] to both lint and format this repositories code.
+We use a combination of [`black`][black], [`ruff`][flake8], [`isort`][isort],
+[`mypy`][mypy] and [`bandit`][] to both lint and format this repositories code.
 
 [black]: https://github.com/psf/black
-[flake8]: https://github.com/PyCQA/flake8
+[ruff]: https://github.com/charliermarsh/ruff
 [isort]: https://github.com/PyCQA/isort
 [mypy]: https://github.com/python/mypy
+[bandit]: https://bandit.readthedocs.io/en/latest/
 
 Before raising a Pull Request, we recommend you run formatting against your
 code with:
 
 ```console
-$ make format
+$ pmd run format
 ```
 
 This will automatically format any code that doesn't adhere to the formatting
@@ -240,7 +241,7 @@ standards.
 As some things are not picked up by the formatting, we also recommend you run:
 
 ```console
-$ make lint
+$ pdm run lint
 ```
 
 To ensure that any unused import statements/strings that are too long, etc.
