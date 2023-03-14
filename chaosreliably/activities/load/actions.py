@@ -65,6 +65,8 @@ def inject_gradual_traffic_into_endpoint(
     if test_bearer_token:
         env["RELIABLY_LOCUST_ENDPOINT_TOKEN"] = test_bearer_token
 
+    results = {}
+
     with tempfile.TemporaryDirectory() as d:
         locustfile_path = os.path.join(d, "locustfile.py")
         with open(locustfile_path, mode="wb") as f:
@@ -95,23 +97,26 @@ def inject_gradual_traffic_into_endpoint(
                 cwd=d,
             )
             os.remove(locustfile_path)
+        except KeyboardInterrupt:
+            logger.debug(
+                "Caught SIGINT signal while running locust. Ignoring it."
+            )
         except subprocess.TimeoutExpired:
             raise ActivityFailed("load test took too long to complete")
+        else:
+            stdout = decode_bytes(p.stdout)
+            stderr = decode_bytes(p.stderr)
 
-        stdout = decode_bytes(p.stdout)
-        stderr = decode_bytes(p.stderr)
+            logger.debug(f"locust exit code: {p.returncode}")
+            logger.debug(f"locust stderr: {stderr}")
 
-        logger.debug(f"locust exit code: {p.returncode}")
-        logger.debug(f"locust stderr: {stderr}")
+            if results_json_filepath:
+                with open(results_json_filepath, "w") as f:
+                    f.write(stdout)
 
-        if results_json_filepath:
-            with open(results_json_filepath, "w") as f:
-                f.write(stdout)
+            try:
+                results = json.loads(stdout)
+            except json.decoder.JSONDecodeError:
+                logger.error("failed to parse locust results")
 
-        try:
-            results = json.loads(stdout)
-        except json.decoder.JSONDecodeError:
-            logger.error("failed to parse locust results")
-            results = {}
-
-        return cast(Dict[str, Any], results)
+    return cast(Dict[str, Any], results)

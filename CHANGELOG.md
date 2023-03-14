@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.1...HEAD
+
+## [0.30.1][]
+
+[0.30.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.0...0.30.1
+
+### Changed
+
+* Dealing with SIGINT from locust
 
 ## [0.30.0][]
 
