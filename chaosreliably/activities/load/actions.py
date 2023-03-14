@@ -108,4 +108,10 @@ def inject_gradual_traffic_into_endpoint(
             with open(results_json_filepath, "w") as f:
                 f.write(stdout)
 
-        return cast(Dict[str, Any], json.loads(stdout))
+        try:
+            results = json.loads(stdout)
+        except json.decoder.JSONDecodeError:
+            logger.error("failed to parse locust results")
+            results = {}
+
+        return cast(Dict[str, Any], results)

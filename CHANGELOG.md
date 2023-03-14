@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.29.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.0...HEAD
+
+## [0.30.0][]
+
+[0.30.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.29.0...0.30.0
+
+### Changed
+
+* Properly trapping json decoding error on locust results
 
 ## [0.29.0][]
 
