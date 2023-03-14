@@ -594,6 +594,8 @@ def set_plan_status(
     if not plan_id:
         return None
 
+    logger.debug(f"Sending plan '{plan_id}' status: {status}")
+
     with get_session(configuration, secrets) as session:
         r = session.put(
             f"/{org_id}/plans/{plan_id}/status",
@@ -615,6 +617,8 @@ def set_execution_state(
 ) -> None:
     if not exec_id:
         return None
+
+    state["plan_id"] = os.getenv("RELIABLY_PLAN_ID")
 
     with get_session(configuration, secrets) as session:
         r = session.put(

@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.28.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.29.0...HEAD
+
+## [0.29.0][]
+
+[0.29.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.28.0...0.29.0
+
+### Changed
+
+* Setting `plan_id` on execution state
+* Logging plan status
 
 ## [0.28.0][]
 
