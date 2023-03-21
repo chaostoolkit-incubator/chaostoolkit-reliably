@@ -295,13 +295,10 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             ).get("probes", [])
 
     def start_hypothesis_after(self, experiment: Experiment) -> None:
-        ssh = self.experiment.get("steady-state-hypothesis")
-        if ssh:
-            with self.check_lock:
-                self.current_activities = ssh.get("probes", [])
-                experiment["steady-state-hypothesis"][
-                    "probes"
-                ] = self.current_activities
+        with self.check_lock:
+            self.current_activities = experiment.get(
+                "steady-state-hypothesis", {}
+            ).get("probes", [])
 
     def start_method(self, experiment: Experiment) -> None:
         with self.check_lock:

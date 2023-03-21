@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.2...HEAD
+
+## [0.30.2][]
+
+[0.30.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.1...0.30.2
+
+### Changed
+
+* Properly capture the current activities of the hypothesis after the method
 
 ## [0.30.1][]
 
