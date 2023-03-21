@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.3...HEAD
+
+## [0.30.3][]
+
+[0.30.3]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.2...0.30.3
+
+### Changed
+
+* Don't clear the list as it removes the probes from the experiment, simply
+  set the variable to a new empty list
 
 ## [0.30.2][]
 

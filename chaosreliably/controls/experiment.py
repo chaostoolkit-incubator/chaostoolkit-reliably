@@ -245,7 +245,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         log = self.stream.getvalue()
         self.stream.close()
 
-        self.current_activities.clear()
+        self.current_activities = []
 
         try:
             complete_run(
@@ -295,10 +295,13 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             ).get("probes", [])
 
     def start_hypothesis_after(self, experiment: Experiment) -> None:
-        with self.check_lock:
-            self.current_activities = experiment.get(
-                "steady-state-hypothesis", {}
-            ).get("probes", [])
+        ssh = experiment.get("steady-state-hypothesis")
+        if ssh:
+            with self.check_lock:
+                self.current_activities = ssh.get("probes", [])
+                experiment["steady-state-hypothesis"][
+                    "probes"
+                ] = self.current_activities
 
     def start_method(self, experiment: Experiment) -> None:
         with self.check_lock:
