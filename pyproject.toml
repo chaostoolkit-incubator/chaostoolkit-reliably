@@ -14,7 +14,8 @@ dependencies = [
     "cryptography>=39.0.2",
     "boltons>=23.0.0",
     "locust>=2.15.0",
-    "slo-generator[cloud_monitoring, prometheus, datadog, dynatrace]>=2.3.4"
+    "slo-generator[cloud_monitoring, prometheus, datadog, dynatrace]>=2.3.4",
+    "chaostoolkit-addons>=0.4.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

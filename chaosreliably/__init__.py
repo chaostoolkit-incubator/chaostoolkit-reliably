@@ -116,6 +116,9 @@ def load_exported_activities() -> List[DiscoveredActivities]:
             "chaosreliably.activities.slo.tolerances", "tolerance"
         )
     )
+    activities.extend(
+        discover_probes("chaosreliably.activities.safeguard.probes")
+    )
 
     return activities
 

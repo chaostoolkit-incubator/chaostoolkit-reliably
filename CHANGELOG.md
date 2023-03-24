@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.3...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.31.0...HEAD
+
+## [0.31.0][]
+
+[0.31.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.30.3...0.31.0
+
+### Added
+
+* Safeguard and prechecks controls
 
 ## [0.30.3][]
 
