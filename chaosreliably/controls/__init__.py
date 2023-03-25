@@ -23,14 +23,14 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
 
         self.probes = [
             {
-                "name": f"precheck-{sha256(url.encode('uf-8')).hexdigest()}",
+                "name": f"precheck-{sha256(url.encode('utf-8')).hexdigest()}",
                 "type": "probe",
                 "tolerance": True,
                 "provider": {
                     "type": "python",
                     "module": "chaosreliably.activities.safeguard.probes",
                     "func": "call_endpoint",
-                    "argument": {"url": url},
+                    "arguments": {"url": url},
                 },
             }
         ]
@@ -43,7 +43,11 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
 
     def started(self, experiment: Experiment, journal: Journal) -> None:
         self.guardian.run(
-            experiment, self.probes, self.configuration, self.secrets, None
+            experiment,
+            self.probes,
+            self.configuration or {},
+            self.secrets or {},
+            None,
         )
 
     def finish(self, journal: Journal) -> None:
