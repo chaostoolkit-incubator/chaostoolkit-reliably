@@ -13,6 +13,7 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
     def __init__(
         self,
         url: str,
+        auth: Optional[str],
         frequency: Optional[float],
         configuration: Configuration,
         secrets: Secrets,
@@ -30,7 +31,7 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
                     "type": "python",
                     "module": "chaosreliably.activities.safeguard.probes",
                     "func": "call_endpoint",
-                    "arguments": {"url": url},
+                    "arguments": {"url": url, "auth": auth},
                 },
             }
         ]

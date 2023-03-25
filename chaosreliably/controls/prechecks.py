@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from chaoslib.run import EventHandlerRegistry
 from chaoslib.types import Configuration, Secrets
@@ -12,6 +12,7 @@ __all__ = ["configure_control"]
 def configure_control(
     event_registry: EventHandlerRegistry,
     url: str,
+    auth: Optional[str] = None,
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
@@ -19,5 +20,5 @@ def configure_control(
     logger.debug("Configure Reliably's prechecks control")
 
     event_registry.register(
-        ReliablySafeguardHandler(url, None, configuration, secrets)
+        ReliablySafeguardHandler(url, auth, None, configuration, secrets)
     )
