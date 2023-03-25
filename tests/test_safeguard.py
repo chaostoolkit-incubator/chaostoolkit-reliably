@@ -145,3 +145,48 @@ def test_safeguard_run_interrupts_execution(exit_gracefully):
 
     assert respx.calls.call_count > 1
     assert registry.handlers[0].guardian.interrupted is True
+
+
+@respx.mock
+@patch("chaosaddons.controls.safeguards.exit_gracefully", autospec=True)
+def test_safeguard_can_be_many(exit_gracefully):
+    url = "https://example.com/try-me"
+
+    m = respx.get(url).mock(side_effect=[
+        httpx.Response(200, json={"ok": True}),
+        httpx.Response(200, json={"ok": False, "error": "boom"}),
+        httpx.Response(200, json={"ok": False, "error": "boom"}),
+        httpx.Response(200, json={"ok": False, "error": "boom"})
+    ])
+    
+    url2 = "https://example.com/try-me-as-well"
+
+    m = respx.get(url2).mock(side_effect=[
+        httpx.Response(200, json={"ok": True}),
+        httpx.Response(200, json={"ok": True}),
+        httpx.Response(200, json={"ok": True}),
+        httpx.Response(200, json={"ok": True}),
+    ])
+    
+    registry = EventHandlerRegistry()
+    experiment = {
+        "title": "an experiment",
+        "description": "n/a",
+        "method": []
+    }
+    journal = {}
+
+    safeguard(registry, url, 0.5)
+    safeguard(registry, url2, 0.5)
+
+    try:
+        registry.started(experiment, journal)
+        time.sleep(2.0)
+    finally:
+        registry.finish(journal)
+
+    assert respx.calls.call_count > 1
+    assert registry.handlers[0].guardian.interrupted is True
+
+    assert respx.calls.call_count > 1
+    assert registry.handlers[1].guardian.interrupted is False
