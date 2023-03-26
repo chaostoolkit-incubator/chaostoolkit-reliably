@@ -49,7 +49,7 @@ def amend_experiment_for_autopauses(
 
         activities = ssh_probes[:]
         for index, activity in enumerate(activities):
-            index = method.index(activity)
+            index = ssh_probes.index(activity)
             ssh_probes.insert(index + 1, make_pause(pause_duration))
 
     rollbacks = experiment.get("rollbacks")
@@ -59,7 +59,7 @@ def amend_experiment_for_autopauses(
 
         activities = rollbacks[:]
         for index, activity in enumerate(activities):
-            index = method.index(activity)
+            index = rollbacks.index(activity)
             rollbacks.insert(index + 1, make_pause(pause_duration))
 
 
