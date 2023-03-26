@@ -11,6 +11,7 @@
 ### Added
 
 * ChatGPT control to automatically ask questions at the end of the experiment
+* Autopause control
 
 ## [0.31.0][]
 
