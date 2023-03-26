@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.31.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.32.0...HEAD
+
+## [0.32.0][]
+
+[0.32.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.31.0...0.32.0
+
+### Added
+
+* ChatGPT control to automatically ask questions at the end of the experiment
 
 ## [0.31.0][]
 

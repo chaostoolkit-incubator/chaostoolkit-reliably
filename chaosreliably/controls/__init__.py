@@ -1,9 +1,15 @@
 from hashlib import sha256
-from typing import Optional
+from typing import Optional, cast
 
 from chaosaddons.controls import safeguards
 from chaoslib.run import RunEventHandler
-from chaoslib.types import Configuration, Experiment, Journal, Secrets
+from chaoslib.types import (
+    Configuration,
+    Experiment,
+    Extension,
+    Journal,
+    Secrets,
+)
 
 
 ###############################################################################
@@ -53,3 +59,17 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
 
     def finish(self, journal: Journal) -> None:
         self.guardian.terminate()
+
+
+def find_extension_by_name(
+    experiment: Experiment, name: str
+) -> Optional[Extension]:
+    extensions = experiment.get("extensions")
+    if not extensions:
+        return None
+
+    for extension in extensions:
+        if extension["name"] == name:
+            return cast(Extension, extension)
+
+    return None
