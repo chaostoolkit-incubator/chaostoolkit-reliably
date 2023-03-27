@@ -31,7 +31,7 @@ def amend_experiment_for_autopauses(
     if method and "method" in autopause:
         p = autopause["method"]
         if p.get("actions", {}).get("enabled"):
-            pause_duration = p.get("actions", {}).get("pause_duration", 0)
+            pause_duration = float(p.get("actions", {}).get("pause_duration", 0))
 
             activities = method[:]
             for index, activity in enumerate(activities):
@@ -40,7 +40,7 @@ def amend_experiment_for_autopauses(
                     method.insert(index + 1, make_pause(pause_duration))
 
         if p.get("probes", {}).get("enabled"):
-            pause_duration = p.get("probes", {}).get("pause_duration", 0)
+            pause_duration = float(p.get("probes", {}).get("pause_duration", 0))
 
             activities = method[:]
             for index, activity in enumerate(activities):
@@ -52,7 +52,7 @@ def amend_experiment_for_autopauses(
     if ssh_probes and "steady-state-hypothesis" in autopause:
         p = autopause["steady-state-hypothesis"]
         if p["enabled"]:
-            pause_duration = p.get("pause_duration", 0)
+            pause_duration = float(p.get("pause_duration", 0))
 
             activities = ssh_probes[:]
             for index, activity in enumerate(activities):
@@ -63,7 +63,7 @@ def amend_experiment_for_autopauses(
     if rollbacks and "rollbacks" in autopause:
         p = autopause["rollbacks"]
         if p["enabled"]:
-            pause_duration = p.get("pause_duration", 0)
+            pause_duration = float(p.get("pause_duration", 0))
 
             activities = rollbacks[:]
             for index, activity in enumerate(activities):
