@@ -31,7 +31,9 @@ def amend_experiment_for_autopauses(
     if method and "method" in autopause:
         p = autopause["method"]
         if p.get("actions", {}).get("enabled"):
-            pause_duration = float(p.get("actions", {}).get("pause_duration", 0))
+            pause_duration = float(
+                p.get("actions", {}).get("pause_duration", 0)
+            )
 
             activities = method[:]
             for index, activity in enumerate(activities):
@@ -71,7 +73,7 @@ def amend_experiment_for_autopauses(
                 rollbacks.insert(index + 1, make_pause(pause_duration))
 
 
-def make_pause(pause_duration: int = 0) -> Activity:
+def make_pause(pause_duration: float = 0) -> Activity:
     return {
         "type": "action",
         "name": f"reliably-autopause-{secrets.token_hex(4)}",
