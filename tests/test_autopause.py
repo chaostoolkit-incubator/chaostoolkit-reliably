@@ -1,3 +1,6 @@
+import os
+
+from chaoslib import substitute
 from chaosreliably.controls.autopause import configure_control
 
 
@@ -31,8 +34,10 @@ def test_autopause_method_actions():
 
     configure_control(experiment, {
         "method": {
-            "after_actions": True,
-            "pause_duration": 5
+            "actions": {
+                "enabled": True,
+                "pause_duration": 5
+            }
         }
     })
 
@@ -75,8 +80,10 @@ def test_autopause_method_probes():
 
     configure_control(experiment, {
         "method": {
-            "after_probes": True,
-            "pause_duration": 5
+            "probes": {
+                "enabled": True,
+                "pause_duration": 5
+            }
         }
     })
 
@@ -124,9 +131,13 @@ def test_autopause_method_probes():
 
     configure_control(experiment, {
         "method": {
-            "after_actions": False,
-            "after_probes": True,
-            "pause_duration": 5
+            "actions": {
+                "enabled": False,
+            },
+            "probes": {
+                "enabled": True,
+                "pause_duration": 5
+            }
         }
     })
 
@@ -164,6 +175,7 @@ def test_autopause_rollbacks():
 
     configure_control(experiment, {
         "rollbacks": {
+            "enabled": True,
             "pause_duration": 5
         }
     })
@@ -202,6 +214,7 @@ def test_autopause_ssh():
 
     configure_control(experiment, {
         "steady-state-hypothesis": {
+            "enabled": True,
             "pause_duration": 5
         }
     })
@@ -211,3 +224,48 @@ def test_autopause_ssh():
         if activity["name"] in ("A", "B", "C"):
             assert activities[index+1]["provider"]["module"] == "chaosreliably.activities.pauses"
             assert activities[index+1]["provider"]["arguments"]["duration"] == 5
+
+
+def test_autopause_from_env():
+    os.putenv("RELIABLY_PROBE_PAUSE_DURATION", "10.4")
+    experiment = {
+        "title": "an experiment",
+        "description": "n/a",
+        "steady-state-hypothesis": {
+            "probes":[
+                {
+                    "name": "A",
+                    "type": "probe",
+                    "provider": {"module": "os"}
+                },
+                {
+                    "name": "B",
+                    "type": "probe",
+                    "provider": {"module": "os"}
+                },
+                {
+                    "name": "C",
+                    "type": "probe",
+                    "provider": {"module": "os"}
+                },
+            ]
+        }
+    }
+
+    configure_control(experiment, {
+        "method": {
+            "probes": {
+                "enabled": True,
+                "pause_duration": substitute({
+                    "env": "type",
+                    "key": "RELIABLY_PROBE_PAUSE_DURATION",
+                }, {}, {})
+            }
+        },
+    })
+
+    activities = experiment.get("method", [])
+    for index, activity in enumerate(activities):
+        if activity["name"] in ("A", "B", "C"):
+            assert activities[index+1]["provider"]["module"] == "chaosreliably.activities.pauses"
+            assert activities[index+1]["provider"]["arguments"]["duration"] == 10.4

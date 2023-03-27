@@ -1,7 +1,7 @@
-from typing import Dict, Union
+from typing import Any, Dict
 
 __all__ = ["Pause"]
 
 
-Pause = Dict[str, Union[bool, int]]
+Pause = Dict[str, Any]
 AutoPause = Dict[str, Pause]

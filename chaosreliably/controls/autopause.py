@@ -30,37 +30,45 @@ def amend_experiment_for_autopauses(
     method = experiment.get("method")
     if method and "method" in autopause:
         p = autopause["method"]
-        after_actions = p.get("after_actions", True)
-        after_probes = p.get("after_probes", False)
-        pause_duration = p.get("pause_duration", 0)
+        if p.get("actions", {}).get("enabled"):
+            pause_duration = p.get("actions", {}).get("pause_duration", 0)
 
-        activities = method[:]
-        for index, activity in enumerate(activities):
-            index = method.index(activity)
-            if after_probes and activity["type"] == "probe":
-                method.insert(index + 1, make_pause(pause_duration))
-            elif after_actions and activity["type"] == "action":
-                method.insert(index + 1, make_pause(pause_duration))
+            activities = method[:]
+            for index, activity in enumerate(activities):
+                index = method.index(activity)
+                if activity["type"] == "action":
+                    method.insert(index + 1, make_pause(pause_duration))
+
+        if p.get("probes", {}).get("enabled"):
+            pause_duration = p.get("probes", {}).get("pause_duration", 0)
+
+            activities = method[:]
+            for index, activity in enumerate(activities):
+                index = method.index(activity)
+                if activity["type"] == "probe":
+                    method.insert(index + 1, make_pause(pause_duration))
 
     ssh_probes = experiment.get("steady-state-hypothesis", {}).get("probes")
     if ssh_probes and "steady-state-hypothesis" in autopause:
         p = autopause["steady-state-hypothesis"]
-        pause_duration = p.get("pause_duration", 0)
+        if p["enabled"]:
+            pause_duration = p.get("pause_duration", 0)
 
-        activities = ssh_probes[:]
-        for index, activity in enumerate(activities):
-            index = ssh_probes.index(activity)
-            ssh_probes.insert(index + 1, make_pause(pause_duration))
+            activities = ssh_probes[:]
+            for index, activity in enumerate(activities):
+                index = ssh_probes.index(activity)
+                ssh_probes.insert(index + 1, make_pause(pause_duration))
 
     rollbacks = experiment.get("rollbacks")
     if rollbacks and "rollbacks" in autopause:
         p = autopause["rollbacks"]
-        pause_duration = p.get("pause_duration", 0)
+        if p["enabled"]:
+            pause_duration = p.get("pause_duration", 0)
 
-        activities = rollbacks[:]
-        for index, activity in enumerate(activities):
-            index = rollbacks.index(activity)
-            rollbacks.insert(index + 1, make_pause(pause_duration))
+            activities = rollbacks[:]
+            for index, activity in enumerate(activities):
+                index = rollbacks.index(activity)
+                rollbacks.insert(index + 1, make_pause(pause_duration))
 
 
 def make_pause(pause_duration: int = 0) -> Activity:

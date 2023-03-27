@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.32.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.33.0...HEAD
+
+## [0.33.0][]
+
+[0.33.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.32.0...0.33.0
+
+### Changed
+
+* Adjusted Autopause format to be have a more deterministic structure
 
 ## [0.32.0][]
 
