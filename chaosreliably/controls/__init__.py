@@ -34,7 +34,7 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
         auth = get_value(auth)  # type: ignore
 
         if frequency is not None:
-            frequency = max(float(get_value(frequency) or 1), 1)  # type: ignore
+            frequency = max(float(get_value(frequency)), 0.3)  # type: ignore
 
         if not url:
             logger.debug("Missing URl for safeguard/precheck call")
@@ -94,6 +94,9 @@ def get_value(value: Union[str, Dict[str, str]]) -> Optional[str]:
 
     if isinstance(value, str):
         return value
+
+    if isinstance(value, float):
+        return str(value)
 
     if value.get("type") == "env":
         return os.getenv(value["key"])
