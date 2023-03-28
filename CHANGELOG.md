@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.1...HEAD
+
+## [0.34.1][]
+
+[0.34.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.0...0.34.1
+
+### Changed
+
+* Fixed parsing of numbers in autopause
 
 ## [0.34.0][]
 
