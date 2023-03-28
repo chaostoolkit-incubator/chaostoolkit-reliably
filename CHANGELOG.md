@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.3...HEAD
+
+## [0.34.3][]
+
+[0.34.3]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.2...0.34.3
+
+### Changed
+
+* Support falsey values
 
 ## [0.34.2][]
 
