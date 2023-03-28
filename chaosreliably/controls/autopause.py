@@ -1,5 +1,6 @@
+import os
 import secrets
-from typing import Any
+from typing import Any, Dict, Union
 
 from chaoslib.types import Activity, Configuration, Experiment, Secrets
 from logzero import logger
@@ -27,11 +28,12 @@ def configure_control(
 def amend_experiment_for_autopauses(
     experiment: Experiment, autopause: AutoPause
 ) -> None:
+    print(autopause)
     method = experiment.get("method")
     if method and "method" in autopause:
         p = autopause["method"]
-        if p.get("actions", {}).get("enabled"):
-            pause_duration = float(
+        if is_enabled(p.get("actions", {}).get("enabled")):
+            pause_duration = get_duration(
                 p.get("actions", {}).get("pause_duration", 0)
             )
 
@@ -41,8 +43,10 @@ def amend_experiment_for_autopauses(
                 if activity["type"] == "action":
                     method.insert(index + 1, make_pause(pause_duration))
 
-        if p.get("probes", {}).get("enabled"):
-            pause_duration = float(p.get("probes", {}).get("pause_duration", 0))
+        if is_enabled(p.get("probes", {}).get("enabled")):
+            pause_duration = get_duration(
+                p.get("probes", {}).get("pause_duration", 0)
+            )
 
             activities = method[:]
             for index, activity in enumerate(activities):
@@ -53,8 +57,8 @@ def amend_experiment_for_autopauses(
     ssh_probes = experiment.get("steady-state-hypothesis", {}).get("probes")
     if ssh_probes and "steady-state-hypothesis" in autopause:
         p = autopause["steady-state-hypothesis"]
-        if p["enabled"]:
-            pause_duration = float(p.get("pause_duration", 0))
+        if is_enabled(p["enabled"]):
+            pause_duration = get_duration(p.get("pause_duration", 0))
 
             activities = ssh_probes[:]
             for index, activity in enumerate(activities):
@@ -64,8 +68,8 @@ def amend_experiment_for_autopauses(
     rollbacks = experiment.get("rollbacks")
     if rollbacks and "rollbacks" in autopause:
         p = autopause["rollbacks"]
-        if p["enabled"]:
-            pause_duration = float(p.get("pause_duration", 0))
+        if is_enabled(p["enabled"]):
+            pause_duration = get_duration(p.get("pause_duration", 0))
 
             activities = rollbacks[:]
             for index, activity in enumerate(activities):
@@ -84,3 +88,26 @@ def make_pause(pause_duration: float = 0) -> Activity:
             "arguments": {"duration": pause_duration},
         },
     }
+
+
+def is_enabled(value: Union[bool, Dict[str, str]]) -> bool:
+    if isinstance(value, bool):
+        return value
+
+    if value.get("type") == "env":
+        if os.getenv(value["key"]) not in ("", "f", "false", "0", "False"):
+            return True
+
+        return False
+
+    return False
+
+
+def get_duration(value: Union[float, int, Dict[str, str]]) -> float:
+    if isinstance(value, (float, int)):
+        return float(value)
+
+    if value.get("type") == "env":
+        return float(os.getenv("key") or "0")
+
+    return 0.0

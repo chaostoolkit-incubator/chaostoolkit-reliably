@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.33.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.0...HEAD
+
+## [0.34.0][]
+
+[0.34.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.33.0...0.34.0
+
+### Changed
+
+* Parse autopause values when they are passed as environment variables
 
 ## [0.33.0][]
 
