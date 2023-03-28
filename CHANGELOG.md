@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.2...HEAD
+
+## [0.34.2][]
+
+[0.34.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.1...0.34.2
+
+### Changed
+
+* Remove trailing print
 
 ## [0.34.1][]
 

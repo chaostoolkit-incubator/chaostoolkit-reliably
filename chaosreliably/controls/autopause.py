@@ -28,7 +28,6 @@ def configure_control(
 def amend_experiment_for_autopauses(
     experiment: Experiment, autopause: AutoPause
 ) -> None:
-    print(autopause)
     method = experiment.get("method")
     if method and "method" in autopause:
         p = autopause["method"]
