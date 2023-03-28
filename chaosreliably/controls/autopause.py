@@ -90,6 +90,9 @@ def make_pause(pause_duration: float = 0) -> Activity:
 
 
 def is_enabled(value: Union[bool, Dict[str, str]]) -> bool:
+    if not value:
+        return False
+
     if isinstance(value, bool):
         return value
 
@@ -103,6 +106,9 @@ def is_enabled(value: Union[bool, Dict[str, str]]) -> bool:
 
 
 def get_duration(value: Union[float, int, Dict[str, str]]) -> float:
+    if not value:
+        return 0.0
+
     if isinstance(value, (float, int)):
         return float(value)
 
