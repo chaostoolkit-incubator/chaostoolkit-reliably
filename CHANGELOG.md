@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.3...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.35.0...HEAD
+
+## [0.35.0][]
+
+[0.35.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.34.3...0.35.0
+
+### Changed
+
+* Parses safeguards/prechecks arguments from env
 
 ## [0.34.3][]
 
