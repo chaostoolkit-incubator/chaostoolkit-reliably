@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.35.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.36.0...HEAD
+
+## [0.36.0][]
+
+[0.36.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.35.0...0.36.0
+
+### Changed
+
+* Improved safeguards/prechecks (meaning they should now work)
 
 ## [0.35.0][]
 
