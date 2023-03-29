@@ -156,7 +156,9 @@ def register(
 
 
 def run_all(
-    experiment: Experiment, configuration: Configuration, secrets: Secrets,
+    experiment: Experiment,
+    configuration: Configuration,
+    secrets: Secrets,
     handler: Optional[ReliablySafeguardHandler] = None,
 ) -> None:
     (handler or proxy).start_all(experiment, configuration, secrets)
