@@ -139,22 +139,27 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
 proxy = ReliablySafeguardHandler()
 
 
-def initialize(event_registry: EventHandlerRegistry) -> None:
-    proxy.register(event_registry)
+def initialize(
+    event_registry: EventHandlerRegistry,
+    handler: Optional[ReliablySafeguardHandler] = None,
+) -> None:
+    (handler or proxy).register(event_registry)
 
 
 def register(
     url: Union[str, Dict[str, str]],
     auth: Optional[Union[str, Dict[str, str]]] = None,
     frequency: Optional[Union[float, Dict[str, str]]] = None,
+    handler: Optional[ReliablySafeguardHandler] = None,
 ) -> None:
-    proxy.add(ReliablySafeguardGuardian(url, auth, frequency))
+    (handler or proxy).add(ReliablySafeguardGuardian(url, auth, frequency))
 
 
 def run_all(
-    experiment: Experiment, configuration: Configuration, secrets: Secrets
+    experiment: Experiment, configuration: Configuration, secrets: Secrets,
+    handler: Optional[ReliablySafeguardHandler] = None,
 ) -> None:
-    proxy.start_all(experiment, configuration, secrets)
+    (handler or proxy).start_all(experiment, configuration, secrets)
 
 
 def find_extension_by_name(
