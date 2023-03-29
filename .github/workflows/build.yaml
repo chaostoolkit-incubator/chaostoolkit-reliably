@@ -36,4 +36,6 @@ jobs:
   
     - name: Run Tests
       run: |
-        pdm run test
+        # not clear what's the right approach here https://github.com/pytest-dev/pytest/issues/5502
+        # but we have some tests that show the behavior in this issue
+        pdm run test --show-capture=log
