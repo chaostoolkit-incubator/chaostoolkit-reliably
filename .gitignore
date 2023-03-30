@@ -156,6 +156,6 @@ Thumbs.db
 
 journal.json
 .ruff_cache/
-.pdm.toml
+.pdm-python
 
 # End of https://www.toptal.com/developers/gitignore/api/python
