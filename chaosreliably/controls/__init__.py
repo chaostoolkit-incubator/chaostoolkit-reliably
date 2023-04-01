@@ -1,7 +1,7 @@
 import os
 import threading
 from hashlib import sha256
-from typing import Dict, Optional, Union, cast
+from typing import Dict, Optional, Type, Union, cast
 
 from chaosaddons.controls import safeguards
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
@@ -15,14 +15,20 @@ from chaoslib.types import (
 from logzero import logger
 
 
+class ReliablyGuardian(safeguards.Guardian):  # type: ignore
+    def _exit(self) -> None:
+        safeguards.Guardian._exit(self)
+
+
 class ReliablySafeguardGuardian:
     def __init__(
         self,
         url: Union[str, Dict[str, str]],
         auth: Optional[Union[str, Dict[str, str]]],
         frequency: Optional[Union[float, Dict[str, str]]],
+        guardian_class: Type = ReliablyGuardian,  # type: ignore
     ) -> None:
-        self.guardian = safeguards.Guardian()
+        self.guardian = guardian_class()
 
         url = get_value(url)  # type: ignore
         auth = get_value(auth)  # type: ignore
@@ -151,8 +157,13 @@ def register(
     auth: Optional[Union[str, Dict[str, str]]] = None,
     frequency: Optional[Union[float, Dict[str, str]]] = None,
     handler: Optional[ReliablySafeguardHandler] = None,
+    guardian_class: Type = ReliablyGuardian,  # type: ignore
 ) -> None:
-    (handler or proxy).add(ReliablySafeguardGuardian(url, auth, frequency))
+    (handler or proxy).add(
+        ReliablySafeguardGuardian(
+            url, auth, frequency, guardian_class=guardian_class
+        )
+    )
 
 
 def run_all(

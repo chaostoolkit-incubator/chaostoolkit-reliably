@@ -1,18 +1,19 @@
 import time
-from unittest.mock import patch
 import httpx
 import respx
 
 from chaoslib.run import EventHandlerRegistry
 from chaosreliably.activities.safeguard.probes import call_endpoint
-from chaosreliably.controls import ReliablySafeguardHandler, initialize, register, run_all
-from chaosreliably.controls.prechecks import configure_control as precheck
-from chaosreliably.controls.safeguard import configure_control as safeguard
+from chaosreliably.controls import ReliablyGuardian, ReliablySafeguardHandler, initialize, register, run_all
+
+
+class TestReliablyGuardian(ReliablyGuardian):
+    def _exit(self) -> None:
+        pass
 
 
 @respx.mock
-@patch("chaosaddons.controls.safeguards.exit_gracefully", autospec=True)
-def test_prechecks_run_interrupts_execution(exit_gracefully):
+def test_prechecks_run_interrupts_execution():
     url = "https://example.com/try-me"
 
     m = respx.get(url).mock(return_value=httpx.Response(
@@ -22,7 +23,7 @@ def test_prechecks_run_interrupts_execution(exit_gracefully):
     proxy = ReliablySafeguardHandler()
     registry = EventHandlerRegistry()
     initialize(registry, handler=proxy)
-    register(url, handler=proxy)
+    register(url, handler=proxy, guardian_class=TestReliablyGuardian)
 
     experiment = {
         "title": "an experiment",
@@ -66,8 +67,7 @@ def test_safeguard_not_ok_expects_error_message():
 
 
 @respx.mock
-@patch("chaosaddons.controls.safeguards.exit_gracefully", autospec=True)
-def test_prechecks_run_once(exit_gracefully):
+def test_prechecks_run_once():
     url = "https://example.com/try-me"
 
     m = respx.get(url).mock(return_value=httpx.Response(200, json={"ok": True}))
@@ -94,8 +94,7 @@ def test_prechecks_run_once(exit_gracefully):
 
 
 @respx.mock
-@patch("chaosaddons.controls.safeguards.exit_gracefully", autospec=True)
-def test_safeguard_run_periodically(exit_gracefully):
+def test_safeguard_run_periodically():
     url = "https://example.com/try-me"
 
     m = respx.get(url).mock(side_effect=[
@@ -128,8 +127,7 @@ def test_safeguard_run_periodically(exit_gracefully):
 
 
 @respx.mock
-@patch("chaosaddons.controls.safeguards.exit_gracefully", autospec=True)
-def test_safeguard_run_interrupts_execution(exit_gracefully):
+def test_safeguard_run_interrupts_execution():
     url = "https://example.com/try-me"
 
     m = respx.get(url).mock(side_effect=[
@@ -162,8 +160,7 @@ def test_safeguard_run_interrupts_execution(exit_gracefully):
 
 
 @respx.mock
-@patch("chaosaddons.controls.safeguards.exit_gracefully", autospec=True)
-def test_safeguard_can_be_many(exit_gracefully):
+def test_safeguard_can_be_many():
     url = "https://example.com/try-me"
 
     m = respx.get(url).mock(side_effect=[
