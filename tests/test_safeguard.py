@@ -75,7 +75,7 @@ def test_prechecks_run_once():
     proxy = ReliablySafeguardHandler()
     registry = EventHandlerRegistry()
     initialize(registry, handler=proxy)
-    register(url, handler=proxy)
+    register(url, handler=proxy, guardian_class=TestReliablyGuardian)
 
     experiment = {
         "title": "an experiment",
@@ -107,7 +107,7 @@ def test_safeguard_run_periodically():
     proxy = ReliablySafeguardHandler()
     registry = EventHandlerRegistry()
     initialize(registry, handler=proxy)
-    register(url, frequency=0.5, handler=proxy)
+    register(url, frequency=0.5, handler=proxy, guardian_class=TestReliablyGuardian)
 
     experiment = {
         "title": "an experiment",
@@ -140,7 +140,7 @@ def test_safeguard_run_interrupts_execution():
     proxy = ReliablySafeguardHandler()
     registry = EventHandlerRegistry()
     initialize(registry, handler=proxy)
-    register(url, frequency=0.5, handler=proxy)
+    register(url, frequency=0.5, handler=proxy, guardian_class=TestReliablyGuardian)
 
     experiment = {
         "title": "an experiment",
@@ -182,8 +182,8 @@ def test_safeguard_can_be_many():
     proxy = ReliablySafeguardHandler()
     registry = EventHandlerRegistry()
     initialize(registry, handler=proxy)
-    register(url, frequency=0.5, handler=proxy)
-    register(url2, frequency=0.5, handler=proxy)
+    register(url, frequency=0.5, handler=proxy, guardian_class=TestReliablyGuardian)
+    register(url2, frequency=0.5, handler=proxy, guardian_class=TestReliablyGuardian)
 
     experiment = {
         "title": "an experiment",
