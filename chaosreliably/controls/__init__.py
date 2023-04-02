@@ -129,8 +129,7 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
             return None
 
         with self._lock:
-            guardians = self.guardians[:]
-            for g in guardians:
+            for g in self.guardians:
                 g.finish()
 
     def add(self, guardian: ReliablySafeguardGuardian) -> None:

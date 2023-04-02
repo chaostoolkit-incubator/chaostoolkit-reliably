@@ -9,10 +9,10 @@ from chaosreliably.controls import ReliablyGuardian, ReliablySafeguardHandler, i
 
 class TestReliablyGuardian(ReliablyGuardian):
     def _exit(self) -> None:
-        pass
+        time.sleep(2)
 
 
-def test_prechecks_run_interrupts_execution(respx_mock, reconfigure_chaostoolkit_logger):
+def test_prechecks_run_interrupts_execution(respx_mock):
     url = "https://example.com/try-me"
 
     m = respx_mock.get(url).mock(return_value=httpx.Response(
@@ -65,7 +65,7 @@ def test_safeguard_not_ok_expects_error_message(respx_mock):
     assert call_endpoint(url) is False
 
 
-def test_prechecks_run_once(respx_mock, reconfigure_chaostoolkit_logger):
+def test_prechecks_run_once(respx_mock):
     url = "https://example.com/try-me"
 
     m = respx_mock.get(url).mock(return_value=httpx.Response(200, json={"ok": True}))
@@ -93,7 +93,7 @@ def test_prechecks_run_once(respx_mock, reconfigure_chaostoolkit_logger):
     assert proxy.guardians[0].guardian.interrupted is False
 
 
-def test_safeguard_run_periodically(respx_mock, reconfigure_chaostoolkit_logger):
+def test_safeguard_run_periodically(respx_mock):
     url = "https://example.com/try-me"
 
     m = respx_mock.get(url).mock(side_effect=[
@@ -126,7 +126,7 @@ def test_safeguard_run_periodically(respx_mock, reconfigure_chaostoolkit_logger)
     assert proxy.guardians[0].guardian.interrupted is True
 
 
-def test_safeguard_run_interrupts_execution(respx_mock, reconfigure_chaostoolkit_logger):
+def test_safeguard_run_interrupts_execution(respx_mock):
     url = "https://example.com/try-me"
 
     m = respx_mock.get(url).mock(side_effect=[
@@ -154,12 +154,13 @@ def test_safeguard_run_interrupts_execution(respx_mock, reconfigure_chaostoolkit
     finally:
         registry.finish(journal)
         registry.handlers.clear()
+        time.sleep(2)
 
     assert respx_mock.calls.call_count > 1
     assert proxy.guardians[0].guardian.interrupted is True
 
 
-def test_safeguard_can_be_many(respx_mock, reconfigure_chaostoolkit_logger):
+def test_safeguard_can_be_many(respx_mock):
     url = "https://example.com/try-me"
 
     m = respx.get(url).mock(side_effect=[
