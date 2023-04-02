@@ -1,6 +1,6 @@
 import os
+import secrets
 import threading
-from hashlib import sha256
 from typing import Dict, Optional, Type, Union, cast
 
 from chaosaddons.controls import safeguards
@@ -26,7 +26,7 @@ class ReliablySafeguardGuardian:
         url: Union[str, Dict[str, str]],
         auth: Optional[Union[str, Dict[str, str]]],
         frequency: Optional[Union[float, Dict[str, str]]],
-        guardian_class: Type = ReliablyGuardian,  # type: ignore
+        guardian_class: Type[safeguards.Guardian] = ReliablyGuardian,
     ) -> None:
         self.guardian = guardian_class()
 
@@ -40,7 +40,7 @@ class ReliablySafeguardGuardian:
             logger.debug("Missing URL for safeguard/precheck call")
             return None
 
-        name = f"precheck-{sha256(url.encode()).hexdigest()}"  # type: ignore
+        name = f"precheck-{secrets.token_hex(8)}"
         self.probes = [
             {
                 "name": name,
@@ -79,6 +79,7 @@ class ReliablySafeguardGuardian:
 
     def finish(self) -> None:
         self.guardian.terminate()
+        self.probes = []
 
 
 class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
@@ -102,7 +103,7 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
     def register(self, event_registry: EventHandlerRegistry) -> None:
         with self._lock:
             if not self._initialized:
-                event_registry.register(proxy)
+                event_registry.register(self)
                 self._initialized = True
 
     def start_all(
@@ -129,10 +130,8 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
 
         with self._lock:
             guardians = self.guardians[:]
-            self.guardians = []
-
-        for g in guardians:
-            g.finish()
+            for g in guardians:
+                g.finish()
 
     def add(self, guardian: ReliablySafeguardGuardian) -> None:
         if not self.initialized:
@@ -157,7 +156,7 @@ def register(
     auth: Optional[Union[str, Dict[str, str]]] = None,
     frequency: Optional[Union[float, Dict[str, str]]] = None,
     handler: Optional[ReliablySafeguardHandler] = None,
-    guardian_class: Type = ReliablyGuardian,  # type: ignore
+    guardian_class: Type[safeguards.Guardian] = ReliablyGuardian,
 ) -> None:
     (handler or proxy).add(
         ReliablySafeguardGuardian(

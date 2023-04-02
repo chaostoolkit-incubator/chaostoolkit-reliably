@@ -12,11 +12,10 @@ class TestReliablyGuardian(ReliablyGuardian):
         pass
 
 
-@respx.mock
-def test_prechecks_run_interrupts_execution():
+def test_prechecks_run_interrupts_execution(respx_mock):
     url = "https://example.com/try-me"
 
-    m = respx.get(url).mock(return_value=httpx.Response(
+    m = respx_mock.get(url).mock(return_value=httpx.Response(
         200, json={"ok": False, "error": "boom"})
     )
     
@@ -34,43 +33,42 @@ def test_prechecks_run_interrupts_execution():
 
     try:
         run_all(experiment, None, None, handler=proxy)
+        time.sleep(2)
     finally:
         registry.finish(journal)
+        registry.handlers.clear()
 
-    respx.calls.assert_called_once()
+    respx_mock.calls.assert_called_once()
     assert proxy.guardians[0].guardian.interrupted is True
 
 
-@respx.mock
-def test_safeguard_expects_a_200():
+def test_safeguard_expects_a_200(respx_mock):
     url = "https://example.com/try-me"
 
-    respx.get(url).mock(return_value=httpx.Response(400))
+    respx_mock.get(url).mock(return_value=httpx.Response(400))
     assert call_endpoint(url) is False
 
-    respx.get(url).mock(return_value=httpx.Response(200, json={"ok": True}))
+    respx_mock.get(url).mock(return_value=httpx.Response(200, json={"ok": True}))
     assert call_endpoint(url) is True
 
 
-@respx.mock
-def test_safeguard_not_ok_expects_error_message():
+def test_safeguard_not_ok_expects_error_message(respx_mock):
     url = "https://example.com/try-me"
 
-    respx.get(url).mock(return_value=httpx.Response(400))
+    respx_mock.get(url).mock(return_value=httpx.Response(400))
     assert call_endpoint(url) is False
 
-    respx.get(url).mock(return_value=httpx.Response(200, json={
+    respx_mock.get(url).mock(return_value=httpx.Response(200, json={
         "ok": False,
         "error": "boom"
     }))
     assert call_endpoint(url) is False
 
 
-@respx.mock
-def test_prechecks_run_once():
+def test_prechecks_run_once(respx_mock):
     url = "https://example.com/try-me"
 
-    m = respx.get(url).mock(return_value=httpx.Response(200, json={"ok": True}))
+    m = respx_mock.get(url).mock(return_value=httpx.Response(200, json={"ok": True}))
     
     proxy = ReliablySafeguardHandler()
     registry = EventHandlerRegistry()
@@ -86,18 +84,19 @@ def test_prechecks_run_once():
 
     try:
         run_all(experiment, None, None, handler=proxy)
+        time.sleep(2)
     finally:
         registry.finish(journal)
+        registry.handlers.clear()
 
-    respx.calls.assert_called_once()
+    respx_mock.calls.assert_called_once()
     assert proxy.guardians[0].guardian.interrupted is False
 
 
-@respx.mock
-def test_safeguard_run_periodically():
+def test_safeguard_run_periodically(respx_mock):
     url = "https://example.com/try-me"
 
-    m = respx.get(url).mock(side_effect=[
+    m = respx_mock.get(url).mock(side_effect=[
         httpx.Response(200, json={"ok": True}),
         httpx.Response(200, json={"ok": False, "error": "boom"}),
         httpx.Response(200, json={"ok": False, "error": "boom"}),
@@ -121,16 +120,16 @@ def test_safeguard_run_periodically():
         time.sleep(2)
     finally:
         registry.finish(journal)
+        registry.handlers.clear()
 
-    respx.calls.calls.call_count > 1
+    respx_mock.calls.calls.call_count > 1
     assert proxy.guardians[0].guardian.interrupted is True
 
 
-@respx.mock
-def test_safeguard_run_interrupts_execution():
+def test_safeguard_run_interrupts_execution(respx_mock):
     url = "https://example.com/try-me"
 
-    m = respx.get(url).mock(side_effect=[
+    m = respx_mock.get(url).mock(side_effect=[
         httpx.Response(200, json={"ok": True}),
         httpx.Response(200, json={"ok": False, "error": "boom"}),
         httpx.Response(200, json={"ok": False, "error": "boom"}),
@@ -154,13 +153,13 @@ def test_safeguard_run_interrupts_execution():
         time.sleep(2)
     finally:
         registry.finish(journal)
+        registry.handlers.clear()
 
-    assert respx.calls.call_count > 1
+    assert respx_mock.calls.call_count > 1
     assert proxy.guardians[0].guardian.interrupted is True
 
 
-@respx.mock
-def test_safeguard_can_be_many():
+def test_safeguard_can_be_many(respx_mock):
     url = "https://example.com/try-me"
 
     m = respx.get(url).mock(side_effect=[
@@ -197,9 +196,10 @@ def test_safeguard_can_be_many():
         time.sleep(2)
     finally:
         registry.finish(journal)
+        registry.handlers.clear()
 
-    assert respx.calls.call_count > 1
+    assert respx_mock.calls.call_count > 1
     assert proxy.guardians[0].guardian.interrupted is True
 
-    assert respx.calls.call_count > 1
+    assert respx_mock.calls.call_count > 1
     assert proxy.guardians[1].guardian.interrupted is False
