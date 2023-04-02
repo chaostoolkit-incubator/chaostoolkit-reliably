@@ -12,7 +12,7 @@ class TestReliablyGuardian(ReliablyGuardian):
         pass
 
 
-def test_prechecks_run_interrupts_execution(respx_mock):
+def test_prechecks_run_interrupts_execution(respx_mock, reconfigure_chaostoolkit_logger):
     url = "https://example.com/try-me"
 
     m = respx_mock.get(url).mock(return_value=httpx.Response(
@@ -65,7 +65,7 @@ def test_safeguard_not_ok_expects_error_message(respx_mock):
     assert call_endpoint(url) is False
 
 
-def test_prechecks_run_once(respx_mock):
+def test_prechecks_run_once(respx_mock, reconfigure_chaostoolkit_logger):
     url = "https://example.com/try-me"
 
     m = respx_mock.get(url).mock(return_value=httpx.Response(200, json={"ok": True}))
@@ -93,7 +93,7 @@ def test_prechecks_run_once(respx_mock):
     assert proxy.guardians[0].guardian.interrupted is False
 
 
-def test_safeguard_run_periodically(respx_mock):
+def test_safeguard_run_periodically(respx_mock, reconfigure_chaostoolkit_logger):
     url = "https://example.com/try-me"
 
     m = respx_mock.get(url).mock(side_effect=[
@@ -126,7 +126,7 @@ def test_safeguard_run_periodically(respx_mock):
     assert proxy.guardians[0].guardian.interrupted is True
 
 
-def test_safeguard_run_interrupts_execution(respx_mock):
+def test_safeguard_run_interrupts_execution(respx_mock, reconfigure_chaostoolkit_logger):
     url = "https://example.com/try-me"
 
     m = respx_mock.get(url).mock(side_effect=[
@@ -159,7 +159,7 @@ def test_safeguard_run_interrupts_execution(respx_mock):
     assert proxy.guardians[0].guardian.interrupted is True
 
 
-def test_safeguard_can_be_many(respx_mock):
+def test_safeguard_can_be_many(respx_mock, reconfigure_chaostoolkit_logger):
     url = "https://example.com/try-me"
 
     m = respx.get(url).mock(side_effect=[
