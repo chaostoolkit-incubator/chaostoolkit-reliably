@@ -18,13 +18,7 @@ global_lock = threading.Lock()
 
 
 class ReliablyGuardian(safeguards.Guardian):  # type: ignore
-    def __init__(self) -> None:
-        super(ReliablyGuardian, self).__init__(self)
-        self.was_triggered = False
-
     def _exit(self) -> None:
-        with self._lock:
-            self.was_triggered = True
         safeguards.Guardian._exit(self)
 
 
@@ -95,7 +89,7 @@ class ReliablySafeguardGuardian:
                 name = "safeguards" if self.frequency else "prechecks"
                 integration = get_integration_from_extension(x, name)
                 trig_probes = integration.setdefault("triggered_probes", [])
-                trig_probes.append(self.probes[0])
+                trig_probes.append(self.guardian.triggered_by_run)
 
 
 class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
@@ -153,7 +147,10 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
 
         with self._lock:
             for g in self.guardians:
-                g.finish(journal)
+                try:
+                    g.finish(journal)
+                except Exception:
+                    logger.debug("Guardian somehow failed", exc_info=True)
 
     def add(self, guardian: ReliablySafeguardGuardian) -> None:
         if not self.initialized:
@@ -230,7 +227,15 @@ def get_value(value: Union[str, Dict[str, str]]) -> Optional[str]:
 def get_integration_from_extension(
     experiment: Experiment, name: str
 ) -> Dict[str, Any]:
-    x = find_extension_by_name(experiment, "reliably")
-    integrations = x.setdefault("integrations", {})  # type: ignore
-    integration = integrations.setdefault(name, {})
+    extensions = experiment.setdefault("extensions", [])
+    extension = {"name": "reliably"}
+    for x in extensions:
+        if x["name"] == name:
+            extension = x
+            break
+    else:
+        extensions.append(extension)
+
+    integrations = extension.setdefault("integrations", {})  # type: ignore
+    integration = integrations.setdefault(name, {})  # type: ignore
     return integration  # type: ignore

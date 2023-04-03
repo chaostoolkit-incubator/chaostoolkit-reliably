@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.38.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.39.0...HEAD
+
+## [0.39.0][]
+
+[0.39.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.38.0...0.39.0
+
+### Changed
+
+* Embed triggered probe into journal
 
 ## [0.38.0][]
 

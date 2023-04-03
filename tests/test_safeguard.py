@@ -29,7 +29,9 @@ def test_prechecks_run_interrupts_execution(respx_mock):
         "description": "n/a",
         "method": []
     }
-    journal = {}
+    journal = {
+        "experiment": experiment
+    }
 
     try:
         run_all(experiment, None, None, handler=proxy)
@@ -80,7 +82,9 @@ def test_prechecks_run_once(respx_mock):
         "description": "n/a",
         "method": []
     }
-    journal = {}
+    journal = {
+        "experiment": experiment
+    }
 
     try:
         run_all(experiment, None, None, handler=proxy)
@@ -113,7 +117,9 @@ def test_safeguard_run_periodically(respx_mock):
         "description": "n/a",
         "method": []
     }
-    journal = {}
+    journal = {
+        "experiment": experiment
+    }
 
     try:
         run_all(experiment, None, None, handler=proxy)
@@ -146,7 +152,9 @@ def test_safeguard_run_interrupts_execution(respx_mock):
         "description": "n/a",
         "method": []
     }
-    journal = {}
+    journal = {
+        "experiment": experiment
+    }
 
     try:
         run_all(experiment, None, None, handler=proxy)
@@ -190,7 +198,9 @@ def test_safeguard_can_be_many(respx_mock):
         "description": "n/a",
         "method": []
     }
-    journal = {}
+    journal = {
+        "experiment": experiment
+    }
 
     try:
         run_all(experiment, None, None, handler=proxy)
