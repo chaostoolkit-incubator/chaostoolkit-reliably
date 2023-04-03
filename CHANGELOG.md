@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.37.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.38.0...HEAD
+
+## [0.38.0][]
+
+[0.38.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.37.0...0.38.0
+
+### Changed
+
+* Storing safeguards/prechecks results into extension
 
 ## [0.37.0][]
 

@@ -1,7 +1,7 @@
 import os
 import secrets
 import threading
-from typing import Dict, Optional, Type, Union, cast
+from typing import Any, Dict, Optional, Type, Union, cast
 
 from chaosaddons.controls import safeguards
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
@@ -14,9 +14,17 @@ from chaoslib.types import (
 )
 from logzero import logger
 
+global_lock = threading.Lock()
+
 
 class ReliablyGuardian(safeguards.Guardian):  # type: ignore
+    def __init__(self) -> None:
+        super(ReliablyGuardian, self).__init__(self)
+        self.was_triggered = False
+
     def _exit(self) -> None:
+        with self._lock:
+            self.was_triggered = True
         safeguards.Guardian._exit(self)
 
 
@@ -29,6 +37,7 @@ class ReliablySafeguardGuardian:
         guardian_class: Type[safeguards.Guardian] = ReliablyGuardian,
     ) -> None:
         self.guardian = guardian_class()
+        self.frequency = frequency
 
         url = get_value(url)  # type: ignore
         auth = get_value(auth)  # type: ignore
@@ -77,9 +86,16 @@ class ReliablySafeguardGuardian:
             None,
         )
 
-    def finish(self) -> None:
+    def finish(self, journal: Journal) -> None:
         self.guardian.terminate()
-        self.probes = []
+
+        with global_lock:
+            if self.guardian.was_triggered:
+                x = journal["experiment"]
+                name = "safeguards" if self.frequency else "prechecks"
+                integration = get_integration_from_extension(x, name)
+                trig_probes = integration.setdefault("triggered_probes", [])
+                trig_probes.append(self.probes[0])
 
 
 class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
@@ -88,6 +104,7 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
         self._lock = threading.Lock()
         self._initialized = False
         self._started = False
+
         self.guardians = []  # type: ignore
 
     @property
@@ -115,6 +132,12 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
         if not self.initialized:
             return None
 
+        extension = find_extension_by_name(experiment, "reliably")
+        if extension:
+            intg = extension.setdefault("integrations", {})
+            intg.setdefault("prechecks", [])
+            intg.setdefault("safeguards", [])
+
         with self._lock:
             if self._started:
                 return None
@@ -130,7 +153,7 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
 
         with self._lock:
             for g in self.guardians:
-                g.finish()
+                g.finish(journal)
 
     def add(self, guardian: ReliablySafeguardGuardian) -> None:
         if not self.initialized:
@@ -174,7 +197,8 @@ def run_all(
 
 
 def find_extension_by_name(
-    experiment: Experiment, name: str
+    experiment: Experiment,
+    name: str,
 ) -> Optional[Extension]:
     extensions = experiment.get("extensions")
     if not extensions:
@@ -201,3 +225,12 @@ def get_value(value: Union[str, Dict[str, str]]) -> Optional[str]:
         return os.getenv(value["key"])
 
     return None
+
+
+def get_integration_from_extension(
+    experiment: Experiment, name: str
+) -> Dict[str, Any]:
+    x = find_extension_by_name(experiment, "reliably")
+    integrations = x.setdefault("integrations", {})  # type: ignore
+    integration = integrations.setdefault(name, {})
+    return integration  # type: ignore
