@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.39.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.40.0...HEAD
+
+## [0.40.0][]
+
+[0.40.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.39.1...0.40.0
+
+### Changed
+
+* Minor fixes to the assistant control
 
 ## [0.39.1][]
 

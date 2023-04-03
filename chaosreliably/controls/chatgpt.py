@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Dict, Union
 
 import httpx
 from chaoslib.types import Configuration, Experiment, Journal, Secrets
@@ -14,14 +14,18 @@ OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 def after_experiment_control(
     context: Experiment,
     state: Journal,
-    openai_model: str = "gpt-3.5-turbo",
+    openai_model: Union[str, Dict[str, str]] = "gpt-3.5-turbo",
     configuration: Configuration = None,
     secrets: Secrets = None,
     **kwargs: Any,
 ) -> None:
-    extension = find_extension_by_name(context, "chatgpt")
+    experiment = state["experiment"]
+    extension = find_extension_by_name(experiment, "chatgpt")
     if not extension:
         return None
+
+    if isinstance(openai_model, dict):
+        openai_model = os.getenv(openai_model["key"])
 
     secrets = secrets or {}
     openapi_secrets = secrets.get("openai", {})
@@ -52,12 +56,17 @@ def after_experiment_control(
             },
             json={
                 "model": openai_model,
-                "temperature": 0.2,
+                "temperature": 0.3,
                 "messages": messages,
             },
         )
     except httpx.ReadTimeout:
         logger.debug("OpenAI took too long to respond unfortunately")
     else:
-        if r.status_code == 200:
-            extension["results"] = r.json()
+        if r.status_code > 399:
+            logger.debug(f"OpenAI chat failed: {r.status_code}: {r.json()}")
+            return None
+
+        logger.debug("OpenAI call succeeded")
+        extension["results"] = r.json()
+
