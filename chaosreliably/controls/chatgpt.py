@@ -44,28 +44,34 @@ def after_experiment_control(
         f"Asking OpenAPI for chat completions using model '{openai_model}'"
     )
 
-    messages = extension.get("messages", [])
-    try:
-        r = httpx.post(
-            OPENAI_URL,
-            timeout=60,
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {key}",
-                "OpenAI-Organization": org,
-            },
-            json={
-                "model": openai_model,
-                "temperature": 0.3,
-                "messages": messages,
-            },
-        )
-    except httpx.ReadTimeout:
-        logger.debug("OpenAI took too long to respond unfortunately")
-    else:
-        if r.status_code > 399:
-            logger.debug(f"OpenAI chat failed: {r.status_code}: {r.json()}")
-            return None
+    results = []
+    chat = []
+    for message in extension.get("messages", [])[:]:
+        message["content"] += ".Render in unrendered markdown."
+        chat.append(message)
+        try:
+            r = httpx.post(
+                OPENAI_URL,
+                timeout=60,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {key}",
+                    "OpenAI-Organization": org,
+                },
+                json={
+                    "model": openai_model,
+                    "temperature": 0.3,
+                    "messages": chat,
+                },
+            )
+        except httpx.ReadTimeout:
+            logger.debug("OpenAI took too long to respond unfortunately")
+        else:
+            if r.status_code > 399:
+                logger.debug(f"OpenAI chat failed: {r.status_code}: {r.json()}")
+                break
 
-        logger.debug("OpenAI call succeeded")
-        extension["results"] = r.json()
+            results.append(r.json())
+            chat.append(results[-1]["choices"][0]["message"])
+
+    extension["results"] = results
