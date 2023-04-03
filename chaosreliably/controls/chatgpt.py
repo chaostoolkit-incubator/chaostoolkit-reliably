@@ -25,7 +25,7 @@ def after_experiment_control(
         return None
 
     if isinstance(openai_model, dict):
-        openai_model = os.getenv(openai_model["key"])
+        openai_model = os.getenv(openai_model["key"], "gpt-3.5-turbo")
 
     secrets = secrets or {}
     openapi_secrets = secrets.get("openai", {})
@@ -69,4 +69,3 @@ def after_experiment_control(
 
         logger.debug("OpenAI call succeeded")
         extension["results"] = r.json()
-
