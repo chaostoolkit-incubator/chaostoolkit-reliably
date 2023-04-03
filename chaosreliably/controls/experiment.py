@@ -25,6 +25,7 @@ from logzero import logger
 
 from chaosreliably import RELIABLY_HOST, get_session
 from chaosreliably.activities.pauses import reset as reset_activity_pause
+from chaosreliably.controls import global_lock
 
 __all__ = ["configure_control"]
 
@@ -479,15 +480,18 @@ def send_journal(
 
 
 def get_reliably_extension_from_journal(journal: Journal) -> Dict[str, Any]:
-    experiment = journal.get("experiment")
-    extensions = experiment.setdefault("extensions", [])
-    for extension in extensions:
-        if extension["name"] == "reliably":
-            return cast(Dict[str, Any], extension)
+    with global_lock:
+        experiment = journal.get("experiment")
+        extensions = experiment.setdefault("extensions", [])
+        for extension in extensions:
+            if extension["name"] == "reliably":
+                extension.setdefault("pauses", [])
+                extension.setdefault("termination", None)
+                return cast(Dict[str, Any], extension)
 
-    extension = {"name": "reliably", "pauses": [], "termination": None}
-    extensions.append(extension)
-    return cast(Dict[str, Any], extension)
+        extension = {"name": "reliably", "pauses": [], "termination": None}
+        extensions.append(extension)
+        return cast(Dict[str, Any], extension)
 
 
 def add_runtime_extra(extension: Dict[str, Any]) -> None:

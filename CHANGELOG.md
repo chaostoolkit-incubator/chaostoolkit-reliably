@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.39.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.39.1...HEAD
+
+## [0.39.1][]
+
+[0.39.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.39.0...0.39.1
+
+### Changed
+
+* Ensure only one `reliably` extension exists
 
 ## [0.39.0][]
 

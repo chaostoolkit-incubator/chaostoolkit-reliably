@@ -230,7 +230,7 @@ def get_integration_from_extension(
     extensions = experiment.setdefault("extensions", [])
     extension = {"name": "reliably"}
     for x in extensions:
-        if x["name"] == name:
+        if x["name"] == "reliably":
             extension = x
             break
     else:
