@@ -10,6 +10,7 @@ from logging import Formatter, StreamHandler
 from typing import Any, Dict, Optional, cast
 
 from chaoslib.exit import exit_gracefully, exit_ungracefully
+from chaoslib.info import list_extensions
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
 from chaoslib.types import (
     Activity,
@@ -195,6 +196,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                 self.extension["execution_url"] = url
 
                 add_runtime_extra(self.extension)
+                add_runtime_info(self.extension)
                 set_plan_status(
                     self.org_id,
                     "running",
@@ -581,3 +583,8 @@ def to_datetime(ts: str) -> datetime:
     return datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S.%f").replace(
         tzinfo=timezone.utc
     )
+
+
+def add_runtime_info(extension: Dict[str, Any]) -> None:
+    ctk_extensions = list_extensions()
+    extension["chaostoolkit_extensions"] = ctk_extensions
