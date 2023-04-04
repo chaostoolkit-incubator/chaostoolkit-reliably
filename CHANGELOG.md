@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.1...HEAD
+
+## [0.43.1][]
+
+[0.43.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.0...0.43.1
+
+### Changed
+
+* Fix string removal operator
 
 ## [0.43.0][]
 

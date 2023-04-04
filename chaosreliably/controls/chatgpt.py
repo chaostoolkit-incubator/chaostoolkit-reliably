@@ -68,7 +68,7 @@ def after_experiment_control(
         except httpx.ReadTimeout:
             logger.debug("OpenAI took too long to respond unfortunately")
         else:
-            message["content"] -= suffix
+            message["content"] = message["content"].replace(suffix, "")
             if r.status_code > 399:
                 logger.debug(f"OpenAI chat failed: {r.status_code}: {r.json()}")
                 break
