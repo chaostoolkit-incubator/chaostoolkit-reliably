@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.40.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.41.0...HEAD
+
+## [0.41.0][]
+
+[0.41.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.40.0...0.41.0
+
+### Changed
+
+* Embed list of chaostoolkit extensions and versions used for an execution
+* Remove suffix from assistant question once used
 
 ## [0.40.0][]
 
