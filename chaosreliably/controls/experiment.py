@@ -587,4 +587,12 @@ def to_datetime(ts: str) -> datetime:
 
 def add_runtime_info(extension: Dict[str, Any]) -> None:
     ctk_extensions = list_extensions()
-    extension["chaostoolkit_extensions"] = ctk_extensions
+
+    extension["chaostoolkit_extensions"] = []
+    for ctkx in ctk_extensions:
+        extension["chaostoolkit_extensions"].append(
+            {
+                "name": ctkx.name,
+                "version": ctkx.version,
+            }
+        )
