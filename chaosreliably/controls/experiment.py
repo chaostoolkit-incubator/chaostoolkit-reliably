@@ -198,8 +198,12 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                 url = f"https://{host}/executions/view/?id={self.exec_id}&exp={self.exp_id}"  # noqa
                 self.extension["execution_url"] = url
 
-                add_runtime_extra(self.extension)
-                add_runtime_info(experiment, self.extension)
+                try:
+                    add_runtime_extra(self.extension)
+                    add_runtime_info(experiment, self.extension)
+                except Exception:
+                    logger.debug("Failed to add runtime info", exc_info=True)
+
                 set_plan_status(
                     self.org_id,
                     "running",

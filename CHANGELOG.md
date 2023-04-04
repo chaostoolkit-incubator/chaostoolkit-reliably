@@ -11,6 +11,7 @@
 ### Changed
 
 * Fix string removal operator
+* Don't let runtime info collection fail the execution
 
 ## [0.43.0][]
 
