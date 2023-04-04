@@ -6,7 +6,7 @@
 
 ## [0.43.0][]
 
-[0.42.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.42.0...0.43.0
+[0.43.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.42.0...0.43.0
 
 ### Changed
 

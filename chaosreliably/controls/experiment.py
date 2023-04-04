@@ -7,10 +7,13 @@ import time
 from copy import deepcopy
 from datetime import datetime, timezone
 from logging import Formatter, StreamHandler
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, List, Optional, cast
 
+try:
+    import importlib_metadata as im
+except ImportError:
+    import importlib.metadata as im  # type: ignore
 from chaoslib.exit import exit_gracefully, exit_ungracefully
-from chaoslib.info import list_extensions
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
 from chaoslib.types import (
     Activity,
@@ -196,7 +199,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                 self.extension["execution_url"] = url
 
                 add_runtime_extra(self.extension)
-                add_runtime_info(self.extension)
+                add_runtime_info(experiment, self.extension)
                 set_plan_status(
                     self.org_id,
                     "running",
@@ -585,14 +588,43 @@ def to_datetime(ts: str) -> datetime:
     )
 
 
-def add_runtime_info(extension: Dict[str, Any]) -> None:
-    ctk_extensions = list_extensions()
+def add_runtime_info(experiment: Experiment, extension: Dict[str, Any]) -> None:
+    x_mods = get_all_activities_modules(experiment)
+    dists = {d.name: (d.name, d.version) for d in im.distributions()}
+    pkgs = im.packages_distributions()
 
     extension["chaostoolkit_extensions"] = []
-    for ctkx in ctk_extensions:
-        extension["chaostoolkit_extensions"].append(
-            {
-                "name": ctkx.name,
-                "version": ctkx.version,
-            }
-        )
+    for x_mod in x_mods:
+        if x_mod in pkgs:
+            for pkg in pkgs[x_mod]:
+                if pkg in dists:
+                    p = dists[pkg]
+                    extension["chaostoolkit_extensions"].append(
+                        {
+                            "name": p[0],
+                            "version": p[1],
+                        }
+                    )
+
+
+def get_all_activities_modules(experiment: Experiment) -> List[str]:
+    activities = []
+    activities.extend(
+        experiment.get("steady-state-hypothesis", {}).get("probes", [])
+    )
+    activities.extend(experiment.get("method", []))
+    activities.extend(experiment.get("rollbacks", []))
+
+    mods = set([])
+    for activity in activities:
+        provider = activity.get("provider", {})
+        if provider.get("type") == "python":
+            mod = provider.get("module")
+            print(mod)
+            if "." not in mod:
+                mods.add(mod)
+            else:
+                mod, _ = mod.split(".", 1)
+                mods.add(mod)
+
+    return list(mods)
