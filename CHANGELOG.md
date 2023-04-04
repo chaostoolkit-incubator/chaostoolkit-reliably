@@ -2,11 +2,11 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.41.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.42.0...HEAD
 
-## [0.41.0][]
+## [0.42.0][]
 
-[0.41.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.40.0...0.41.0
+[0.42.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.41.0...0.42.0
 
 ### Changed
 
