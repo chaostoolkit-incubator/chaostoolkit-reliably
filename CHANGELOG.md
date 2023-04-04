@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.2...HEAD
+
+## [0.43.2][]
+
+[0.43.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.1...0.43.2
+
+### Changed
+
+* Use dict not list for integrations
 
 ## [0.43.1][]
 

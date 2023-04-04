@@ -129,8 +129,8 @@ class ReliablySafeguardHandler(RunEventHandler):  # type: ignore
         extension = find_extension_by_name(experiment, "reliably")
         if extension:
             intg = extension.setdefault("integrations", {})
-            intg.setdefault("prechecks", [])
-            intg.setdefault("safeguards", [])
+            intg.setdefault("prechecks", {})
+            intg.setdefault("safeguards", {})
 
         with self._lock:
             if self._started:
