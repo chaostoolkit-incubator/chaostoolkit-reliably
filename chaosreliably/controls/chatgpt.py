@@ -46,8 +46,9 @@ def after_experiment_control(
 
     results = []
     chat = []
+    suffix = ". Render in unrendered markdown."
     for message in extension.get("messages", [])[:]:
-        message["content"] += ".Render in unrendered markdown."
+        message["content"] += suffix
         chat.append(message)
         try:
             r = httpx.post(
@@ -67,6 +68,7 @@ def after_experiment_control(
         except httpx.ReadTimeout:
             logger.debug("OpenAI took too long to respond unfortunately")
         else:
+            message["content"] -= suffix
             if r.status_code > 399:
                 logger.debug(f"OpenAI chat failed: {r.status_code}: {r.json()}")
                 break
