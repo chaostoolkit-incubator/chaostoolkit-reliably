@@ -34,12 +34,12 @@ def after_experiment_control(
 
     org = openapi_secrets.get("org") or os.getenv("OPENAI_ORG")
     if not org:
-        logger.warning("Cannot call OpenAPI: missing org")
+        logger.warning("Cannot call OpenAI: missing org")
         return None
 
     key = openapi_secrets.get("key") or os.getenv("OPENAI_API_KEY")
     if not key:
-        logger.warning("Cannot call OpenAPI: missing secret key")
+        logger.warning("Cannot call OpenAI: missing secret key")
         return None
 
     logger.debug(
