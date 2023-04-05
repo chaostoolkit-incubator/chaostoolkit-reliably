@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.3...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.44.0...HEAD
+
+## [0.44.0][]
+
+[0.44.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.3...0.44.0
+
+### Changed
+
+* Allow reading from `default` values
 
 ## [0.43.3][]
 

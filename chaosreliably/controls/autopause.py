@@ -97,7 +97,13 @@ def is_enabled(value: Union[bool, Dict[str, str]]) -> bool:
         return value
 
     if value.get("type") == "env":
-        if os.getenv(value["key"], "") not in ("", "f", "false", "0", "False"):
+        if os.getenv(value["key"], value.get("default", "")) not in (
+            "",
+            "f",
+            "false",
+            "0",
+            "False",
+        ):
             return True
 
         return False
@@ -113,6 +119,6 @@ def get_duration(value: Union[float, int, Dict[str, str]]) -> float:
         return float(value)
 
     if value.get("type") == "env":
-        return float(os.getenv(value["key"]) or "0")
+        return float(os.getenv(value["key"], value.get("default", "0"))) or 0.0
 
     return 0.0

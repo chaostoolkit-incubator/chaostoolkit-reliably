@@ -221,7 +221,7 @@ def get_value(value: Union[str, Dict[str, str]]) -> Optional[str]:
         return str(value)
 
     if value.get("type") == "env":
-        return os.getenv(value["key"])
+        return os.getenv(value["key"], value.get("default"))
 
     return None
 
