@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.3...HEAD
+
+## [0.43.3][]
+
+[0.43.3]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.43.2...0.43.3
+
+### Changed
+
+* Better handling of missing safeguard URL
 
 ## [0.43.2][]
 

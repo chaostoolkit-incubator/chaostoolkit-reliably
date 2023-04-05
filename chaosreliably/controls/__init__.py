@@ -30,21 +30,22 @@ class ReliablySafeguardGuardian:
         frequency: Optional[Union[float, Dict[str, str]]],
         guardian_class: Type[safeguards.Guardian] = ReliablyGuardian,
     ) -> None:
-        self.guardian = guardian_class()
+        self.probes = []
         self.frequency = frequency
+        self.guardian = guardian_class()
 
         url = get_value(url)  # type: ignore
         auth = get_value(auth)  # type: ignore
 
+        if not url:
+            logger.debug("Missing URL for safeguard/precheck call.")
+            return None
+
         if frequency is not None:
             frequency = max(float(get_value(frequency)), 0.3)  # type: ignore
 
-        if not url:
-            logger.debug("Missing URL for safeguard/precheck call")
-            return None
-
         name = f"precheck-{secrets.token_hex(8)}"
-        self.probes = [
+        self.probes.append(
             {
                 "name": name,
                 "type": "probe",
@@ -56,7 +57,7 @@ class ReliablySafeguardGuardian:
                     "arguments": {"url": url, "auth": auth},
                 },
             }
-        ]
+        )
 
         if frequency:
             logger.debug(f"Will call '{url}' every {frequency}s as a safeguard")
@@ -72,13 +73,14 @@ class ReliablySafeguardGuardian:
         configuration: Configuration,
         secrets: Secrets,
     ) -> None:
-        self.guardian.run(
-            experiment,
-            self.probes,
-            configuration or {},
-            secrets or {},
-            None,
-        )
+        if self.probes:
+            self.guardian.run(
+                experiment,
+                self.probes,
+                configuration or {},
+                secrets or {},
+                None,
+            )
 
     def finish(self, journal: Journal) -> None:
         self.guardian.terminate()
