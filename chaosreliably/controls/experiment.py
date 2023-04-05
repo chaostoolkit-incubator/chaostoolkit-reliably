@@ -624,7 +624,6 @@ def get_all_activities_modules(experiment: Experiment) -> List[str]:
         provider = activity.get("provider", {})
         if provider.get("type") == "python":
             mod = provider.get("module")
-            print(mod)
             if "." not in mod:
                 mods.add(mod)
             else:
