@@ -104,7 +104,7 @@ def verify_tls_cert(
     if expire_in_more_than(expire_after, value) is False:
         return False
 
-    if alt_names not in ("", None):  # type: ignore
+    if alt_names not in ("", [""], None):
         if (
             has_subject_alt_names(alt_names, True, value)  # type: ignore
             is False
