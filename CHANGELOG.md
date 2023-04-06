@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.44.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.44.1...HEAD
+
+## [0.44.1][]
+
+[0.44.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.44.0...0.44.1
+
+### Changed
+
+* Fix empty alt_names
 
 ## [0.44.0][]
 
