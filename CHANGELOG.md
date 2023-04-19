@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.44.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.45.0...HEAD
+
+## [0.45.0][]
+
+[0.45.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.44.1...0.45.0
+
+### Changed
+
+* Run OpenAI calls in a thread so they can terminate as soon as possible
 
 ## [0.44.1][]
 
