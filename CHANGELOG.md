@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.45.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.45.1...HEAD
+
+## [0.45.1][]
+
+[0.45.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.45.0...0.45.1
+
+### Added
+
+* log line for operation duration
 
 ## [0.45.0][]
 

@@ -1,5 +1,6 @@
 import os
 import threading
+import time
 from typing import Dict, Union
 
 import httpx
@@ -114,6 +115,7 @@ def talk_with_chatgpt(
             f"Asking OpenAPI for chat completions using model '{openai_model}'"
         )
 
+        start = time.time()
         results = []
         chat = []
         suffix = ". Render in unrendered markdown."
@@ -148,6 +150,8 @@ def talk_with_chatgpt(
                 results.append(r.json())
                 chat.append(results[-1]["choices"][0]["message"])
 
+        d = time.time() - start
+        logger.debug(f"Finished fetching OpenAI messages in {d}s")
         extension["results"] = results
     except Exception:
         logger.debug("Failure to communicate with OpenAI API", exc_info=True)
