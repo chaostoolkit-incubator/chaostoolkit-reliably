@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.45.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.46.0...HEAD
+
+## [0.46.0][]
+
+[0.46.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.45.1...0.46.0
+
+### Changed
+
+* re-organized so plan status is always set
+* interrupt execution when it couldn't be properly initialized
 
 ## [0.45.1][]
 

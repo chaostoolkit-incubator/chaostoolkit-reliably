@@ -13,6 +13,7 @@ try:
     import importlib_metadata as im
 except ImportError:
     import importlib.metadata as im  # type: ignore
+from chaoslib.exceptions import InterruptExecution
 from chaoslib.exit import exit_gracefully, exit_ungracefully
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
 from chaoslib.types import (
@@ -32,6 +33,7 @@ from chaosreliably.activities.pauses import reset as reset_activity_pause
 from chaosreliably.controls import global_lock
 
 __all__ = ["configure_control"]
+init_failed = threading.Event()
 
 
 class ReliablyHandler(RunEventHandler):  # type: ignore
@@ -174,6 +176,14 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self.secrets = secrets
         self.journal = journal
 
+        set_plan_status(
+            self.org_id,
+            "running",
+            None,
+            self.configuration,
+            self.secrets,
+        )
+
         try:
             result = create_run(
                 self.org_id,
@@ -184,59 +194,51 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                 self.secrets,
             )
 
-            if result:
-                payload = result
-                self.extension = get_reliably_extension_from_journal(journal)
+            payload = result
+            self.extension = get_reliably_extension_from_journal(journal)
 
-                self.exec_id = payload["id"]
-                logger.info(f"Reliably execution: {self.exec_id}")
+            self.exec_id = payload["id"]
+            logger.info(f"Reliably execution: {self.exec_id}")
 
-                host = self.secrets.get(
-                    "host", os.getenv("RELIABLY_HOST", RELIABLY_HOST)
-                )
+            host = self.secrets.get(
+                "host", os.getenv("RELIABLY_HOST", RELIABLY_HOST)
+            )
 
-                url = f"https://{host}/executions/view/?id={self.exec_id}&exp={self.exp_id}"  # noqa
-                self.extension["execution_url"] = url
+            url = f"https://{host}/executions/view/?id={self.exec_id}&exp={self.exp_id}"  # noqa
+            self.extension["execution_url"] = url
 
-                try:
-                    add_runtime_extra(self.extension)
-                    add_runtime_info(experiment, self.extension)
-                except Exception:
-                    logger.debug("Failed to add runtime info", exc_info=True)
+            try:
+                add_runtime_extra(self.extension)
+                add_runtime_info(experiment, self.extension)
+            except Exception:
+                logger.debug("Failed to add runtime info", exc_info=True)
 
-                set_plan_status(
-                    self.org_id,
-                    "running",
-                    None,
-                    self.configuration,
-                    self.secrets,
-                )
+            set_execution_state(
+                self.org_id,
+                self.exp_id,
+                self.exec_id,
+                {
+                    "current": "running",
+                    "started_on": self.started.isoformat(),
+                },
+                self.configuration,
+                self.secrets,
+            )
 
-                set_execution_state(
+            self.check_for_user_state = threading.Thread(
+                None,
+                self._check,
+                args=(
                     self.org_id,
                     self.exp_id,
                     self.exec_id,
-                    {
-                        "current": "running",
-                        "started_on": self.started.isoformat(),
-                    },
-                    self.configuration,
-                    self.secrets,
-                )
-
-                self.check_for_user_state = threading.Thread(
-                    None,
-                    self._check,
-                    args=(
-                        self.org_id,
-                        self.exp_id,
-                        self.exec_id,
-                        configuration,
-                        secrets,
-                    ),
-                )
-                self.check_for_user_state.start()
+                    configuration,
+                    secrets,
+                ),
+            )
+            self.check_for_user_state.start()
         except Exception as ex:
+            init_failed.set()
             set_plan_status(
                 self.org_id, "error", str(ex), self.configuration, self.secrets
             )
@@ -257,43 +259,48 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self.current_activities = []
 
         try:
-            complete_run(
-                self.org_id,
-                self.exp_id,
-                self.exec_id,
-                journal,
-                log,
-                self.configuration,
-                self.secrets,
-            )
-            set_plan_status(
-                self.org_id,
-                "completed",
-                None,
-                self.configuration,
-                self.secrets,
-            )
+            if not init_failed.is_set():
+                complete_run(
+                    self.org_id,
+                    self.exp_id,
+                    self.exec_id,
+                    journal,
+                    log,
+                    self.configuration,
+                    self.secrets,
+                )
+
+                set_plan_status(
+                    self.org_id,
+                    "completed",
+                    None,
+                    self.configuration,
+                    self.secrets,
+                )
         except Exception as ex:
             set_plan_status(
                 self.org_id, "error", str(ex), self.configuration, self.secrets
             )
         finally:
-            set_execution_state(
-                self.org_id,
-                self.exp_id,
-                self.exec_id,
-                {
-                    "current": "finished",
-                    "status": journal.get("status"),
-                    "deviated": journal.get("deviated"),
-                },
-                self.configuration,
-                self.secrets,
-            )
+            if not init_failed.is_set():
+                set_execution_state(
+                    self.org_id,
+                    self.exp_id,
+                    self.exec_id,
+                    {
+                        "current": "finished",
+                        "status": journal.get("status"),
+                        "deviated": journal.get("deviated"),
+                    },
+                    self.configuration,
+                    self.secrets,
+                )
 
             self.experiment = (
                 self.configuration
             ) = self.secrets = self.journal = None
+
+            init_failed.clear()
 
         logger.info("Finished Reliably execution. Bye!")
 
@@ -411,6 +418,12 @@ def configure_control(
     event_registry.register(ReliablyHandler(org_id, exp_id, experiment))
 
 
+def before_experiment_control(**kwargs) -> None:  # type: ignore
+    if init_failed.is_set():
+        logger.error("failed to initialize, terminating now")
+        raise InterruptExecution("execution initialization failed. terminating")
+
+
 ###############################################################################
 # Private functions
 ###############################################################################
@@ -440,7 +453,7 @@ def create_run(
     state: Journal,
     configuration: Configuration,
     secrets: Secrets,
-) -> Optional[Dict[str, Any]]:
+) -> Dict[str, Any]:
     with get_session(configuration, secrets) as session:
         resp = session.post(
             f"/{org_id}/experiments/{exp_id}/executions",
@@ -448,7 +461,14 @@ def create_run(
         )
         if resp.status_code == 201:
             return cast(Dict[str, Any], resp.json())
-    return None
+
+        content = resp.json()
+        logger.debug(f"Failed to initialie execution: {content}")
+
+        if resp.status_code == 429:
+            raise ValueError(content["detail"]["message"])
+
+        raise ValueError("Initialization Failure")
 
 
 def complete_run(
