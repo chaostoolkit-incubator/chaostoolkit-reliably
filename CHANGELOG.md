@@ -2,7 +2,17 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.46.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.47.0...HEAD
+
+## [0.47.0][]
+
+[0.47.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.46.1...0.47.0
+
+### Changed
+
+* forcing status to be `aborted` when unset at the end of the experiment
+  as it likely means something went very wrong and we don't want to not have
+  a status set
 
 ## [0.46.0][]
 

@@ -289,7 +289,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                     self.exec_id,
                     {
                         "current": "finished",
-                        "status": journal.get("status"),
+                        "status": journal.get("status", "aborted"),
                         "deviated": journal.get("deviated"),
                     },
                     self.configuration,
@@ -595,6 +595,7 @@ def set_execution_state(
 
     state["plan_id"] = os.getenv("RELIABLY_PLAN_ID")
 
+    logger.debug(f"Sending execution state: {state}")
     with get_session(configuration, secrets) as session:
         r = session.put(
             f"/{org_id}/experiments/{exp_id}/executions/{exec_id}/state",
