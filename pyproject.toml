@@ -16,6 +16,7 @@ dependencies = [
     "locust>=2.15.0",
     "slo-generator[cloud_monitoring, prometheus, datadog, dynatrace]>=2.3.4",
     "chaostoolkit-addons>=0.4.0",
+    "orjson>=3.8.10",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

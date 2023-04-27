@@ -1,5 +1,4 @@
 import io
-import json
 import os
 import secrets
 import threading
@@ -13,6 +12,7 @@ try:
     import importlib_metadata as im
 except ImportError:
     import importlib.metadata as im  # type: ignore
+import orjson
 from chaoslib.exceptions import InterruptExecution
 from chaoslib.exit import exit_gracefully, exit_ungracefully
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
@@ -457,7 +457,7 @@ def create_run(
     with get_session(configuration, secrets) as session:
         resp = session.post(
             f"/{org_id}/experiments/{exp_id}/executions",
-            json={"result": json.dumps(state)},
+            json={"result": as_json(state)},
         )
         if resp.status_code == 201:
             return cast(Dict[str, Any], resp.json())
@@ -483,7 +483,7 @@ def complete_run(
     with get_session(configuration, secrets) as session:
         resp = session.put(
             f"/{org_id}/experiments/{exp_id}/executions/{execution_id}/results",
-            json={"result": json.dumps(state), "log": log},
+            json={"result": as_json(state), "log": log},
         )
         if resp.status_code != 200:
             logger.error("Failed to update results on server")
@@ -501,7 +501,7 @@ def send_journal(
     with get_session(configuration, secrets) as session:
         resp = session.put(
             f"/{org_id}/experiments/{exp_id}/executions/{execution_id}/results",
-            json={"result": json.dumps(state)},
+            json={"result": as_json(state)},
         )
         if resp.status_code != 200:
             logger.error("Failed to update results on server")
@@ -652,3 +652,8 @@ def get_all_activities_modules(experiment: Experiment) -> List[str]:
                 mods.add(mod)
 
     return list(mods)
+
+
+
+def as_json(data: Any) -> Any:
+    return orjson.dumps(data, option=orjson.OPT_INDENT_2)

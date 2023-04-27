@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.47.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.48.0...HEAD
+
+## [0.48.0][]
+
+[0.48.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.47.0...0.48.0
+
+### Changed
+
+* use orjson for data serialization instead of builtin json. faster and stricter
 
 ## [0.47.0][]
 
