@@ -527,7 +527,7 @@ def add_runtime_extra(extension: Dict[str, Any]) -> None:
     extra = os.getenv("RELIABLY_EXECUTION_EXTRA", "[]")
 
     try:
-        extension["extra"] = json.loads(extra)
+        extension["extra"] = orjson.loads(extra.encode("utf-8"))
     except Exception:
         logger.debug("Failed to parse RELIABLY_EXECUTION_EXTRA")
         extension["extra"] = []
@@ -654,6 +654,5 @@ def get_all_activities_modules(experiment: Experiment) -> List[str]:
     return list(mods)
 
 
-
 def as_json(data: Any) -> Any:
-    return orjson.dumps(data, option=orjson.OPT_INDENT_2)
+    return orjson.dumps(data, option=orjson.OPT_INDENT_2).decode("utf-8")
