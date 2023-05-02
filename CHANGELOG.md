@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.48.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.49.0...HEAD
+
+## [0.49.0][]
+
+[0.49.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.48.0...0.49.0
+
+### Changed
+
+* link plan to execution
 
 ## [0.48.0][]
 
