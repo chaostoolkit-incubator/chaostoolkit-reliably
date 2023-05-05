@@ -125,7 +125,7 @@ def talk_with_chatgpt(
             try:
                 r = httpx.post(
                     OPENAI_URL,
-                    timeout=60,
+                    timeout=90,
                     headers={
                         "Content-Type": "application/json",
                         "Authorization": f"Bearer {key}",
