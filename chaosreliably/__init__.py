@@ -107,6 +107,7 @@ def load_exported_activities() -> List[DiscoveredActivities]:
             "chaosreliably.activities.gh.tolerances", "tolerance"
         )
     )
+    activities.extend(discover_actions("chaosreliably.activities.gh.actions"))
     activities.extend(discover_probes("chaosreliably.activities.gh.probes"))
     activities.extend(discover_probes("chaosreliably.activities.load.probes"))
     activities.extend(discover_actions("chaosreliably.activities.load.actions"))

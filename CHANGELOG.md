@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.49.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.0...HEAD
+
+## [0.50.0][]
+
+[0.50.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.49.0...0.50.0
+
+### Added
+
+* A new probe to list GitHub workflow runs
+* A new action to cancel a GitHub workflow run
 
 ## [0.49.0][]
 

@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, cast
 from urllib.parse import urlparse
 
 import httpx
@@ -9,8 +9,9 @@ from chaoslib.types import Configuration, Secrets
 from logzero import logger
 
 from chaosreliably import parse_duration
+from chaosreliably.activities.gh import get_gh_token, get_period
 
-__all__ = ["closed_pr_ratio", "pr_duration"]
+__all__ = ["closed_pr_ratio", "pr_duration", "list_workflow_runs"]
 
 
 def closed_pr_ratio(
@@ -216,3 +217,55 @@ def pr_duration(
             durations.append((closed_dt - created_dt).total_seconds())
 
     return durations
+
+
+def list_workflow_runs(
+    repo: str,
+    actor: Optional[str] = None,
+    branch: str = "main",
+    event: str = "push",
+    status: str = "in_progress",
+    window: str = "5d",
+    exclude_pull_requests: bool = False,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+) -> Dict[str, Any]:
+    """
+    List GitHub Workflow runs.
+
+    See the parameters meaning and values at:
+    https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-repository
+    """
+    gh_token = get_gh_token(secrets)
+    start, _ = get_period(window)
+    api_url = f"https://api.github.com/repos/{repo}/actions/runs"
+
+    params = {
+        "branch": branch,
+        "event": event,
+        "status": status,
+        "created": ">" + start.strftime("%Y-%m-%d"),
+        "exclude_pull_requests": exclude_pull_requests,
+        "page": 1,
+        "per_page": 100,
+    }
+
+    if actor:
+        params["actor"] = actor
+
+    r = httpx.get(
+        api_url,
+        headers={
+            "accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": f"Bearer {gh_token}",
+        },
+        params=params,  # type: ignore
+    )
+
+    if r.status_code > 399:
+        logger.debug(f"failed to list runs for repo '{repo}': {r.json()}")
+        raise ActivityFailed(f"failed to retrieve PR for repo '{repo}'")
+
+    runs = r.json()
+    return cast(Dict[str, Any], runs)
