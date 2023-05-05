@@ -64,6 +64,7 @@ class OpenAIHandler(RunEventHandler):  # type: ignore
                     "Failure while waiting for OpenAI to finish", exc_info=True
                 )
             finally:
+                logger.debug("Finished conversing with ChatGPT")
                 global_lock.release()
                 self._t = None
 
@@ -151,6 +152,7 @@ def talk_with_chatgpt(
 
                 results.append(r.json())
                 chat.append(results[-1]["choices"][0]["message"])
+                logger.debug("Got a reply from OpenAI")
 
         d = time.time() - start
         logger.debug(f"Finished fetching OpenAI messages in {d}s")

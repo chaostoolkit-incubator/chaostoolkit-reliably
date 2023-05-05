@@ -2,13 +2,19 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.5...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.6...HEAD
+
+## [0.50.6][]
+
+[0.50.6]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.5...0.50.6
+
+### Changed
+
+* add logging
 
 ## [0.50.5][]
 
 [0.50.5]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.4...0.50.5
-
-## [0.50.5][]
 
 ### Changed
 
@@ -17,8 +23,6 @@
 ## [0.50.4][]
 
 [0.50.4]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.3...0.50.4
-
-## [0.50.3][]
 
 ### Added
 
