@@ -2,7 +2,17 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.1...HEAD
+
+
+## [0.50.1][]
+
+[0.50.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.0...0.50.1
+
+### Added
+
+* Serialized TLS serial to string as int can overflow 64 bits
+
 
 ## [0.50.0][]
 
