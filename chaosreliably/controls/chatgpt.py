@@ -28,6 +28,7 @@ class OpenAIHandler(RunEventHandler):  # type: ignore
     ) -> None:
         RunEventHandler.__init__(self)
         self.openai_model = openai_model
+        self.should_exit = threading.Event()
         self._t = None
 
     def running(
@@ -44,7 +45,10 @@ class OpenAIHandler(RunEventHandler):  # type: ignore
             None,
             talk_with_chatgpt,
             kwargs=dict(
-                state=journal, openai_model=self.openai_model, secrets=secrets
+                state=journal,
+                openai_model=self.openai_model,
+                should_exit=self.should_exit,
+                secrets=secrets,
             ),
             daemon=True,
         )
@@ -54,11 +58,12 @@ class OpenAIHandler(RunEventHandler):  # type: ignore
         if self._t is not None and self._t.is_alive():
             try:
                 global_lock.acquire()
+                self.should_exit.set()
                 logger.debug(
                     "Waiting for OpenAI GPT conversation to finish "
                     "(for up to 90s)"
                 )
-                self._t.join(timeout=90)
+                self._t.join(timeout=95)
             except RuntimeError:
                 logger.debug(
                     "Failure while waiting for OpenAI to finish", exc_info=True
@@ -85,6 +90,7 @@ def configure_control(
 ###############################################################################
 def talk_with_chatgpt(
     state: Journal,
+    should_exit: threading.Event,
     openai_model: Union[str, Dict[str, str]] = "gpt-3.5-turbo",
     secrets: Secrets = None,
 ) -> None:
@@ -123,9 +129,14 @@ def talk_with_chatgpt(
         chat = []
         suffix = ". Render in unrendered markdown."
         for message in extension.get("messages", [])[:]:
+            if should_exit.is_set():
+                logger.debug("Exiting OpenAI chat as experiment has finished")
+                break
+
             message["content"] += suffix
             chat.append(message)
             try:
+                logger.debug("Submitting message to OpenAI")
                 r = httpx.post(
                     OPENAI_URL,
                     timeout=90,

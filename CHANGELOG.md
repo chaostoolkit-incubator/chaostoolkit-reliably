@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.6...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.7...HEAD
+
+## [0.50.7][]
+
+[0.50.7]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.6...0.50.7
+
+### Added
+
+* event to exit openai loop
 
 ## [0.50.6][]
 
