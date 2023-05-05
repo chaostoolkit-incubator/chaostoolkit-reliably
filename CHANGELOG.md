@@ -13,6 +13,7 @@
 
 * Serialized TLS serial to string as int can overflow 64 bits
 * Increase timeout on OpenAI when using gpt-4
+* Add a bit of logging
 
 ## [0.50.0][]
 

@@ -260,15 +260,35 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
 
         try:
             if not init_failed.is_set():
-                complete_run(
-                    self.org_id,
-                    self.exp_id,
-                    self.exec_id,
-                    journal,
-                    log,
-                    self.configuration,
-                    self.secrets,
-                )
+                try:
+                    complete_run(
+                        self.org_id,
+                        self.exp_id,
+                        self.exec_id,
+                        journal,
+                        log,
+                        self.configuration,
+                        self.secrets,
+                    )
+                except Exception:
+                    # something happened, let's make sure we keep our records
+                    complete_run(
+                        self.org_id,
+                        self.exp_id,
+                        self.exec_id,
+                        {
+                            "platform": journal.get("platform"),
+                            "node": journal.get("node"),
+                            "chaoslib-version": journal.get("chaoslib-version"),
+                            "status": "aborted",
+                            "start": journal.get("start"),
+                            "end": journal.get("end"),
+                            "duration": journal.get("duration"),
+                        },
+                        log,
+                        self.configuration,
+                        self.secrets,
+                    )
 
                 set_plan_status(
                     self.org_id,
@@ -484,6 +504,9 @@ def complete_run(
 ) -> Optional[Dict[str, Any]]:
     plan_id = os.getenv("RELIABLY_PLAN_ID")
 
+    status = state.get("status")
+    logger.debug(f"Completing execution '{execution_id}' status: {status}")
+
     with get_session(configuration, secrets) as session:
         resp = session.put(
             f"/{org_id}/experiments/{exp_id}/executions/{execution_id}/results",
@@ -576,7 +599,6 @@ def set_plan_status(
         return None
 
     logger.debug(f"Sending plan '{plan_id}' status: {status}")
-
     with get_session(configuration, secrets) as session:
         r = session.put(
             f"/{org_id}/plans/{plan_id}/status",
