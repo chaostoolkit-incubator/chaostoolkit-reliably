@@ -2,7 +2,17 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.3...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.4...HEAD
+
+## [0.50.4][]
+
+[0.50.4]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.3...0.50.4
+
+## [0.50.3][]
+
+### Added
+
+* serializeing using default json when orjson barfs on large integers
 
 ## [0.50.3][]
 

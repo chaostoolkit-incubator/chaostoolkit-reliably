@@ -1,4 +1,5 @@
 import io
+import json
 import os
 import secrets
 import threading
@@ -687,6 +688,12 @@ def get_all_activities_modules(experiment: Experiment) -> List[str]:
 def as_json(data: Any) -> Any:
     try:
         return orjson.dumps(data, option=orjson.OPT_INDENT_2).decode("utf-8")
+    except TypeError as x:
+        # orjson doesn't support integers larger than 64 bits
+        # https://github.com/ijl/orjson/issues/116
+        if str(x) == "Integer exceeds 64-bit range":
+            return json.dumps(data, indent=True)
+        raise
     except Exception:
         logger.critical("Failed to serialize journal to json", exc_info=True)
         raise
