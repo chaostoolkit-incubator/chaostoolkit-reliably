@@ -2,9 +2,17 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.3...HEAD
 
-## [0.50.2][]
+## [0.50.3][]
+
+[0.50.3]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.2...0.50.3
+
+## [0.50.3][]
+
+### Added
+
+* logging when failing to serialize to json
 
 [0.50.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.1...0.50.2
 

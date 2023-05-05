@@ -685,4 +685,8 @@ def get_all_activities_modules(experiment: Experiment) -> List[str]:
 
 
 def as_json(data: Any) -> Any:
-    return orjson.dumps(data, option=orjson.OPT_INDENT_2).decode("utf-8")
+    try:
+        return orjson.dumps(data, option=orjson.OPT_INDENT_2).decode("utf-8")
+    except Exception:
+        logger.critical("Failed to serialize journal to json", exc_info=True)
+        raise
