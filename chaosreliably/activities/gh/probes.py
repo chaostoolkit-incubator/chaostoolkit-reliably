@@ -233,6 +233,9 @@ def list_workflow_runs(
     """
     List GitHub Workflow runs.
 
+    If no runs are returned when there should be, please review if
+    GitHub has fixed https://github.com/orgs/community/discussions/53266
+
     See the parameters meaning and values at:
     https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-repository
     """
@@ -268,4 +271,5 @@ def list_workflow_runs(
         raise ActivityFailed(f"failed to retrieve PR for repo '{repo}'")
 
     runs = r.json()
+
     return cast(Dict[str, Any], runs)

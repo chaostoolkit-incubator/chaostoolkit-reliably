@@ -21,6 +21,8 @@ def cancel_workflow_run(
     event: str = "push",
     status: str = "in_progress",
     window: str = "5d",
+    workflow_id: Optional[str] = None,
+    workflow_run_id: Optional[str] = None,
     exclude_pull_requests: bool = False,
     configuration: Configuration = None,
     secrets: Secrets = None,
@@ -37,6 +39,11 @@ def cancel_workflow_run(
     If you set `at_random`, a run will be picked from the matching list
     randomly. otherwise, the first match will be used.
 
+    You may also filter down by `workflow_id` to ensure only runs of a specific
+    workflow are considered.
+
+    Finally, if you know the `workflow_run_id` you may directly target it.
+
     See the parameters meaning and values at:
     https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-repository
     """
@@ -44,62 +51,86 @@ def cancel_workflow_run(
     start, _ = get_period(window)
     api_url = f"https://api.github.com/repos/{repo}/actions/runs"
 
-    params = {
-        "branch": branch,
-        "event": event,
-        "status": status,
-        "created": ">" + start.strftime("%Y-%m-%d"),
-        "exclude_pull_requests": exclude_pull_requests,
-        "page": 1,
-    }
+    if not workflow_run_id:
+        params = {
+            "branch": branch,
+            "event": event,
+            "created": ">" + start.strftime("%Y-%m-%d"),
+            "exclude_pull_requests": exclude_pull_requests,
+            "page": 1,
+        }
 
-    if actor:
-        params["actor"] = actor
+        # until they fix https://github.com/orgs/community/discussions/53266
+        # if status:
+        #    params["status"] = status
 
-    r = httpx.get(
-        api_url,
-        headers={
-            "accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
-            "Authorization": f"Bearer {gh_token}",
-        },
-        params=params,  # type: ignore
-    )
+        if actor:
+            params["actor"] = actor
 
-    if r.status_code > 399:
-        logger.debug(f"failed to list runs for repo '{repo}': {r.json()}")
-        raise ActivityFailed(f"failed to retrieve PR for repo '{repo}'")
+        logger.debug(f"Searching for a potential run to cancel with: {params}")
 
-    result = r.json()
-    count = result["total_count"]
+        r = httpx.get(
+            api_url,
+            headers={
+                "accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+                "Authorization": f"Bearer {gh_token}",
+            },
+            params=params,  # type: ignore
+        )
 
-    logger.debug(f"Found {count} GitHub workflow runs that matched your query")
+        if r.status_code > 399:
+            logger.debug(f"failed to list runs for repo '{repo}': {r.json()}")
+            raise ActivityFailed(f"failed to retrieve PR for repo '{repo}'")
 
-    target = None
-    if count > 0:
+        result = r.json()
         runs = result.get("workflow_runs", [])
 
-        if commit_message_pattern is not None:
-            pattern = re.compile(commit_message_pattern)
+        # until GH fixes https://github.com/orgs/community/discussions/53266
+        runs = list(filter(lambda r: r["status"] == status, runs))
 
-            for run in runs:
-                m = run["head_commit"]["message"]
-                if pattern:
-                    if pattern.match(m) is not None:
-                        target = run
-                        break
-        else:
+        count = len(runs)
+
+        logger.debug(f"Found {count} GitHub workflow runs matching your query")
+
+        if count == 0:
+            raise ActivityFailed(
+                "Failed to locate a GitHub Worlflow run matching your query"
+            )
+
+        target = None
+
+        if workflow_id:
+            runs = list(filter(lambda r: r["workflow_id"] == workflow_id, runs))
             index = 0
             if at_random:
                 index = random.randint(0, count - 1)  # nosec
             target = runs[index]
+        else:
+            if commit_message_pattern is not None:
+                pattern = re.compile(commit_message_pattern)
 
-    if not target:
-        raise ActivityFailed(
-            "Failed to locate a GitHub Worlflow run matching your query"
-        )
+                for run in runs:
+                    m = run["head_commit"]["message"]
+                    if pattern:
+                        if pattern.match(m) is not None:
+                            target = run
+                            break
+            else:
+                index = 0
+                if at_random:
+                    index = random.randint(0, count - 1)  # nosec
+                target = runs[index]
 
-    run_id = target["id"]
+        if not target:
+            raise ActivityFailed(
+                "Failed to locate a GitHub Worlflow run matching your filters"
+            )
+
+        run_id = target["id"]
+    else:
+        run_id = workflow_run_id
+
     api_url = f"{api_url}/{run_id}/cancel"
 
     r = httpx.post(
