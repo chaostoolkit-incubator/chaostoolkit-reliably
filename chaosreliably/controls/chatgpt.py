@@ -15,7 +15,7 @@ from chaoslib.types import (
 )
 from logzero import logger
 
-from chaosreliably.controls import find_extension_by_name
+from chaosreliably.controls import find_extension_by_name, global_lock
 
 __all__ = ["configure_control"]
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
@@ -53,6 +53,7 @@ class OpenAIHandler(RunEventHandler):  # type: ignore
     def finish(self, journal: Journal) -> None:
         if self._t is not None and self._t.is_alive():
             try:
+                global_lock.acquire()
                 logger.debug(
                     "Waiting for OpenAI GPT conversation to finish "
                     "(for up to 90s)"
@@ -63,6 +64,7 @@ class OpenAIHandler(RunEventHandler):  # type: ignore
                     "Failure while waiting for OpenAI to finish", exc_info=True
                 )
             finally:
+                global_lock.release()
                 self._t = None
 
 

@@ -251,59 +251,64 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             self.check_for_user_state.join(timeout=3)
             self.check_for_user_state = None
 
-        logger.removeHandler(self.log_handler)
-        self.log_handler.flush()
+        with global_lock:
+            logger.removeHandler(self.log_handler)
+            self.log_handler.flush()
 
-        log = self.stream.getvalue()
-        self.stream.close()
+            log = self.stream.getvalue()
+            self.stream.close()
 
-        self.current_activities = []
+            self.current_activities = []
 
-        try:
-            if not init_failed.is_set():
-                complete_run(
-                    self.org_id,
-                    self.exp_id,
-                    self.exec_id,
-                    journal,
-                    log,
-                    self.configuration,
-                    self.secrets,
-                )
+            try:
+                if not init_failed.is_set():
+                    complete_run(
+                        self.org_id,
+                        self.exp_id,
+                        self.exec_id,
+                        journal,
+                        log,
+                        self.configuration,
+                        self.secrets,
+                    )
 
+                    set_plan_status(
+                        self.org_id,
+                        "completed",
+                        None,
+                        self.configuration,
+                        self.secrets,
+                    )
+            except Exception as ex:
                 set_plan_status(
                     self.org_id,
-                    "completed",
-                    None,
+                    "error",
+                    str(ex),
                     self.configuration,
                     self.secrets,
                 )
-        except Exception as ex:
-            set_plan_status(
-                self.org_id, "error", str(ex), self.configuration, self.secrets
-            )
-        finally:
-            if not init_failed.is_set():
-                set_execution_state(
-                    self.org_id,
-                    self.exp_id,
-                    self.exec_id,
-                    {
-                        "current": "finished",
-                        "status": journal.get("status", "aborted"),
-                        "deviated": journal.get("deviated"),
-                    },
-                    self.configuration,
-                    self.secrets,
-                )
+            finally:
+                if not init_failed.is_set():
+                    set_execution_state(
+                        self.org_id,
+                        self.exp_id,
+                        self.exec_id,
+                        {
+                            "current": "finished",
+                            "status": journal.get("status", "aborted"),
+                            "deviated": journal.get("deviated"),
+                        },
+                        self.configuration,
+                        self.secrets,
+                    )
 
-            self.experiment = (
-                self.configuration
-            ) = self.secrets = self.journal = None
+                self.experiment = (
+                    self.configuration
+                ) = self.secrets = self.journal = None
 
-            init_failed.clear()
+                init_failed.clear()
 
-        logger.info("Finished Reliably execution. Bye!")
+            logger.info("Finished Reliably execution. Bye!")
 
     def start_hypothesis_before(self, experiment: Experiment) -> None:
         with self.check_lock:
