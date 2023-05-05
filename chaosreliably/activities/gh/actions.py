@@ -91,7 +91,7 @@ def cancel_workflow_run(
         else:
             index = 0
             if at_random:
-                index = random.randint(0, count - 1)
+                index = random.randint(0, count - 1)  # nosec
             target = runs[index]
 
     if not target:
