@@ -45,7 +45,7 @@ def get_certificate_info(host: str, port: int = 443) -> Dict[str, Any]:
                 {
                     "issuer": cert_data.issuer.rfc4514_string(),
                     "subject": cert_data.subject.rfc4514_string(),
-                    "serial": cert_data.serial_number,
+                    "serial": str(cert_data.serial_number),
                     "version": cert_data.version.name,
                     "signature_hash": sig_hash,
                     "not_valid_before": cert_data.not_valid_before.isoformat(),

@@ -261,37 +261,15 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
 
         try:
             if not init_failed.is_set():
-                try:
-                    complete_run(
-                        self.org_id,
-                        self.exp_id,
-                        self.exec_id,
-                        journal,
-                        log,
-                        self.configuration,
-                        self.secrets,
-                    )
-                except Exception:
-                    # something happened, let's make sure we keep our records
-                    complete_run(
-                        self.org_id,
-                        self.exp_id,
-                        self.exec_id,
-                        {
-                            "platform": journal.get("platform"),
-                            "node": journal.get("node"),
-                            "chaoslib-version": journal.get("chaoslib-version"),
-                            "status": "aborted",
-                            "start": journal.get("start"),
-                            "end": journal.get("end"),
-                            "duration": journal.get("duration"),
-                            "experiment": journal.get("experiment"),
-                            "deviated": journal.get("deviated"),
-                        },
-                        log,
-                        self.configuration,
-                        self.secrets,
-                    )
+                complete_run(
+                    self.org_id,
+                    self.exp_id,
+                    self.exec_id,
+                    journal,
+                    log,
+                    self.configuration,
+                    self.secrets,
+                )
 
                 set_plan_status(
                     self.org_id,

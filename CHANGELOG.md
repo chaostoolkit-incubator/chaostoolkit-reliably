@@ -2,7 +2,17 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.4...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.5...HEAD
+
+## [0.50.5][]
+
+[0.50.5]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.4...0.50.5
+
+## [0.50.5][]
+
+### Changed
+
+* revert tls serial to string
 
 ## [0.50.4][]
 
