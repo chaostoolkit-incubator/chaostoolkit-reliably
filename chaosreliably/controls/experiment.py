@@ -284,6 +284,8 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                             "start": journal.get("start"),
                             "end": journal.get("end"),
                             "duration": journal.get("duration"),
+                            "experiment": journal.get("experiment"),
+                            "deviated": journal.get("deviated"),
                         },
                         log,
                         self.configuration,

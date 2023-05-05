@@ -2,8 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.2...HEAD
 
+## [0.50.2][]
+
+[0.50.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.1...0.50.2
+
+### Added
+
+* Missing fields on aborted executions
 
 ## [0.50.1][]
 
