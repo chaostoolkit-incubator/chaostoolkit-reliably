@@ -11,6 +11,7 @@
 ### Added
 
 * DNS probes and tolerances
+* Small backoff before talking with OpenAI
 
 ## [0.50.7][]
 

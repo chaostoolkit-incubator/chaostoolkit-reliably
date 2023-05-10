@@ -125,6 +125,7 @@ def talk_with_chatgpt(
         )
 
         start = time.time()
+        backoff = 3
         results = []
         chat = []
         suffix = ". Render in unrendered markdown."
@@ -154,16 +155,22 @@ def talk_with_chatgpt(
             except httpx.ReadTimeout:
                 logger.debug("OpenAI took too long to respond unfortunately")
             else:
-                message["content"] = message["content"].replace(suffix, "")
-                if r.status_code > 399:
+                if r.status_code == 429:
+                    logger.debug(
+                        f"OpenAI models overloaded. Pausing {backoff}s before "
+                        "continuing communicating with OpenAI again."
+                    )
+                    time.sleep(backoff)
+                    backoff += 2
+                elif r.status_code > 399:
                     logger.debug(
                         f"OpenAI chat failed: {r.status_code}: {r.json()}"
                     )
-                    break
-
-                results.append(r.json())
-                chat.append(results[-1]["choices"][0]["message"])
-                logger.debug("Got a reply from OpenAI")
+                else:
+                    message["content"] = message["content"].replace(suffix, "")
+                    results.append(r.json())
+                    chat.append(results[-1]["choices"][0]["message"])
+                    logger.debug("Got a reply from OpenAI")
 
         d = time.time() - start
         logger.debug(f"Finished fetching OpenAI messages in {d}s")
