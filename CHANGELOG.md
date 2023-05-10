@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.7...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.51.0...HEAD
+
+## [0.51.0][]
+
+[0.51.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.50.7...0.51.0
+
+### Added
+
+* DNS probes and tolerances
 
 ## [0.50.7][]
 
