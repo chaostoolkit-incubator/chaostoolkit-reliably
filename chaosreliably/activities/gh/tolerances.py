@@ -20,7 +20,7 @@ def ratio_under(target: float, value: float = 0.0) -> bool:
     Validates the ratio returned by a probe is strictly below the `target`.
     """
     logger.debug(f"Verify that ratio is below: {target}")
-    return value < target
+    return value < float(target)
 
 
 def ratio_above(target: float, value: float = 0.0) -> bool:
@@ -29,7 +29,7 @@ def ratio_above(target: float, value: float = 0.0) -> bool:
     `target`.
     """
     logger.debug(f"Verify that ratio is above: {target}")
-    return value > target
+    return value > float(target)
 
 
 def ratio_under_or_equal(target: float, value: float = 0.0) -> bool:
@@ -37,7 +37,7 @@ def ratio_under_or_equal(target: float, value: float = 0.0) -> bool:
     Validates the ratio returned by a probe is below the `target`.
     """
     logger.debug(f"Verify that ratio is below: {target}")
-    return value <= target
+    return value <= float(target)
 
 
 def ratio_above_or_equal(target: float, value: float = 0.0) -> bool:
@@ -46,7 +46,7 @@ def ratio_above_or_equal(target: float, value: float = 0.0) -> bool:
     `target`.
     """
     logger.debug(f"Verify that ratio is above: {target}")
-    return value >= target
+    return value >= float(target)
 
 
 def percentile_under(
@@ -65,10 +65,10 @@ def percentile_under(
     p = percentile_under(0.99, duration="1d", value=v)
     ```
     """
-    if not (0.0 <= percentile <= 1.0):
+    if not (0.0 <= float(percentile) <= 1.0):
         raise InvalidActivity(
             "`percentile` of the `percentile_under` tolerance "
-            "must be below 0 and 99"
+            "must be between 0 and 99"
         )
 
     if not value:

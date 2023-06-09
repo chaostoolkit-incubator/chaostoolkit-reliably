@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.51.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.52.0...HEAD
+
+## [0.52.0][]
+
+[0.52.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.51.0...0.52.0
+
+### Changed
+
+* Ensure tolerance and probes cast to int when value was read from
+  environment variables
 
 ## [0.51.0][]
 

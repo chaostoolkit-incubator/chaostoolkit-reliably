@@ -34,7 +34,7 @@ def load_test_result_field_should_be(
             if result_item_name == item["name"]:
                 return cast(bool, item[field] == expect)
     else:
-        return cast(bool, data[0][field] == expect)
+        return cast(bool, data[0][field] == int(expect))
 
     return False
 
@@ -64,7 +64,7 @@ def load_test_result_field_should_be_less_than(
             if result_item_name == item["name"]:
                 return cast(bool, item[field] < expect)
     else:
-        return cast(bool, data[0][field] < expect)
+        return cast(bool, data[0][field] < int(expect))
 
     return False
 
@@ -94,6 +94,6 @@ def load_test_result_field_should_be_greater_than(
             if result_item_name == item["name"]:
                 return cast(bool, item[field] > expect)
     else:
-        return cast(bool, data[0][field] > expect)
+        return cast(bool, data[0][field] > int(expect))
 
     return False
