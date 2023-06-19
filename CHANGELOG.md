@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.52.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.53.0...HEAD
+
+## [0.53.0][]
+
+[0.53.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.52.0...0.53.0
+
+### Changed
+
+* Read `RELIABLY_VERIFY_TLS` and `RELIABLY_USE_HTTP` from env when not set in
+  the configuration block
 
 ## [0.52.0][]
 

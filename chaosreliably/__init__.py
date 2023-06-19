@@ -30,9 +30,15 @@ def get_session(
     secrets: Secrets = None,
 ) -> Generator[httpx.Client, None, None]:
     c = configuration or {}
-    verify_tls = c.get("reliably_verify_tls", True)
+    verify_tls = c.get(
+        "reliably_verify_tls",
+        os.getenv("RELIABLY_VERIFY_TLS", "true").lower() in ("true", "1", "t"),
+    )
     with_http2 = True if verify_tls else False
-    use_http = c.get("reliably_use_http", False)
+    use_http = c.get(
+        "reliably_use_http",
+        os.getenv("RELIABLY_USE_HTTP", "false").lower() in ("true", "1", "t"),
+    )
     scheme = "http" if use_http else "https"
     auth_info = get_auth_info(configuration, secrets)
     headers = {
