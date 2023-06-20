@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.53.0...HEAD
 
+### Changed
+
+* Switching to `pdm_backend` to build package
+
 ## [0.53.0][]
 
 [0.53.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.52.0...0.53.0

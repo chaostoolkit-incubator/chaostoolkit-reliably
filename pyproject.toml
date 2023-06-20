@@ -42,8 +42,10 @@ repository = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably"
 changelog = "https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/blob/master/CHANGELOG.md"
 
 [build-system]
-requires = ["pdm-pep517>=1.0.0"]
-build-backend = "pdm.pep517.api"
+requires = [
+    "pdm-backend",
+]
+build-backend = "pdm.backend"
 
 [project.optional-dependencies]
 dev = [
