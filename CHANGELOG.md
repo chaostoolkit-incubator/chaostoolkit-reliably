@@ -9,6 +9,7 @@
 * Switching to `pdm_backend` to build package
 * Added `chaosreliably.activities.tls.verifiy_certificate` as a more succint
   probe
+* Bump dependencies
 
 ## [0.53.0][]
 
