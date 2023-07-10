@@ -1,13 +1,15 @@
 import socket
 import ssl
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from chaoslib.exceptions import ActivityFailed
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 
-__all__ = ["get_certificate_info"]
+from chaosreliably.activities.tls import tolerances
+
+__all__ = ["get_certificate_info", "verify_certificate"]
 
 
 # copied mostly from this awesome piece
@@ -73,3 +75,34 @@ def get_certificate_info(host: str, port: int = 443) -> Dict[str, Any]:
                         names.append(g.value)
 
         return conn_info
+
+
+def verify_certificate(
+    host: str,
+    port: int = 443,
+    expire_after: str = "7d",
+    alt_names: Optional[List[str]] = None,
+) -> bool:
+    """
+    Performs a range of checks on the certificate of the remote endpoint:
+
+    * that we are beyond a certain duration of the certificate expiricy date
+    * that the certificate exports the right alternative names
+
+    If any of these values is not set (the default), the according
+    check is not performed. This doesn't apply to the expiration date which
+    is always checked.
+    """
+    info = get_certificate_info(host, port)
+
+    if tolerances.expire_in_more_than(expire_after, info) is False:
+        return False
+
+    if alt_names not in ("", [""], None):
+        if (
+            tolerances.has_subject_alt_names(alt_names, True, info)  # type: ignore
+            is False
+        ):
+            return False
+
+    return True
