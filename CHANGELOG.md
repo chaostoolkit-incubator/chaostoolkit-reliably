@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.54.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.54.1...HEAD
+
+## [0.54.1][]
+
+[0.54.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.54.0...0.54.1
+
+### Changed
+
+* Bump dependencies
 
 ## [0.54.0][]
 
