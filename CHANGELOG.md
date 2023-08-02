@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.59.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.60.0...HEAD
+
+## [0.60.0][]
+
+[0.60.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.59.0...0.60.0
+
+### Changed
+
+* Do not trace requests made back to Reliably to avoid polluting user
+  traces
 
 ## [0.59.0][]
 

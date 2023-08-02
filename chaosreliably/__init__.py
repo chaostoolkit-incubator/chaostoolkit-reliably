@@ -18,6 +18,13 @@ from chaoslib.types import (
 )
 from logzero import logger
 
+try:
+    from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+
+    HAS_HTTPX_OLTP = True
+except ImportError:
+    HAS_HTTPX_OLTP = False
+
 from .__version__ import __version__
 
 __all__ = ["get_session", "discover", "parse_duration"]
@@ -49,6 +56,10 @@ def get_session(
     with httpx.Client(
         verify=verify_tls, http2=with_http2, timeout=30
     ) as client:
+        # do not pollute users traces
+        if HAS_HTTPX_OLTP:
+            HTTPXClientInstrumentor.uninstrument_client(client)
+
         client.headers = httpx.Headers(headers)
         client.base_url = httpx.URL(
             f"{scheme}://{auth_info['host']}/api/v1/organization"
