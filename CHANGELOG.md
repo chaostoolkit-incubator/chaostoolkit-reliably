@@ -10,6 +10,10 @@
   - time when a probe (hypothesis) changes its state
   - time when it changes back again (showing recovery)
 
+### Changed
+
+* Bump dependencies
+
 ## [0.54.2][]
 
 [0.54.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.54.1...0.54.2
