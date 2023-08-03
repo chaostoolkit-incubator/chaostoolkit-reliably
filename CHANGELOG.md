@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.6...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.7...HEAD
+
+## [0.61.7][]
+
+[0.61.7]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.6...0.61.7
+
+### Added
+
+* Passing fixed OLTP context to children calls
 
 ## [0.61.6][]
 

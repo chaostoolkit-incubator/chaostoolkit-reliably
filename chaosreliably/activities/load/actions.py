@@ -13,6 +13,14 @@ from chaoslib.exceptions import ActivityFailed, InvalidActivity
 from chaoslib.types import Configuration, Secrets
 from logzero import logger
 
+try:
+    from opentelemetry.context import get_current
+    from opentelemetry.propagate import inject
+
+    HAS_OTEL = True
+except ImportError:
+    HAS_OTEL = False
+
 __all__ = ["inject_gradual_traffic_into_endpoint"]
 
 
@@ -66,7 +74,7 @@ def inject_gradual_traffic_into_endpoint(
     if test_bearer_token:
         env["RELIABLY_LOCUST_ENDPOINT_TOKEN"] = test_bearer_token
 
-    if enable_opentracing:
+    if enable_opentracing and HAS_OTEL:
         c = configuration
         env["RELIABLY_LOCUST_ENABLE_OLTP"] = "true"
         env["OTEL_VENDOR"] = (
@@ -92,6 +100,10 @@ def inject_gradual_traffic_into_endpoint(
         env["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = (
             os.getenv("OTEL_EXPORTER_OTLP_TRACES_HEADERS") or ""
         )
+
+        trace_context = {}  # type: ignore
+        inject(trace_context, get_current())
+        env["OTEL_RELIABLY_CONTEXT"] = json.dumps(trace_context)
 
     results = {}
 
