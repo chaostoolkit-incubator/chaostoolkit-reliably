@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.3...HEAD
+
+## [0.61.3][]
+
+[0.61.3]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.2...0.61.3
+
+### Fixed
+
+* Initialize OLTP as early as we can
 
 ## [0.61.2][]
 

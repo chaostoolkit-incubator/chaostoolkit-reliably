@@ -1,17 +1,40 @@
+import logging
 import math
 import os
 from typing import Any, Optional
 
-from locust import HttpUser, LoadTestShape, TaskSet, between, events, task
-from locust.env import Environment
+from locust import HttpUser, LoadTestShape, TaskSet, between, task
+
+
+def is_oltp_enabled() -> bool:
+    if HAS_OLTP:
+        enable_oltp = os.getenv("RELIABLY_LOCUST_ENABLE_OLTP") or ""
+        if enable_oltp.lower() in (
+            "1",
+            "t",
+            "true",
+        ):
+            logging.info("OLTP tracing enabled from Locust file")
+            return True
+
+    logging.info("OLTP tracing disabled from Locust file")
+    return False
+
 
 try:
     # these will be available when `chaostoolkit-opentracing` is also
     # installed
     from chaosopentracing import oltp
+    from opentelemetry import baggage, context
 
     HAS_OLTP = True
+
+    if is_oltp_enabled():
+        oltp.configure_traces(configuration={})
+        oltp.configure_instrumentations(trace_request=True, trace_urllib3=True)
+
 except ImportError:
+    logging.info("Failed to load opentelemetry dependencies from locust file")
     HAS_OLTP = False
 
 
@@ -32,6 +55,11 @@ class WebsiteUser(HttpUser):
     wait_time = between(1, 10)
     tasks = [UserTasks]
 
+    def on_start(self) -> None:
+        if is_oltp_enabled():
+            ctx = baggage.set_baggage("synthetic_request", "true")
+            context.attach(ctx)
+
 
 class StepLoadShape(LoadTestShape):
     step_time = int(os.getenv("RELIABLY_LOCUST_STEP_TIME", 1))
@@ -47,25 +75,3 @@ class StepLoadShape(LoadTestShape):
 
         current_step = math.floor(run_time / self.step_time) + 1
         return (current_step * self.step_load, self.spawn_rate)
-
-
-def initialize_otel_tracing() -> None:
-    enable_oltp = os.getenv("RELIABLY_LOCUST_ENABLE_OLTP")
-    if not enable_oltp:
-        return
-
-    if enable_oltp.lower() not in (
-        "1",
-        "t",
-        "true",
-    ):
-        return
-
-    oltp.configure_traces(configuration={})
-    oltp.configure_instrumentations(trace_request=True, trace_urllib3=True)
-
-
-@events.init.add_listener
-def on_locust_init(environment: Environment, **kwargs) -> None:  # type: ignore
-    if HAS_OLTP:
-        initialize_otel_tracing()
