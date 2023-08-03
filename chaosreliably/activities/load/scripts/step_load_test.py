@@ -1,3 +1,4 @@
+import json
 import logging
 import math
 import os
@@ -28,6 +29,7 @@ try:
     # installed
     from chaostracing import oltp
     from opentelemetry import baggage, context
+    from opentelemetry.propagate import extract
 
     logging.info("OLTP dependencies from locust file were imported")
 
@@ -37,6 +39,11 @@ try:
         logging.info("Configuring OLTP tracer and instrumentations")
         oltp.configure_traces(configuration={})
         oltp.configure_instrumentations(trace_request=True, trace_urllib3=True)
+
+        current_context = extract(
+            json.loads(os.getenv("OTEL_RELIABLY_CONTEXT") or "{}")
+        )
+
 
 except ImportError:
     logging.info("Failed to load OLTP dependencies from locust file")
@@ -62,7 +69,9 @@ class WebsiteUser(HttpUser):
 
     def on_start(self) -> None:
         if is_oltp_enabled():
-            ctx = baggage.set_baggage("synthetic_request", "true")
+            ctx = baggage.set_baggage(
+                "synthetic_request", "true", current_context
+            )
             context.attach(ctx)
 
 

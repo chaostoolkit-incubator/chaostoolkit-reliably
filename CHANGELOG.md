@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.7...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.8...HEAD
+
+## [0.61.8][]
+
+[0.61.8]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.7...0.61.8
+
+### Added
+
+* Loading context from trace
 
 ## [0.61.7][]
 
