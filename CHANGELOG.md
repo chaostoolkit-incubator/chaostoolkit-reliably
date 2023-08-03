@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.1...HEAD
+
+## [0.61.1][]
+
+[0.61.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.0...0.61.1
+
+### Fixed
+
+* Environment values can only be strings
 
 ## [0.61.0][]
 

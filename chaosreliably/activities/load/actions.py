@@ -69,12 +69,22 @@ def inject_gradual_traffic_into_endpoint(
     if enable_opentracing:
         c = configuration
         env["RELIABLY_LOCUST_ENABLE_OLTP"] = "true"
-        env["OTEL_VENDOR"] = c.get("otel_vendor", os.getenv("OTEL_VENDOR"))
-        env["CHAOSTOOLKIT_OTEL_GCP_SA"] = c.get(
-            "otel_gcp_service_account", os.getenv("CHAOSTOOLKIT_OTEL_GCP_SA")
+        env["OTEL_VENDOR"] = (
+            c.get("otel_vendor", os.getenv("OTEL_VENDOR")) or ""
         )
-        env["CHAOSTOOLKIT_OTEL_GCP_PROJECT_ID"] = c.get(
-            "otel_gcp_project_id", os.getenv("CHAOSTOOLKIT_OTEL_GCP_PROJECT_ID")
+        env["CHAOSTOOLKIT_OTEL_GCP_SA"] = (
+            c.get(
+                "otel_gcp_service_account",
+                os.getenv("CHAOSTOOLKIT_OTEL_GCP_SA"),
+            )
+            or ""
+        )
+        env["CHAOSTOOLKIT_OTEL_GCP_PROJECT_ID"] = (
+            c.get(
+                "otel_gcp_project_id",
+                os.getenv("CHAOSTOOLKIT_OTEL_GCP_PROJECT_ID"),
+            )
+            or ""
         )
 
     results = {}
