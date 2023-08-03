@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.5...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.6...HEAD
+
+## [0.61.6][]
+
+[0.61.6]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.5...0.61.6
+
+### Fixed
+
+* Propagate OTEL env into locust file
 
 ## [0.61.5][]
 

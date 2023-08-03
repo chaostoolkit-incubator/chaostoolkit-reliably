@@ -86,6 +86,12 @@ def inject_gradual_traffic_into_endpoint(
             )
             or ""
         )
+        env["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"] = (
+            os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT") or ""
+        )
+        env["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = (
+            os.getenv("OTEL_EXPORTER_OTLP_TRACES_HEADERS") or ""
+        )
 
     results = {}
 
