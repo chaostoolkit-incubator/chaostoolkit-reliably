@@ -9,6 +9,8 @@ from locust import HttpUser, LoadTestShape, TaskSet, between, task
 def is_oltp_enabled() -> bool:
     if HAS_OLTP:
         enable_oltp = os.getenv("RELIABLY_LOCUST_ENABLE_OLTP") or ""
+        logging.info(f"OLTP flag: '{enable_oltp}'")
+
         if enable_oltp.lower() in (
             "1",
             "t",
@@ -27,14 +29,17 @@ try:
     from chaosopentracing import oltp
     from opentelemetry import baggage, context
 
+    logging.info("OLTP dependencies from locust file were imported")
+
     HAS_OLTP = True
 
     if is_oltp_enabled():
+        logging.info("Configuring OLTP tracer and instrumentations")
         oltp.configure_traces(configuration={})
         oltp.configure_instrumentations(trace_request=True, trace_urllib3=True)
 
 except ImportError:
-    logging.info("Failed to load opentelemetry dependencies from locust file")
+    logging.info("Failed to load OLTP dependencies from locust file")
     HAS_OLTP = False
 
 

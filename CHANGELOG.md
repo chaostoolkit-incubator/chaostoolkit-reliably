@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.3...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.4...HEAD
+
+## [0.61.4][]
+
+[0.61.4]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.3...0.61.4
+
+### Added
+
+* More logging around OLTP in Locust file
 
 ## [0.61.3][]
 
