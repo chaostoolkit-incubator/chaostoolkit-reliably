@@ -2,7 +2,8 @@ import math
 import os
 from typing import Any, Optional
 
-from locust import HttpUser, LoadTestShape, TaskSet, between, task
+from locust import HttpUser, LoadTestShape, TaskSet, between, events, task
+from locust.env import Environment
 
 try:
     # these will be available when `chaostoolkit-opentracing` is also
@@ -64,5 +65,7 @@ def initialize_otel_tracing() -> None:
     oltp.configure_instrumentations(trace_request=True, trace_urllib3=True)
 
 
-if HAS_OLTP:
-    initialize_otel_tracing()
+@events.init.add_listener
+def on_locust_init(environment: Environment, **kwargs) -> None:  # type: ignore
+    if HAS_OLTP:
+        initialize_otel_tracing()

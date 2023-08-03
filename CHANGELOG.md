@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.2...HEAD
+
+## [0.61.2][]
+
+[0.61.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.1...0.61.2
+
+### Fixed
+
+* Bind to locust init event
 
 ## [0.61.1][]
 
