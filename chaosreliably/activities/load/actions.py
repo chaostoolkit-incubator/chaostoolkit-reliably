@@ -23,6 +23,7 @@ def inject_gradual_traffic_into_endpoint(
     vu_per_second_rate: int = 1,
     test_duration: int = 30,
     results_json_filepath: Optional[str] = None,
+    enable_opentracing: bool = False,
     configuration: Configuration = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
@@ -64,6 +65,17 @@ def inject_gradual_traffic_into_endpoint(
     test_bearer_token = secrets.get("test_bearer_token")
     if test_bearer_token:
         env["RELIABLY_LOCUST_ENDPOINT_TOKEN"] = test_bearer_token
+
+    if enable_opentracing:
+        c = configuration
+        env["RELIABLY_LOCUST_ENABLE_OLTP"] = "true"
+        env["OTEL_VENDOR"] = c.get("otel_vendor", os.getenv("OTEL_VENDOR"))
+        env["CHAOSTOOLKIT_OTEL_GCP_SA"] = c.get(
+            "otel_gcp_service_account", os.getenv("CHAOSTOOLKIT_OTEL_GCP_SA")
+        )
+        env["CHAOSTOOLKIT_OTEL_GCP_PROJECT_ID"] = c.get(
+            "otel_gcp_project_id", os.getenv("CHAOSTOOLKIT_OTEL_GCP_PROJECT_ID")
+        )
 
     results = {}
 

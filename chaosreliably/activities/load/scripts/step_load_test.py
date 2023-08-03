@@ -4,6 +4,15 @@ from typing import Any, Optional
 
 from locust import HttpUser, LoadTestShape, TaskSet, between, task
 
+try:
+    # these will be available when `chaostoolkit-opentracing` is also
+    # installed
+    from chaosopentracing import oltp
+
+    HAS_OLTP = True
+except ImportError:
+    HAS_OLTP = False
+
 
 class UserTasks(TaskSet):
     @task
@@ -37,3 +46,23 @@ class StepLoadShape(LoadTestShape):
 
         current_step = math.floor(run_time / self.step_time) + 1
         return (current_step * self.step_load, self.spawn_rate)
+
+
+def initialize_otel_tracing() -> None:
+    enable_oltp = os.getenv("RELIABLY_LOCUST_ENABLE_OLTP")
+    if not enable_oltp:
+        return
+
+    if enable_oltp.lower() not in (
+        "1",
+        "t",
+        "true",
+    ):
+        return
+
+    oltp.configure_traces(configuration={})
+    oltp.configure_instrumentations(trace_request=True, trace_urllib3=True)
+
+
+if HAS_OLTP:
+    initialize_otel_tracing()
