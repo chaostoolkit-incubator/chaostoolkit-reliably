@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.4...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.5...HEAD
+
+## [0.61.5][]
+
+[0.61.5]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.4...0.61.5
+
+### Fixed
+
+* Package name in locust file
 
 ## [0.61.4][]
 

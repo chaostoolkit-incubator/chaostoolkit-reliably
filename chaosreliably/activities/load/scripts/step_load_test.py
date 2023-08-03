@@ -26,7 +26,7 @@ def is_oltp_enabled() -> bool:
 try:
     # these will be available when `chaostoolkit-opentracing` is also
     # installed
-    from chaosopentracing import oltp
+    from chaostracing import oltp
     from opentelemetry import baggage, context
 
     logging.info("OLTP dependencies from locust file were imported")
