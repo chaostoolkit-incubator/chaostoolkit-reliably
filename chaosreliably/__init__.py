@@ -1,7 +1,9 @@
+import io
+import logging
 import os
 from contextlib import contextmanager
 from datetime import timedelta
-from typing import Dict, Generator, List
+from typing import Dict, Generator, Iterator, List
 
 import httpx
 from chaoslib.discovery.discover import (
@@ -27,8 +29,14 @@ except ImportError:
 
 from .__version__ import __version__
 
-__all__ = ["get_session", "discover", "parse_duration"]
+__all__ = [
+    "get_session",
+    "discover",
+    "parse_duration",
+    "attach_log_stream_handler",
+]
 RELIABLY_HOST = "app.reliably.com"
+STREAM_LOG = io.StringIO()
 
 
 @contextmanager
@@ -79,6 +87,23 @@ def discover(discover_system: bool = True) -> Discovery:
     discovery["activities"].extend(load_exported_activities())
 
     return discovery
+
+
+@contextmanager
+def attach_log_stream_handler(
+    ctk_logger: logging.Logger, fmt: logging.Formatter
+) -> Iterator[None]:
+    run_handler = logging.StreamHandler(stream=STREAM_LOG)
+    run_handler.setLevel(logging.DEBUG)
+    run_handler.setFormatter(fmt)
+
+    ctk_logger.addHandler(run_handler)
+
+    yield
+
+    ctk_logger.removeHandler(run_handler)
+    run_handler.flush()
+    run_handler.close()
 
 
 ###############################################################################

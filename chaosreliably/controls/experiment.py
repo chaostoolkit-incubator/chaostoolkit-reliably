@@ -1,4 +1,3 @@
-import io
 import json
 import os
 import secrets
@@ -6,13 +5,13 @@ import threading
 import time
 from copy import deepcopy
 from datetime import datetime, timezone
-from logging import Formatter, StreamHandler
 from typing import Any, Dict, List, Optional, cast
 
 try:
     import importlib_metadata as im
 except ImportError:
     import importlib.metadata as im  # type: ignore
+
 import orjson
 from chaoslib.exceptions import InterruptExecution
 from chaoslib.exit import exit_gracefully, exit_ungracefully
@@ -29,7 +28,7 @@ from chaoslib.types import (
 )
 from logzero import logger
 
-from chaosreliably import RELIABLY_HOST, get_session
+from chaosreliably import RELIABLY_HOST, STREAM_LOG, get_session
 from chaosreliably.activities.pauses import reset as reset_activity_pause
 from chaosreliably.controls import global_lock
 
@@ -61,14 +60,6 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self.paused_by_user_id = ""
         self.paused = False
         self.check_for_user_state = None  # type: Optional[threading.Thread]
-
-        self.stream = io.StringIO()
-        self.log_handler = StreamHandler(stream=self.stream)
-        self.log_handler.setFormatter(
-            Formatter("[%(asctime)s] - %(levelname)s - %(message)s")
-        )
-
-        logger.addHandler(self.log_handler)
 
     def _check(
         self,
@@ -252,11 +243,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             self.check_for_user_state = None
 
         with global_lock:
-            logger.removeHandler(self.log_handler)
-            self.log_handler.flush()
-
-            log = self.stream.getvalue()
-            self.stream.close()
+            log = STREAM_LOG.getvalue()
 
             self.current_activities = []
 
