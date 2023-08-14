@@ -66,8 +66,11 @@ def get_session(
     ) as client:
         # do not pollute users traces
         if HAS_HTTPX_OLTP:
-            if getattr(client, "_is_instrumented_by_opentelemetry") is True:
-                HTTPXClientInstrumentor.uninstrument_client(client)
+            try:
+                if client._is_instrumented_by_opentelemetry:  # type: ignore
+                    HTTPXClientInstrumentor.uninstrument_client(client)
+            except AttributeError:
+                pass
 
         client.headers = httpx.Headers(headers)
         client.base_url = httpx.URL(

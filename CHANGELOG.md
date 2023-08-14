@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.62.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.62.1...HEAD
+
+## [0.62.1][]
+
+[0.62.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.62.0...0.62.1
+
+### Fixed
+
+* Catch missing instrumentation case
 
 ## [0.62.0][]
 
