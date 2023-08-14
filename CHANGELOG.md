@@ -8,6 +8,10 @@
 
 * Allowing the log to start earlier by the CLI
 
+### Changed
+
+* Bump dependencies
+
 ## [0.61.8][]
 
 [0.61.8]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.61.7...0.61.8
