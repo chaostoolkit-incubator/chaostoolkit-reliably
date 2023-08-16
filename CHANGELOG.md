@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.1...HEAD
+
+## [0.63.1][]
+
+[0.63.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.0...0.63.1
+
+### Fixed
+
+* Prevent circular imports
 
 ## [0.63.0][]
 

@@ -3,8 +3,6 @@ from typing import Any, Dict, Optional, cast
 from chaoslib.types import Configuration, Experiment, Secrets
 from logzero import logger
 
-from chaosreliably.controls.capture import slack
-
 
 def get_control_by_name(
     name: str, experiment: Experiment
@@ -23,6 +21,8 @@ def get_control_by_name(
 def start_capturing(
     experiment: Experiment, configuration: Configuration, secrets: Secrets
 ) -> None:
+    from chaosreliably.controls.capture import slack
+
     try:
         slack.start_capturing(experiment, configuration, secrets)
     except Exception:
@@ -32,6 +32,8 @@ def start_capturing(
 def stop_capturing(
     experiment: Experiment, configuration: Configuration, secrets: Secrets
 ) -> Optional[Dict[str, Any]]:
+    from chaosreliably.controls.capture import slack
+
     slack_cap = None
 
     try:
