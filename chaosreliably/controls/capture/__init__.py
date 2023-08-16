@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional, cast
 
+from chaoslib.control import get_global_controls
 from chaoslib.types import Configuration, Experiment, Secrets
 from logzero import logger
 
@@ -8,6 +9,12 @@ def get_control_by_name(
     experiment: Experiment,
     name: str,
 ) -> Optional[Dict[str, Any]]:
+    ctrls = get_global_controls()
+
+    for ctrl in ctrls:
+        if ctrl["name"] == name:
+            return cast(Dict[str, Any], ctrl)
+
     ctrls = experiment.get("controls")
     if not ctrls:
         return None

@@ -23,6 +23,7 @@ def stop_capturing(
 ) -> Optional[Dict[str, Any]]:
     ctrl = get_control_by_name(experiment, "slack")
     if not ctrl:
+        logger.debug("No slack integration configured, nothing to capture")
         return None
 
     args = ctrl["provider"]["arguments"]
@@ -31,6 +32,8 @@ def stop_capturing(
     limit = args.get("limit", 100)
     past = args.get("past", 15)
     include_metadata = True
+
+    logger.debug(f"Capture Slack messages from {channel}")
 
     return get_channel_history(channel, limit, past, include_metadata, secrets)
 

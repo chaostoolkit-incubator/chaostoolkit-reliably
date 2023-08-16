@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.3...HEAD
+
+## [0.63.3][]
+
+[0.63.3]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.2...0.63.3
+
+### Fixed
+
+* Lookup control in global controls too
 
 ## [0.63.2][]
 
