@@ -30,7 +30,7 @@ from logzero import logger
 
 from chaosreliably import RELIABLY_HOST, STREAM_LOG, get_session
 from chaosreliably.activities.pauses import reset as reset_activity_pause
-from chaosreliably.controls import global_lock
+from chaosreliably.controls import capture, find_extension_by_name, global_lock
 
 __all__ = ["configure_control"]
 init_failed = threading.Event()
@@ -70,6 +70,8 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         secrets: Secrets,
     ) -> None:
         logger.debug("Starting Reliably state checker now")
+
+        capture.start_capturing(self.experiment, configuration, secrets)
 
         url = f"/{org_id}/experiments/{exp_id}/executions/{exec_id}/state"
         while not self.should_stop.is_set():
@@ -241,6 +243,13 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         if self.check_for_user_state:
             self.check_for_user_state.join(timeout=3)
             self.check_for_user_state = None
+
+        cap = capture.stop_capturing(
+            journal["experiment"], self.configuration, self.secrets
+        )
+        ext = find_extension_by_name(journal["experiment"], "reliably")
+        if ext:
+            ext["captures"] = cap
 
         with global_lock:
             log = STREAM_LOG.getvalue()

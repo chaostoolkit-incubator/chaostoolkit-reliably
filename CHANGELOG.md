@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.62.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.0...HEAD
+
+## [0.63.0][]
+
+[0.63.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.62.1...0.63.0
+
+### Added
+
+* Captures from third-parties
 
 ## [0.62.1][]
 
