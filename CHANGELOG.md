@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.2...HEAD
+
+## [0.63.2][]
+
+[0.63.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.1...0.63.2
+
+### Fixed
+
+* Fix signature call
 
 ## [0.63.1][]
 

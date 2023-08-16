@@ -5,7 +5,8 @@ from logzero import logger
 
 
 def get_control_by_name(
-    name: str, experiment: Experiment
+    experiment: Experiment,
+    name: str,
 ) -> Optional[Dict[str, Any]]:
     ctrls = experiment.get("controls")
     if not ctrls:
