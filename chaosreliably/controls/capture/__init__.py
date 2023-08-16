@@ -1,7 +1,8 @@
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional, cast
 
 from chaoslib.control import get_global_controls
-from chaoslib.types import Configuration, Experiment, Secrets
+from chaoslib.types import Configuration, Experiment, Journal, Secrets
 from logzero import logger
 
 
@@ -38,14 +39,22 @@ def start_capturing(
 
 
 def stop_capturing(
-    experiment: Experiment, configuration: Configuration, secrets: Secrets
+    journal: Journal, configuration: Configuration, secrets: Secrets
 ) -> Optional[Dict[str, Any]]:
     from chaosreliably.controls.capture import slack
 
     slack_cap = None
 
+    experiment = journal["experiment"]
+    start = datetime.fromisoformat(journal["start"]).replace(
+        tzinfo=timezone.utc
+    )
+    end = datetime.fromisoformat(journal["end"]).replace(tzinfo=timezone.utc)
+
     try:
-        slack_cap = slack.stop_capturing(experiment, configuration, secrets)
+        slack_cap = slack.stop_capturing(
+            start, end, experiment, configuration, secrets
+        )
     except Exception:
         logger.debug("Failed to stop capturing slack messages", exc_info=True)
 

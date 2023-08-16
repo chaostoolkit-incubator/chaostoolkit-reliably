@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.3...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.64.0...HEAD
+
+## [0.64.0][]
+
+[0.64.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.63.3...0.64.0
+
+### Fixed
+
+* Slack messages capture
 
 ## [0.63.3][]
 

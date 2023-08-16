@@ -71,8 +71,6 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
     ) -> None:
         logger.debug("Starting Reliably state checker now")
 
-        capture.start_capturing(self.experiment, configuration, secrets)
-
         url = f"/{org_id}/experiments/{exp_id}/executions/{exec_id}/state"
         while not self.should_stop.is_set():
             with get_session(configuration, secrets) as session:
@@ -170,6 +168,8 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self.secrets = secrets
         self.journal = journal
 
+        capture.start_capturing(self.experiment, configuration, secrets)
+
         set_plan_status(
             self.org_id,
             "running",
@@ -243,13 +243,6 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         if self.check_for_user_state:
             self.check_for_user_state.join(timeout=3)
             self.check_for_user_state = None
-
-        cap = capture.stop_capturing(
-            journal["experiment"], self.configuration, self.secrets
-        )
-        ext = find_extension_by_name(journal["experiment"], "reliably")
-        if ext:
-            ext["captures"] = cap
 
         with global_lock:
             log = STREAM_LOG.getvalue()
@@ -424,6 +417,19 @@ def before_experiment_control(**kwargs) -> None:  # type: ignore
     if init_failed.is_set():
         logger.error("failed to initialize, terminating now")
         raise InterruptExecution("execution initialization failed. terminating")
+
+
+def after_experiment_control(  # type: ignore
+    context: Experiment,
+    state: Journal,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+    **kwargs,
+) -> None:
+    cap = capture.stop_capturing(state, configuration, secrets)
+    ext = find_extension_by_name(state["experiment"], "reliably")
+    if ext:
+        ext["captures"] = cap
 
 
 ###############################################################################

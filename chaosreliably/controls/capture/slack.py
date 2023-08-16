@@ -19,18 +19,22 @@ def start_capturing(
 
 
 def stop_capturing(
-    experiment: Experiment, configuration: Configuration, secrets: Secrets
+    start: datetime,
+    end: datetime,
+    experiment: Experiment,
+    configuration: Configuration,
+    secrets: Secrets,
 ) -> Optional[Dict[str, Any]]:
-    ctrl = get_control_by_name(experiment, "slack")
+    ctrl = get_control_by_name(experiment, "reliably-integration-slack")
     if not ctrl:
         logger.debug("No slack integration configured, nothing to capture")
         return None
 
-    args = ctrl["provider"]["arguments"]
+    args = ctrl["provider"].get("arguments", {})
 
-    channel = args["channel"]
-    limit = args.get("limit", 100)
-    past = args.get("past", 15)
+    channel = args.get("channel", os.getenv("SLACK_CHANNEL"))
+    limit = args.get("limit", 300)
+    past = int((end - start).total_seconds() / 60) + 1
     include_metadata = True
 
     logger.debug(f"Capture Slack messages from {channel}")
@@ -122,16 +126,6 @@ def get_channel_history(
     users = {}
     threads = {}
     for m in messages:
-        if m.get("bot_id") is not None:
-            continue
-
-        user_id = m.get("user")
-        if not user_id:
-            continue
-
-        if user_id not in users:
-            users[user_id] = get_user_info(client, user_id)
-
         thread_ts = m.get("thread_ts")
         if thread_ts:
             threads[thread_ts] = get_thread_history(
@@ -142,10 +136,26 @@ def get_channel_history(
                 include_metadata,
             )
 
+        if m.get("bot_id") is not None:
+            continue
+
+        user_id = m.get("user")
+        if not user_id:
+            continue
+
+        if user_id not in users:
+            users[user_id] = get_user_info(client, user_id)
+
     context = {
-        "conversation": messages,
+        "channels": [
+            {
+                "id": channel_id,
+                "name": channel,
+                "conversation": messages,
+                "threads": threads,
+            }
+        ],
         "users": users,
-        "threads": threads,
     }
 
     return context
