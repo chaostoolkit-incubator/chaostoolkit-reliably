@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from chaoslib.types import Configuration, Experiment, Secrets
 from logzero import logger
@@ -47,14 +47,14 @@ def get_client(secrets: Secrets) -> WebClient:
     return client
 
 
-def get_channel_id(client: WebClient, channel: str) -> str:
+def get_channel_id(client: WebClient, channel: str) -> Optional[str]:
     channel = channel.lstrip("#")
 
     result = client.conversations_list()
 
     for c in result["channels"]:
         if c["name"] == channel:
-            return c["id"]
+            return cast(str, c["id"])
 
     return None
 
@@ -132,7 +132,11 @@ def get_channel_history(
         thread_ts = m.get("thread_ts")
         if thread_ts:
             threads[thread_ts] = get_thread_history(
-                client, channel_id, thread_ts, limit, include_metadata
+                client,
+                channel_id,  # type: ignore
+                thread_ts,
+                limit,
+                include_metadata,
             )
 
     context = {

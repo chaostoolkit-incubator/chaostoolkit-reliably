@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from chaoslib.types import Configuration, Experiment, Secrets
 from logzero import logger
@@ -15,7 +15,7 @@ def get_control_by_name(
 
     for ctrl in ctrls:
         if ctrl["name"] == name:
-            return ctrl
+            return cast(Dict[str, Any], ctrl)
 
     return None
 
