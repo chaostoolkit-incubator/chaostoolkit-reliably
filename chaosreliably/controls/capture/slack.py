@@ -43,9 +43,6 @@ def stop_capturing(
         channel, limit, past, include_metadata, secrets
     )
 
-    if history:
-        remove_bot_threads(history)
-
     return history
 
 
@@ -153,6 +150,8 @@ def get_channel_history(
         if user_id not in users:
             users[user_id] = get_user_info(client, user_id)
 
+    remove_bot_threads(threads)
+
     context = {
         "channels": [
             {
@@ -221,12 +220,8 @@ def get_thread_history(
     return messages
 
 
-def remove_bot_threads(history: Dict[str, Any]) -> None:
-    threads = history.get("threads")
-    if not threads:
-        return None
-
-    for t in threads:
+def remove_bot_threads(threads: Dict[str, Any]) -> None:
+    for ts, t in threads.items():
         # flaky heuristic
         bot_id = t.get("bot_id")
         t_type = t.get("type")
@@ -236,7 +231,7 @@ def remove_bot_threads(history: Dict[str, Any]) -> None:
             and t_type == "message"
             and t_text.startswith("Experiment is ")
         ):
-            threads.remove(t)
+            threads.pop(ts, None)
             break
 
     return None
