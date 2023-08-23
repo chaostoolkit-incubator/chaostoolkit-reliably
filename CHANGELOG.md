@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.64.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.65.0...HEAD
+
+## [0.65.0][]
+
+[0.65.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.64.0...0.65.0
+
+### Changed
+
+* Remove Reliably bot thread from the history to prevent polutting the timeline
 
 ## [0.64.0][]
 
@@ -11,6 +19,10 @@
 ### Fixed
 
 * Slack messages capture
+
+### Changed
+
+* Bump dependencies
 
 ## [0.63.3][]
 

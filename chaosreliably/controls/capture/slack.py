@@ -39,7 +39,14 @@ def stop_capturing(
 
     logger.debug(f"Capture Slack messages from {channel}")
 
-    return get_channel_history(channel, limit, past, include_metadata, secrets)
+    history = get_channel_history(
+        channel, limit, past, include_metadata, secrets
+    )
+
+    if history:
+        remove_bot_threads(history)
+
+    return history
 
 
 ###############################################################################
@@ -212,3 +219,24 @@ def get_thread_history(
         logger.error(f"Failed to retrieve Slack thread history: {e}")
 
     return messages
+
+
+def remove_bot_threads(history: Dict[str, Any]) -> None:
+    threads = history.get("threads")
+    if not threads:
+        return None
+
+    for t in threads:
+        # flaky heuristic
+        bot_id = t.get("bot_id")
+        t_type = t.get("type")
+        t_text = t.get("text", "")
+        if (
+            bot_id
+            and t_type == "message"
+            and t_text.startswith("Experiment is ")
+        ):
+            threads.remove(t)
+            break
+
+    return None
