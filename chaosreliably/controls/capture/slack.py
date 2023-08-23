@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, cast
 
@@ -37,13 +38,47 @@ def stop_capturing(
     past = int((end - start).total_seconds() / 60) + 1
     include_metadata = True
 
-    logger.debug(f"Capture Slack messages from {channel}")
+    context = {"channels": [], "users": {}}  # type: ignore
 
-    history = get_channel_history(
-        channel, limit, past, include_metadata, secrets
+    client = get_client(secrets)
+
+    channel_id = get_channel_id(client, channel)
+    if not channel_id:
+        logger.debug("Missing channel to initiate slack capture")
+        return context
+
+    oldest = datetime.now().astimezone(tz=timezone.utc) - timedelta(
+        minutes=past
     )
 
-    return history
+    get_channel_history(
+        client,
+        context,
+        channel,
+        channel_id,
+        oldest,
+        limit,
+        past,
+        include_metadata,
+    )
+
+    c = configuration or {}
+    capture_channel_pattern = c.get("reliably_capture_slack_channel_pattern")
+    if capture_channel_pattern:
+        for c in list_channels(client, capture_channel_pattern):
+            get_channel_history(
+                client,
+                context,
+                c["name"],
+                c["id"],
+                oldest,
+                limit,
+                past,
+                include_metadata,
+                remove_ctk_thread=False,
+            )
+
+    return context
 
 
 ###############################################################################
@@ -71,12 +106,16 @@ def get_channel_id(client: WebClient, channel: str) -> Optional[str]:
 
 
 def get_channel_history(
+    client: WebClient,
+    context: Dict[str, Any],
     channel: str,
+    channel_id: str,
+    oldest: datetime,
     limit: int = 100,
     past: int = 15,
     include_metadata: bool = False,
-    secrets: Secrets = None,
-) -> Optional[Dict[str, Any]]:
+    remove_ctk_thread: bool = True,
+) -> None:
     """
     Fetches the history of a channel up to a certain limit of messages or
     for the past minutes.
@@ -84,18 +123,10 @@ def get_channel_history(
     By default no more than 100 messages in the last 15 minutes.
     """
     messages = []
-
-    oldest = datetime.now().astimezone(tz=timezone.utc) - timedelta(
-        minutes=past
-    )
     ts = oldest.timestamp()
 
     try:
-        client = get_client(secrets)
-        channel_id = get_channel_id(client, channel)
-        if not channel_id:
-            logger.debug("Missing channel to initiate slack capture")
-            return None
+        logger.debug(f"Capture Slack messages from {channel}")
 
         logger.debug(
             f"Fetching the last {limit} messages for the past {past}mn "
@@ -127,14 +158,14 @@ def get_channel_history(
         logger.error(f"Failed to retrieve Slack channel history: {e}")
 
     # collect user information
-    users = {}
     threads = {}
+    users = context["users"]
     for m in messages:
         thread_ts = m.get("thread_ts")
         if thread_ts:
             threads[thread_ts] = get_thread_history(
                 client,
-                channel_id,  # type: ignore
+                channel_id,
                 thread_ts,
                 limit,
                 include_metadata,
@@ -150,21 +181,17 @@ def get_channel_history(
         if user_id not in users:
             users[user_id] = get_user_info(client, user_id)
 
-    remove_bot_threads(threads)
+    if remove_ctk_thread:
+        remove_bot_threads(threads)
 
-    context = {
-        "channels": [
-            {
-                "id": channel_id,
-                "name": channel,
-                "conversation": messages,
-                "threads": threads,
-            }
-        ],
-        "users": users,
-    }
-
-    return context
+    context["channels"].append(
+        {
+            "id": channel_id,
+            "name": channel,
+            "conversation": messages,
+            "threads": threads,
+        }
+    )
 
 
 def get_user_info(client: WebClient, user_id: str) -> Dict[str, str]:
@@ -236,3 +263,41 @@ def remove_bot_threads(threads: Dict[str, Any]) -> None:
                 return None
 
     return None
+
+
+def list_channels(client: WebClient, pattern: str) -> List[Dict[str, str]]:
+    p = re.compile(pattern.lstrip("#"))
+
+    channels = []
+    try:
+        result = client.conversations_list(
+            exclude_archived=True, types="public_channel"
+        )
+        channels.extend(
+            [
+                {"name": c["name"], "id": c["id"]}
+                for c in result["channels"]
+                if p.match(c["name"])
+            ]
+        )
+
+        while (result["ok"] is True) and (result["has_more"] is True):
+            cursor = result["response_metadata"]["next_cursor"]
+            result = client.conversations_replies(
+                exclude_archived=True,
+                types="public_channel",
+                cursor=cursor,
+            )
+
+            channels.extend(
+                [
+                    {"name": c["name"], "id": c["id"]}
+                    for c in result["channels"]
+                    if p.match(c["name"])
+                ]
+            )
+
+    except SlackApiError as e:
+        logger.error(f"Failed to list Slack channels: {e}")
+
+    return channels

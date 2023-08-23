@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.65.3...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.66.0...HEAD
+
+## [0.66.0][]
+
+[0.66.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.64.3...0.66.0
+
+### Changed
+
+* Capture any channels starting with pattern given with configuration value
+  `reliably_capture_slack_channel_pattern`
 
 ## [0.65.3][]
 
