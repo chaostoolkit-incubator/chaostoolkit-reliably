@@ -233,6 +233,6 @@ def remove_bot_threads(threads: Dict[str, Any]) -> None:
                 and t_text.startswith("Experiment is ")
             ):
                 threads.pop(ts, None)
-                break
+                return None
 
     return None

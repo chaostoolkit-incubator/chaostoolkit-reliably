@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.65.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.65.3...HEAD
+
+## [0.65.3][]
+
+[0.65.3]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.64.2...0.65.3
+
+### Fixed
+
+* Fix loop size change
 
 ## [0.65.2][]
 
