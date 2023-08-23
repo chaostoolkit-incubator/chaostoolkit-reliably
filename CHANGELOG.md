@@ -11,6 +11,7 @@
 ### Changed
 
 * Remove Reliably bot thread from the history to prevent polutting the timeline
+* Bump dependencies
 
 ## [0.64.0][]
 
