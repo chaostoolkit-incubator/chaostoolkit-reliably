@@ -2,15 +2,19 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.65.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.65.2...HEAD
+
+## [0.65.2][]
+
+[0.65.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.64.1...0.65.2
+
+### Fixed
+
+* Fix thread removal in slack capture
 
 ## [0.65.1][]
 
 [0.65.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.64.0...0.65.1
-
-## [0.65.1][]
-
-[0.65.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.65.0...0.65.1
 
 ### Fixed
 

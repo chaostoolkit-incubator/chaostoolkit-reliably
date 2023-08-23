@@ -221,17 +221,18 @@ def get_thread_history(
 
 
 def remove_bot_threads(threads: Dict[str, Any]) -> None:
-    for ts, t in threads.items():
-        # flaky heuristic
-        bot_id = t.get("bot_id")
-        t_type = t.get("type")
-        t_text = t.get("text", "")
-        if (
-            bot_id
-            and t_type == "message"
-            and t_text.startswith("Experiment is ")
-        ):
-            threads.pop(ts, None)
-            break
+    for ts, entry in threads.items():
+        for t in entry:
+            # flaky heuristic
+            bot_id = t.get("bot_id")
+            t_type = t.get("type")
+            t_text = t.get("text", "")
+            if (
+                bot_id
+                and t_type == "message"
+                and t_text.startswith("Experiment is ")
+            ):
+                threads.pop(ts, None)
+                break
 
     return None
