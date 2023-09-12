@@ -165,10 +165,17 @@ def pr_duration(
     p = urlparse(repo)
     repo = p.path.strip("/")
 
+    if start_period:
+        logger.debug(
+            f"looking for PRs in repo '{repo}' between "
+            f"{start_period} and {today}"
+        )
+    else:
+        logger.debug(f"looking for PRs in repo '{repo}'")
+
     api_url = f"https://api.github.com/repos/{repo}/pulls"
     page = 1
-    carry_on = True
-    while carry_on:
+    while True:
         r = httpx.get(
             api_url,
             headers={
@@ -191,6 +198,7 @@ def pr_duration(
 
         pulls = r.json()
         if not pulls:
+            logger.debug("no PRs returned")
             break
 
         closed_at = created_at = None
@@ -200,21 +208,32 @@ def pr_duration(
             if closed_at:
                 closed_dt = datetime.strptime(closed_at, "%Y-%m-%dT%H:%M:%SZ")
                 if start_period and closed_dt < start_period:
+                    logger.debug(
+                        f"PR {pull['number']} not closed within window "
+                        "so ignoring"
+                    )
                     continue
 
             created_at = pull["created_at"]
             if created_at:
                 created_dt = datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ")
                 if start_period and created_dt < start_period:
+                    logger.debug(
+                        f"PR {pull['number']} not created within window "
+                        "so ignoring"
+                    )
                     continue
             else:
+                logger.debug(f"PR {pull['number']} missing created date")
                 continue
 
             # deal with PRs that aren't closed yet
             if not closed_at:
                 closed_dt = today
 
-            durations.append((closed_dt - created_dt).total_seconds())
+            d = (closed_dt - created_dt).total_seconds()
+            logger.debug(f"PR {pull['number']} was opened for {d}s")
+            durations.append(d)
 
     return durations
 

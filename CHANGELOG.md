@@ -7,6 +7,7 @@
 ### Changed
 
 * Bump dependencies
+* More logging in GitHub activity
 
 ## [0.66.0][]
 
