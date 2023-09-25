@@ -11,7 +11,13 @@ from logzero import logger
 from chaosreliably import parse_duration
 from chaosreliably.activities.gh import get_gh_token, get_period
 
-__all__ = ["closed_pr_ratio", "pr_duration", "list_workflow_runs"]
+__all__ = [
+    "closed_pr_ratio",
+    "pr_duration",
+    "list_workflow_runs",
+    "get_workflow_most_recent_run",
+    "get_workflow_most_recent_run_billing_usage",
+]
 
 
 def closed_pr_ratio(
@@ -292,3 +298,223 @@ def list_workflow_runs(
     runs = r.json()
 
     return cast(Dict[str, Any], runs)
+
+
+def get_workflow_most_recent_run(
+    repo: str,
+    workflow_id: str,
+    actor: Optional[str] = None,
+    branch: str = "main",
+    event: str = "push",
+    status: str = "in_progress",
+    exclude_pull_requests: bool = False,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Get the most run of GitHub Workflow.
+
+    If no runs are returned when there should be, please review if
+    GitHub has fixed https://github.com/orgs/community/discussions/53266
+
+    See the parameters meaning and values at:
+    https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-workflow
+    """
+    gh_token = get_gh_token(secrets)
+    api_url = f"https://api.github.com/repos/{repo}/actions/workflows/{workflow_id}/runs"
+
+    params = {
+        "branch": branch,
+        "event": event,
+        "status": "completed",
+        "exclude_pull_requests": exclude_pull_requests,
+        "page": 1,
+        "per_page": 1,
+    }
+
+    if actor:
+        params["actor"] = actor
+
+    r = httpx.get(
+        api_url,
+        headers={
+            "accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": f"Bearer {gh_token}",
+        },
+        params=params,  # type: ignore
+    )
+
+    if r.status_code > 399:
+        m = (
+            f"failed to get last runs for workflow {workflow_id} in "
+            f"repository '{repo}': {r.json()}"
+        )
+        logger.debug(m)
+        raise ActivityFailed(m)
+
+    run = r.json()
+
+    return cast(Dict[str, Any], run)
+
+
+def get_workflow_most_recent_run_billing_usage(
+    repo: str,
+    workflow_id: str,
+    actor: Optional[str] = None,
+    branch: str = "main",
+    event: str = "push",
+    status: str = "in_progress",
+    exclude_pull_requests: bool = False,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Get the most run of GitHub Workflow.
+
+    See the parameters meaning and values at:
+    https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#get-workflow-run-usage
+    """
+    run = get_workflow_most_recent_run(
+        repo,
+        workflow_id,
+        actor=actor,
+        branch=branch,
+        event=event,
+        status=status,
+        exclude_pull_requests=exclude_pull_requests,
+        configuration=configuration,
+        secrets=secrets,
+    )
+    if not run:
+        return None
+
+    run_id = run["id"]
+    gh_token = get_gh_token(secrets)
+    api_url = (
+        f"https://api.github.com/repos/{repo}/actions/runs/{run_id}/timing"
+    )
+
+    r = httpx.get(
+        api_url,
+        headers={
+            "accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": f"Bearer {gh_token}",
+        },
+    )
+
+    if r.status_code > 399:
+        m = (
+            "failed to get last run billing info for "
+            f"workflow {workflow_id} in repository '{repo}': {r.json()}"
+        )
+        logger.debug(m)
+        raise ActivityFailed(m)
+
+    info = r.json()
+
+    return cast(Dict[str, Any], info)
+
+
+def get_actions_billing_for_organization(
+    organization: str,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Get the current actions billing for an organization.
+
+    See the parameters meaning and values at:
+    https://docs.github.com/en/rest/billing/billing?apiVersion=2022-11-28#get-github-actions-billing-for-an-organization
+    """
+    gh_token = get_gh_token(secrets)
+    api_url = (
+        f"https://api.github.com/orgs/{organization}/settings/billing/actions"
+    )
+
+    r = httpx.get(
+        api_url,
+        headers={
+            "accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": f"Bearer {gh_token}",
+        },
+    )
+
+    if r.status_code > 399:
+        m = f"failed to get billing info for org {organization}: {r.json()}"
+        logger.debug(m)
+        raise ActivityFailed(m)
+
+    info = r.json()
+
+    return cast(Dict[str, Any], info)
+
+
+def get_packages_billing_for_organization(
+    organization: str,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Get the current packages billing for an organization.
+
+    See the parameters meaning and values at:
+    https://docs.github.com/en/rest/billing/billing?apiVersion=2022-11-28#get-github-packages-billing-for-an-organization
+    """
+    gh_token = get_gh_token(secrets)
+    api_url = (
+        f"https://api.github.com/orgs/{organization}/settings/billing/packages"
+    )
+
+    r = httpx.get(
+        api_url,
+        headers={
+            "accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": f"Bearer {gh_token}",
+        },
+    )
+
+    if r.status_code > 399:
+        m = f"failed to get billing info for org {organization}: {r.json()}"
+        logger.debug(m)
+        raise ActivityFailed(m)
+
+    info = r.json()
+
+    return cast(Dict[str, Any], info)
+
+
+def get_storage_billing_for_organization(
+    organization: str,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Get the current shared-storage billing for an organization.
+
+    See the parameters meaning and values at:
+    https://docs.github.com/en/rest/billing/billing?apiVersion=2022-11-28#get-shared-storage-billing-for-an-organization
+    """
+    gh_token = get_gh_token(secrets)
+    api_url = f"https://api.github.com/orgs/{organization}/settings/billing/shared-storage"
+
+    r = httpx.get(
+        api_url,
+        headers={
+            "accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": f"Bearer {gh_token}",
+        },
+    )
+
+    if r.status_code > 399:
+        m = f"failed to get billing info for org {organization}: {r.json()}"
+        logger.debug(m)
+        raise ActivityFailed(m)
+
+    info = r.json()
+
+    return cast(Dict[str, Any], info)
