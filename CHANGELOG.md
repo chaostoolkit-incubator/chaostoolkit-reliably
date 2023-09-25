@@ -8,6 +8,7 @@
 
 * Bump dependencies
 * More logging in GitHub activity
+* Give more time to finish locust process
 
 ## [0.66.0][]
 

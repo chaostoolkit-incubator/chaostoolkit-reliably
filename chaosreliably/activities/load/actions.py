@@ -128,7 +128,7 @@ def inject_gradual_traffic_into_endpoint(
         try:
             p = subprocess.run(  # nosec
                 cmd,
-                timeout=test_duration + 5,
+                timeout=test_duration + 60,
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
