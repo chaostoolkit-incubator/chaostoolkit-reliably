@@ -6,6 +6,10 @@ __all__ = ["has_error_budget_left"]
 def has_error_budget_left(
     name: str, value: Optional[List[Dict[str, Any]]] = None
 ) -> bool:
+    """
+    Validate there is enough error budget left from compute_slo returned
+    value
+    """
     if not value:
         return False
 
