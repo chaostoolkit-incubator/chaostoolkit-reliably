@@ -518,3 +518,52 @@ def get_storage_billing_for_organization(
     info = r.json()
 
     return cast(Dict[str, Any], info)
+
+
+def ratio_of_failed_workflow_runs_is_lower_than(
+    repo: str,
+    actor: Optional[str] = None,
+    branch: str = "main",
+    event: str = "push",
+    status: str = "in_progress",
+    window: str = "5d",
+    exclude_pull_requests: bool = False,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+) -> bool:
+    gh_token = get_gh_token(secrets)
+    api_url = f"https://api.github.com/repos/{repo}/actions/actions/runs"
+
+    params = {
+        "branch": branch,
+        "event": event,
+        "status": "failure",
+        "exclude_pull_requests": exclude_pull_requests,
+        "page": 1,
+        "per_page": 1,
+    }
+
+    if actor:
+        params["actor"] = actor
+
+    r = httpx.get(
+        api_url,
+        headers={
+            "accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": f"Bearer {gh_token}",
+        },
+        params=params,  # type: ignore
+    )
+
+    if r.status_code > 399:
+        m = (
+            f"failed to get last runs for workflow {workflow_id} in "
+            f"repository '{repo}': {r.json()}"
+        )
+        logger.debug(m)
+        raise ActivityFailed(m)
+
+    run = r.json()
+
+    return cast(Dict[str, Any], run)
