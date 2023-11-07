@@ -9,6 +9,10 @@
 * Added vendor specific callbacks to perform vendor actions (such as setting
   markers for instance)
 
+### Changed
+
+* Bump dependencies
+
 ## [0.67.0][]
 
 [0.67.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.66.0...0.67.0
