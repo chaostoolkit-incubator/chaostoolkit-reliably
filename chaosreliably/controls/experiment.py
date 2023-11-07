@@ -31,6 +31,7 @@ from logzero import logger
 from chaosreliably import RELIABLY_HOST, STREAM_LOG, get_session
 from chaosreliably.activities.pauses import reset as reset_activity_pause
 from chaosreliably.controls import capture, find_extension_by_name, global_lock
+from chaosreliably.controls.vendors import apply_vendors, register_vendors
 
 __all__ = ["configure_control"]
 init_failed = threading.Event()
@@ -60,6 +61,8 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self.paused_by_user_id = ""
         self.paused = False
         self.check_for_user_state = None  # type: Optional[threading.Thread]
+
+        register_vendors()
 
     def _check(
         self,
@@ -231,6 +234,14 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                 ),
             )
             self.check_for_user_state.start()
+
+            apply_vendors(
+                "started",
+                execution_url=url,
+                configuration=configuration,
+                secrets=secrets,
+            )
+
         except Exception as ex:
             init_failed.set()
             set_plan_status(
@@ -268,6 +279,14 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                         self.configuration,
                         self.secrets,
                     )
+
+                    apply_vendors(
+                        "finished",
+                        journal=journal,
+                        configuration=self.configuration,
+                        secrets=self.secrets,
+                    )
+
             except Exception as ex:
                 set_plan_status(
                     self.org_id,

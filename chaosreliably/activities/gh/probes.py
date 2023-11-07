@@ -558,12 +558,10 @@ def ratio_of_failed_workflow_runs_is_lower_than(
 
     if r.status_code > 399:
         m = (
-            f"failed to get last runs for workflow {workflow_id} in "
+            f"failed to get last runs for workflow in "
             f"repository '{repo}': {r.json()}"
         )
         logger.debug(m)
         raise ActivityFailed(m)
 
-    run = r.json()
-
-    return cast(Dict[str, Any], run)
+    return False
