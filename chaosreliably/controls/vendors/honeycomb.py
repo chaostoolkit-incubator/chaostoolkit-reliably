@@ -27,7 +27,9 @@ class HoneycombVendorHandler:
             secrets=secrets,
         )
 
-    def finished(self, journal: Journal) -> None:
+    def finished(
+        self, journal: Journal, configuration: Configuration, secrets: Secrets
+    ) -> None:
         if not self.experiment_marker:
             return None
 

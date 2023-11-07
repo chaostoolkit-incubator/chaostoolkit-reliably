@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.1...HEAD
+
+## [0.68.1][]
+
+[0.68.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.0...0.68.1
+
+### Fixed
+
+* Function signatures in honeycomb vendor
 
 ## [0.68.0][]
 

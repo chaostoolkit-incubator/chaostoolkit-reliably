@@ -20,7 +20,7 @@ def apply_vendors(method: str, **kwargs) -> None:  # type: ignore
                 logger.debug(
                     "failed to apply 'started' method on vendor "
                     f"class {v.__class__.__name__}",
-                    exc_infp=True,
+                    exc_info=True,
                 )
         elif method == "finished":
             try:
@@ -29,5 +29,5 @@ def apply_vendors(method: str, **kwargs) -> None:  # type: ignore
                 logger.debug(
                     "failed to apply 'finished' method on vendor "
                     f"class {v.__class__.__name__}",
-                    exc_infp=True,
+                    exc_info=True,
                 )
