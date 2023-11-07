@@ -39,6 +39,7 @@ class HoneycombVendorHandler:
             marker_type=self.experiment_marker["type"],
             start_time=self.experiment_marker["start_time"],
             end_time=self.experiment_marker["start_time"] + journal["duration"],
+            marker_id=self.experiment_marker["id"],
         )
 
 
@@ -62,7 +63,7 @@ def set_marker(
     url: Optional[str] = None,
     start_time: Optional[int] = None,
     end_time: Optional[int] = None,
-    update_marker: Optional[Dict[str, Any]] = None,
+    marker_id: Optional[str] = None,
     configuration: Configuration = None,
     secrets: Secrets = None,
 ) -> Optional[Dict[str, Any]]:
@@ -81,7 +82,7 @@ def set_marker(
         http2=True, headers=h, base_url="https://api.honeycomb.io"
     ) as c:
         marker_url = f"/1/markers/{dataset_slug}"
-        if update_marker:
+        if marker_id:
             payload = {
                 "message": message,
                 "type": marker_type,
@@ -89,7 +90,7 @@ def set_marker(
                 "start_time": start_time,
                 "end_time": end_time,
             }
-            marker_url = f"{marker_url}/{update_marker['id']}"
+            marker_url = f"{marker_url}/{marker_id}"
             r = c.put(marker_url, json=payload)
         else:
             payload = {"message": message, "type": marker_type, "url": url}

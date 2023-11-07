@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.2...HEAD
+
+## [0.68.2][]
+
+[0.68.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.1...0.68.2
+
+### Fixed
+
+* Actually update Honeycomb marker
 
 ## [0.68.1][]
 
