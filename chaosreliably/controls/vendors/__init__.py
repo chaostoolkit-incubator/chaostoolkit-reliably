@@ -13,22 +13,21 @@ def register_vendors() -> None:
 
 def apply_vendors(method: str, **kwargs) -> None:  # type: ignore
     for v in VENDORS:
-        match method:
-            case "started":
-                try:
-                    v.started(**kwargs)
-                except Exception:
-                    logger.debug(
-                        "failed to apply 'started' method on vendor "
-                        f"class {v.__class__.__name__}",
-                        exc_infp=True,
-                    )
-            case "finished":
-                try:
-                    v.finished(**kwargs)
-                except Exception:
-                    logger.debug(
-                        "failed to apply 'finished' method on vendor "
-                        f"class {v.__class__.__name__}",
-                        exc_infp=True,
-                    )
+        if method == "started":
+            try:
+                v.started(**kwargs)
+            except Exception:
+                logger.debug(
+                    "failed to apply 'started' method on vendor "
+                    f"class {v.__class__.__name__}",
+                    exc_infp=True,
+                )
+        elif method == "finished":
+            try:
+                v.finished(**kwargs)
+            except Exception:
+                logger.debug(
+                    "failed to apply 'finished' method on vendor "
+                    f"class {v.__class__.__name__}",
+                    exc_infp=True,
+                )
