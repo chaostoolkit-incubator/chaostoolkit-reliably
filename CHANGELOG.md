@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.7...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.8...HEAD
+
+## [0.68.8][]
+
+[0.68.8]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.7...0.68.8
+
+### Changed
+
+* Pass experiment title to Honeycomb marker
 
 ## [0.68.7][]
 

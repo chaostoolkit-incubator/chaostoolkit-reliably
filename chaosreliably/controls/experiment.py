@@ -241,6 +241,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
 
             apply_vendors(
                 "started",
+                experiment=experiment,
                 execution_url=url,
                 configuration=configuration,
                 secrets=secrets,

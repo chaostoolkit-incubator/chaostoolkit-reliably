@@ -2,7 +2,7 @@ import os
 from typing import Any, Dict, Optional, cast
 
 import httpx
-from chaoslib.types import Configuration, Journal, Secrets
+from chaoslib.types import Configuration, Experiment, Journal, Secrets
 from logzero import logger
 
 __all__ = ["HoneycombVendorHandler"]
@@ -15,12 +15,13 @@ class HoneycombVendorHandler:
 
     def started(
         self,
+        experiment: Experiment,
         execution_url: str,
         configuration: Configuration,
         secrets: Secrets,
     ) -> None:
         self.experiment_marker = set_marker(
-            message="Reliably plan ",
+            message=experiment["title"],
             dataset_slug="__all__",
             url=execution_url,
             configuration=configuration,
@@ -63,7 +64,7 @@ def get_api_key(secrets: Secrets) -> Optional[str]:
 
 def set_marker(
     message: str,
-    marker_type: str = "chaostoolkit-experiment",
+    marker_type: str = "reliably-plan",
     dataset_slug: str = "__all__",
     url: Optional[str] = None,
     start_time: Optional[int] = None,
