@@ -1,14 +1,18 @@
 from logzero import logger
 
 from chaosreliably.controls.vendors.honeycomb import HoneycombVendorHandler
+from chaosreliably.controls.vendors.otel import OTELVendorHandler
 
 __all__ = ["apply_vendors", "register_vendors", "unregister_vendors"]
 VENDORS = []
 
 
 def register_vendors() -> None:
+    if OTELVendorHandler.is_on():
+        VENDORS.append(OTELVendorHandler())
+
     if HoneycombVendorHandler.is_on():
-        VENDORS.append(HoneycombVendorHandler())
+        VENDORS.append(HoneycombVendorHandler())  # type: ignore
 
 
 def unregister_vendors() -> None:

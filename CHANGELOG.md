@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.8...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.69.0...HEAD
+
+## [0.69.0][]
+
+[0.69.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.8...0.69.0
+
+### Added
+
+* OTEL extension handler to add reliably attributes
 
 ## [0.68.8][]
 

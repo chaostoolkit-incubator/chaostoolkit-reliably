@@ -16,6 +16,8 @@ class HoneycombVendorHandler:
     def started(
         self,
         experiment: Experiment,
+        plan_id: Optional[str],
+        execution_id: str,
         execution_url: str,
         configuration: Configuration,
         secrets: Secrets,
