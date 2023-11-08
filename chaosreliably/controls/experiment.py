@@ -31,7 +31,11 @@ from logzero import logger
 from chaosreliably import RELIABLY_HOST, STREAM_LOG, get_session
 from chaosreliably.activities.pauses import reset as reset_activity_pause
 from chaosreliably.controls import capture, find_extension_by_name, global_lock
-from chaosreliably.controls.vendors import apply_vendors, register_vendors
+from chaosreliably.controls.vendors import (
+    apply_vendors,
+    register_vendors,
+    unregister_vendors,
+)
 
 __all__ = ["configure_control"]
 init_failed = threading.Event()
@@ -279,14 +283,6 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                         self.configuration,
                         self.secrets,
                     )
-
-                    apply_vendors(
-                        "finished",
-                        journal=journal,
-                        configuration=self.configuration,
-                        secrets=self.secrets,
-                    )
-
             except Exception as ex:
                 set_plan_status(
                     self.org_id,
@@ -296,6 +292,15 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                     self.secrets,
                 )
             finally:
+                apply_vendors(
+                    "finished",
+                    journal=journal,
+                    configuration=self.configuration,
+                    secrets=self.secrets,
+                )
+
+                unregister_vendors()
+
                 if not init_failed.is_set():
                     set_execution_state(
                         self.org_id,
@@ -310,13 +315,13 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                         self.secrets,
                     )
 
+                logger.info("Finished Reliably execution. Bye!")
+
                 self.experiment = (
                     self.configuration
                 ) = self.secrets = self.journal = None
 
                 init_failed.clear()
-
-            logger.info("Finished Reliably execution. Bye!")
 
     def start_hypothesis_before(self, experiment: Experiment) -> None:
         with self.check_lock:

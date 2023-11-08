@@ -2,7 +2,7 @@ from logzero import logger
 
 from chaosreliably.controls.vendors.honeycomb import HoneycombVendorHandler
 
-__all__ = ["apply_vendors", "register_vendors"]
+__all__ = ["apply_vendors", "register_vendors", "unregister_vendors"]
 VENDORS = []
 
 
@@ -11,8 +11,14 @@ def register_vendors() -> None:
         VENDORS.append(HoneycombVendorHandler())
 
 
+def unregister_vendors() -> None:
+    VENDORS.clear()
+
+
 def apply_vendors(method: str, **kwargs) -> None:  # type: ignore
+    logger.debug(f"Apply '{method}' on vendors")
     for v in VENDORS:
+        logger.debug(f"Processing vendor {v.__class__.__name__}")
         if method == "started":
             try:
                 v.started(**kwargs)
