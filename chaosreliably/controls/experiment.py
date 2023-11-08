@@ -260,12 +260,23 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             self.check_for_user_state = None
 
         with global_lock:
-            log = STREAM_LOG.getvalue()
-
             self.current_activities = []
 
             try:
+                apply_vendors(
+                    "finished",
+                    journal=journal,
+                    configuration=self.configuration,
+                    secrets=self.secrets,
+                )
+
+                unregister_vendors()
+
                 if not init_failed.is_set():
+                    logger.info("Finished Reliably execution. Bye!")
+
+                    log = STREAM_LOG.getvalue()
+
                     complete_run(
                         self.org_id,
                         self.exp_id,
@@ -292,15 +303,6 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                     self.secrets,
                 )
             finally:
-                apply_vendors(
-                    "finished",
-                    journal=journal,
-                    configuration=self.configuration,
-                    secrets=self.secrets,
-                )
-
-                unregister_vendors()
-
                 if not init_failed.is_set():
                     set_execution_state(
                         self.org_id,
@@ -314,8 +316,6 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                         self.configuration,
                         self.secrets,
                     )
-
-                logger.info("Finished Reliably execution. Bye!")
 
                 self.experiment = (
                     self.configuration

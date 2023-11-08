@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.4...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.5...HEAD
+
+## [0.68.5][]
+
+[0.68.5]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.4...0.68.5
+
+### Fixed
+
+* Capture all the logs
 
 ## [0.68.4][]
 
