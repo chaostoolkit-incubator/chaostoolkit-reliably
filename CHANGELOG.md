@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.5...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.7...HEAD
+
+## [0.68.7][]
+
+[0.68.7]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.68.5...0.68.7
+
+### Fixed
+
+* Honeycomb API expects an integer not a float
 
 ## [0.68.5][]
 

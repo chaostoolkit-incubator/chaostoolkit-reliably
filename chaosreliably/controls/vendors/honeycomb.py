@@ -39,8 +39,9 @@ class HoneycombVendorHandler:
                 url=self.experiment_marker["url"],
                 marker_type=self.experiment_marker["type"],
                 start_time=self.experiment_marker["start_time"],
-                end_time=self.experiment_marker["start_time"]
-                + journal["duration"],
+                end_time=int(
+                    self.experiment_marker["start_time"] + journal["duration"]
+                ),
                 marker_id=self.experiment_marker["id"],
             )
         finally:
