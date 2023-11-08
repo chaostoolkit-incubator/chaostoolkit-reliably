@@ -33,14 +33,18 @@ class HoneycombVendorHandler:
         if not self.experiment_marker:
             return None
 
-        set_marker(
-            message=self.experiment_marker["message"],
-            url=self.experiment_marker["url"],
-            marker_type=self.experiment_marker["type"],
-            start_time=self.experiment_marker["start_time"],
-            end_time=self.experiment_marker["start_time"] + journal["duration"],
-            marker_id=self.experiment_marker["id"],
-        )
+        try:
+            set_marker(
+                message=self.experiment_marker["message"],
+                url=self.experiment_marker["url"],
+                marker_type=self.experiment_marker["type"],
+                start_time=self.experiment_marker["start_time"],
+                end_time=self.experiment_marker["start_time"]
+                + journal["duration"],
+                marker_id=self.experiment_marker["id"],
+            )
+        finally:
+            self.experiment_marker = None
 
 
 ###############################################################################
@@ -90,9 +94,11 @@ def set_marker(
                 "start_time": start_time,
                 "end_time": end_time,
             }
+            logger.debug(f"Updating Honeycomb marker {marker_id}")
             marker_url = f"{marker_url}/{marker_id}"
             r = c.put(marker_url, json=payload)
         else:
+            logger.debug("Setting Honeycomb marker")
             payload = {"message": message, "type": marker_type, "url": url}
             r = c.post(marker_url, json=payload)
 
@@ -103,5 +109,7 @@ def set_marker(
             return None
 
         marker = cast(Dict[str, Any], r.json())
+
+        logger.debug(f"Honeycomb marker {marker['id']} set")
 
         return marker
