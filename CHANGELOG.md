@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.69.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.69.1...HEAD
+
+## [0.69.1][]
+
+[0.69.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.69.0...0.69.1
+
+### Fixed
+
+* Add missing leyword arguments
 
 ## [0.69.0][]
 

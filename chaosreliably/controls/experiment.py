@@ -239,9 +239,12 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             )
             self.check_for_user_state.start()
 
+            plan_id = os.getenv("RELIABLY_PLAN_ID")
             apply_vendors(
                 "started",
                 experiment=experiment,
+                plan_id=plan_id,
+                execution_id=self.exec_id,
                 execution_url=url,
                 configuration=configuration,
                 secrets=secrets,
