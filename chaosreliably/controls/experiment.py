@@ -13,6 +13,7 @@ except ImportError:
     import importlib.metadata as im  # type: ignore
 
 import orjson
+from chaoslib import substitute
 from chaoslib.exceptions import InterruptExecution
 from chaoslib.exit import exit_gracefully, exit_ungracefully
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
@@ -368,7 +369,11 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             if provider.get("module") == "chaosreliably.activities.pauses":
                 if not self.paused:
                     self.paused = True
-                    self.pause_duration = args.get("duration", 0)
+                    self.pause_duration = substitute(
+                        args.get("duration"),
+                        configuration=self.configuration,
+                        secrets=self.secrets,
+                    )
 
                     set_execution_state(
                         self.org_id,

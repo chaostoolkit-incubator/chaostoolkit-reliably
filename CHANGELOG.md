@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.71.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.71.1...HEAD
+
+## [0.71.1][]
+
+[0.71.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.71.0...0.71.1
+
+### Fixed
+
+* Substitute variable for value
 
 ## [0.71.0][]
 
