@@ -10,7 +10,7 @@ class OTELVendorHandler:
     @staticmethod
     def is_on() -> bool:
         try:
-            from opentelemetry import trace  # noqa: F401
+            from opentelemetry import baggage  # noqa: F401
         except ImportError:
             return False
 
@@ -25,25 +25,19 @@ class OTELVendorHandler:
         configuration: Configuration,
         secrets: Secrets,
     ) -> None:
-        from opentelemetry import trace
+        from opentelemetry import baggage
 
-        current_span = trace.get_current_span()
-        current_span.set_attribute(
-            "reliably.experiment.name", experiment["title"]
-        )
-        current_span.set_attribute("reliably.execution.id", execution_id)
-        current_span.set_attribute("reliably.execution.url", execution_url)
-        current_span.set_attribute("reliably.plan.id", plan_id)
+        baggage.set_baggage("reliably.experiment.name", experiment["title"])
+        baggage.set_baggage("reliably.execution.id", execution_id)
+        baggage.set_baggage("reliably.execution.url", execution_url)
+        baggage.set_baggage("reliably.plan.id", plan_id)
 
     def finished(
         self, journal: Journal, configuration: Configuration, secrets: Secrets
     ) -> None:
-        from opentelemetry import trace
+        from opentelemetry import baggage
 
-        current_span = trace.get_current_span()
-        current_span.set_attribute(
-            "reliably.execution.status", journal["status"]
-        )
-        current_span.set_attribute(
+        baggage.set_baggage("reliably.execution.status", journal["status"])
+        baggage.set_baggage(
             "reliably.execution.deviated", str(journal["deviated"])
         )
