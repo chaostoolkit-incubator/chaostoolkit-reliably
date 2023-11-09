@@ -577,10 +577,12 @@ def send_journal(
 ) -> Optional[Dict[str, Any]]:
     plan_id = os.getenv("RELIABLY_PLAN_ID")
 
+    log = STREAM_LOG.getvalue()
+
     with get_session(configuration, secrets) as session:
         resp = session.put(
             f"/{org_id}/experiments/{exp_id}/executions/{execution_id}/results",
-            json={"result": as_json(state), "plan_id": plan_id},
+            json={"result": as_json(state), "log": log, "plan_id": plan_id},
         )
         if resp.status_code != 200:
             logger.error("Failed to update results on server")

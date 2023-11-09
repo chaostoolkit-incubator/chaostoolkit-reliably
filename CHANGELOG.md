@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.71.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.72.0...HEAD
+
+## [0.72.0][]
+
+[0.72.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.71.1...0.72.0
+
+### Changed
+
+* Send execution log as we run not just at the end
 
 ## [0.71.1][]
 
