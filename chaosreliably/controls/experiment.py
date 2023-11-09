@@ -28,7 +28,12 @@ from chaoslib.types import (
 )
 from logzero import logger
 
-from chaosreliably import RELIABLY_HOST, STREAM_LOG, get_session
+from chaosreliably import (
+    RELIABLY_HOST,
+    STREAM_LOG,
+    get_session,
+    get_shared_state,
+)
 from chaosreliably.activities.pauses import reset as reset_activity_pause
 from chaosreliably.controls import capture, find_extension_by_name, global_lock
 from chaosreliably.controls.vendors import (
@@ -80,13 +85,17 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
 
         url = f"/{org_id}/experiments/{exp_id}/executions/{exec_id}/state"
         while not self.should_stop.is_set():
-            with get_session(configuration, secrets) as session:
-                r = session.get(url)
-                if r.status_code > 399:
-                    logger.debug(f"Failed to retrieve state: {r.json()}")
-                    continue
+            state = get_shared_state()
 
-            state = r.json()
+            if not state:
+                with get_session(configuration, secrets) as session:
+                    r = session.get(url)
+                    if r.status_code > 399:
+                        logger.debug(f"Failed to retrieve state: {r.json()}")
+                        continue
+
+                state = r.json()
+
             if state:
                 if state["current"] == "terminate":
                     user = state.get("user", {})
@@ -174,6 +183,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         self.configuration = configuration
         self.secrets = secrets
         self.journal = journal
+        self.plan_id = os.getenv("RELIABLY_PLAN_ID")
 
         capture.start_capturing(self.experiment, configuration, secrets)
 
@@ -239,11 +249,10 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             )
             self.check_for_user_state.start()
 
-            plan_id = os.getenv("RELIABLY_PLAN_ID")
             apply_vendors(
                 "started",
                 experiment=experiment,
-                plan_id=plan_id,
+                plan_id=self.plan_id,
                 execution_id=self.exec_id,
                 execution_url=url,
                 configuration=configuration,
@@ -354,6 +363,26 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
         name = activity.get("name")
 
         with self.check_lock:
+            provider = activity["provider"]
+            args = provider.get("arguments", {})
+            if provider.get("module") == "chaosreliably.activities.pauses":
+                if not self.paused:
+                    self.paused = True
+                    self.pause_duration = args.get("duration", 0)
+
+                    set_execution_state(
+                        self.org_id,
+                        self.exp_id,
+                        self.exec_id,
+                        {
+                            "current": "pause",
+                            "plan_id": self.plan_id,
+                            "duration": self.pause_duration,
+                        },
+                        self.configuration,
+                        self.secrets,
+                    )
+
             if self.paused:
                 pause = {
                     "before_activity": name,

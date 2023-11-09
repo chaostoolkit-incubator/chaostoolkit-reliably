@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.70.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.71.0...HEAD
+
+## [0.71.0][]
+
+[0.71.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.70.0...0.71.0
+
+### Added
+
+* Setting execution state from experiment pauses so they can be manually resumed
 
 ## [0.70.0][]
 

@@ -1,9 +1,10 @@
 import io
 import logging
 import os
+import threading
 from contextlib import contextmanager
 from datetime import timedelta
-from typing import Dict, Generator, Iterator, List
+from typing import Any, Dict, Generator, Iterator, List
 
 import httpx
 from chaoslib.discovery.discover import (
@@ -37,6 +38,9 @@ __all__ = [
 ]
 RELIABLY_HOST = "app.reliably.com"
 STREAM_LOG = io.StringIO()
+
+shared_state_lock = threading.Lock()
+shared_state = {}  # type: ignore
 
 
 @contextmanager
@@ -190,3 +194,16 @@ def parse_duration(duration: str) -> timedelta:
         return timedelta(weeks=value)
 
     return timedelta(weeks=1)
+
+
+def get_shared_state() -> Dict[str, Any]:
+    with shared_state_lock:
+        s = shared_state.copy()
+        shared_state.clear()
+        return s
+
+
+def update_shared_state(state: Dict[str, Any]) -> None:
+    with shared_state_lock:
+        shared_state.clear()
+        shared_state.update(state)
