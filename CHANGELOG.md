@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.72.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.72.1...HEAD
+
+## [0.72.1][]
+
+[0.72.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.72.0...0.72.1
+
+### Fixed
+
+* Iterate over all slack channels through pagination
+* Exclude archived slack channels from capture
 
 ## [0.72.0][]
 
