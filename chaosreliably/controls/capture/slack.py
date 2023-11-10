@@ -42,6 +42,10 @@ def stop_capturing(
 
     client = get_client(secrets)
 
+    logger.debug(
+        f"Trying to capture the last {past}mn of the Slack channel {channel}"
+    )
+
     channel_id = get_channel_id(client, channel)
     if not channel_id:
         logger.debug("Missing channel to initiate slack capture")
@@ -94,13 +98,19 @@ def get_client(secrets: Secrets) -> WebClient:
 
 
 def get_channel_id(client: WebClient, channel: str) -> Optional[str]:
-    channel = channel.lstrip("#")
+    channel = channel.lstrip("#").strip()
 
-    result = client.conversations_list()
+    cursor = None
+    while True:
+        result = client.conversations_list(exclude_archived=True, cursor=cursor)
 
-    for c in result["channels"]:
-        if c["name"] == channel:
-            return cast(str, c["id"])
+        for c in result["channels"]:
+            if c["name"] == channel:
+                return cast(str, c["id"])
+
+        cursor = result.get("response_metadata", {}).get("next_cursor")  # type: ignore  # noqa
+        if not cursor:
+            break
 
     return None
 
@@ -137,7 +147,7 @@ def get_channel_history(
             inclusive=True,
             limit=limit,
             include_metadata=include_metadata,
-            oldest=ts,
+            oldest=str(ts),
         )
         messages.extend(result["messages"])
 
@@ -149,7 +159,7 @@ def get_channel_history(
                 inclusive=True,
                 limit=limit,
                 include_metadata=include_metadata,
-                oldest=ts,
+                oldest=str(ts),
             )
 
             messages.extend(result["messages"])
@@ -221,7 +231,7 @@ def get_thread_history(
     try:
         result = client.conversations_replies(
             channel=channel_id,
-            ts=thread_ts,
+            ts=str(thread_ts),
             inclusive=True,
             limit=100,
             include_metadata=include_metadata,
@@ -232,7 +242,7 @@ def get_thread_history(
             cursor = result["response_metadata"]["next_cursor"]
             result = client.conversations_replies(
                 channel=channel_id,
-                ts=thread_ts,
+                ts=str(thread_ts),
                 cursor=cursor,
                 inclusive=True,
                 limit=limit,
@@ -270,25 +280,13 @@ def list_channels(client: WebClient, pattern: str) -> List[Dict[str, str]]:
 
     channels = []
     try:
-        result = client.conversations_list(
-            exclude_archived=True, types="public_channel"
-        )
-        channels.extend(
-            [
-                {"name": c["name"], "id": c["id"]}
-                for c in result["channels"]
-                if p.match(c["name"])
-            ]
-        )
-
-        while (result["ok"] is True) and (result["has_more"] is True):
-            cursor = result["response_metadata"]["next_cursor"]
-            result = client.conversations_replies(
+        cursor = None
+        while True:
+            result = client.conversations_list(
                 exclude_archived=True,
                 types="public_channel",
                 cursor=cursor,
             )
-
             channels.extend(
                 [
                     {"name": c["name"], "id": c["id"]}
@@ -296,6 +294,10 @@ def list_channels(client: WebClient, pattern: str) -> List[Dict[str, str]]:
                     if p.match(c["name"])
                 ]
             )
+
+            cursor = result["response_metadata"]["next_cursor"]
+            if not cursor:
+                break
 
     except SlackApiError as e:
         logger.error(f"Failed to list Slack channels: {e}")
