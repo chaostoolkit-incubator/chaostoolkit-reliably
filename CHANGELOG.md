@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.72.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.73.0...HEAD
+
+## [0.73.0][]
+
+[0.73.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.72.1...0.73.0
+
+### Added
+
+* Execution URL to slack message if enabled
 
 ## [0.72.1][]
 

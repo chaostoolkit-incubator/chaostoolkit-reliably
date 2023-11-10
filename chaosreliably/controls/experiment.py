@@ -222,6 +222,7 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
             try:
                 add_runtime_extra(self.extension)
                 add_runtime_info(experiment, self.extension)
+                add_to_slack_message(url, self.experiment)
             except Exception:
                 logger.debug("Failed to add runtime info", exc_info=True)
 
@@ -746,3 +747,10 @@ def as_json(data: Any) -> Any:
     except Exception:
         logger.critical("Failed to serialize journal to json", exc_info=True)
         raise
+
+
+def add_to_slack_message(url: str, experiment: Experiment) -> None:
+    if os.getenv("SLACK_CHANNEL") is not None:
+        c = experiment.setdefault("configuration", {})
+        m = c.setdefault("slack_extra", [])
+        m.append(f"<{url}|View Reliably Execution>")
