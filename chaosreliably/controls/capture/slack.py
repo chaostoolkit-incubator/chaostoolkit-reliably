@@ -108,7 +108,7 @@ def get_channel_id(client: WebClient, channel: str) -> Optional[str]:
             if c["name"] == channel:
                 return cast(str, c["id"])
 
-        cursor = result.get("response_metadata", {}).get("next_cursor")  # type: ignore  # noqa
+        cursor = result.get("response_metadata", {}).get("next_cursor")
         if not cursor:
             break
 
