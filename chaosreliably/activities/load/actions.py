@@ -5,7 +5,6 @@ import pkgutil
 import shutil
 import subprocess  # nosec
 import tempfile
-from threading import Lock
 from typing import Any, Dict, Optional, cast
 from urllib.parse import urlparse
 
@@ -25,8 +24,6 @@ except ImportError:
     HAS_OTEL = False
 
 __all__ = ["inject_gradual_traffic_into_endpoint", "run_load_test"]
-lock = Lock()
-RESULTS = dict()
 
 
 def inject_gradual_traffic_into_endpoint(

@@ -123,4 +123,4 @@ def verify_latency_percentile_from_load_test(
     if not p:
         return False
 
-    return p <= lower_than
+    return cast(float, p) <= lower_than

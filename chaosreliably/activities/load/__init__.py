@@ -6,10 +6,10 @@ RESULTS = {}
 
 
 def store_results(name: str, results: Dict[str, Any]) -> None:
-    with lock():
+    with lock:
         RESULTS[name] = results
 
 
 def get_results(name: str) -> Dict[str, Any]:
-    with lock():
-        RESULTS.get("name", {})
+    with lock:
+        return RESULTS.get("name", {})
