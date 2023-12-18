@@ -5,6 +5,7 @@ import pkgutil
 import shutil
 import subprocess  # nosec
 import tempfile
+from threading import Lock
 from typing import Any, Dict, Optional, cast
 from urllib.parse import urlparse
 
@@ -12,6 +13,8 @@ from chaoslib import decode_bytes
 from chaoslib.exceptions import ActivityFailed, InvalidActivity
 from chaoslib.types import Configuration, Secrets
 from logzero import logger
+
+from chaosreliably.activities.load import store_results
 
 try:
     from opentelemetry.context import get_current
@@ -22,6 +25,8 @@ except ImportError:
     HAS_OTEL = False
 
 __all__ = ["inject_gradual_traffic_into_endpoint", "run_load_test"]
+lock = Lock()
+RESULTS = dict()
 
 
 def inject_gradual_traffic_into_endpoint(
@@ -166,13 +171,14 @@ def run_load_test(
     url: str,
     duration: int = 30,
     qps: int = 5,
-    use_dns_servers: str = "",
+    connect_to: str = "",
     insecure: bool = False,
     host: str = "None",
     method: str = "GET",
     headers: str = "",
     body: str = "",
     content_type: str = "",
+    test_name: str = "load test",
 ) -> Dict[str, Any]:
     """
     Run a load test against the given URL.
@@ -181,20 +187,26 @@ def run_load_test(
     It produces a different set of results. Please make sure to have it
     installed in your `PATH`.
 
+    Set the `test_name` so you can use one of the probe against this action
+    to retrieve its results.
+
     Use the following parameters to adjust the default:
 
-    * `use_dns_servers` pass a comma-separated list of DNS servers to connect
-      to instead of the default ones
+    * `connect_to` pass a column seperated list of addresses `host:port`
+       to connect to instead of the DNS values for the domain
     * `insecure` set to False to communicate with a non-secure TLS server
     * `host` set a different `HOST` header
     * `method` the HTTP method to use
     * `headers` a comma-separated list of headers "foo: bar,other: thing"
     * `body` the content of the request to send if any
     * `content_type` the content-type of the request to send if any
+
     """
     oha_path = shutil.which("oha")
     if not oha_path:
         raise ActivityFailed("missing load test dependency")
+
+    results = {}  # Dict[str, Any]
 
     cmd = [
         oha_path,
@@ -209,8 +221,8 @@ def run_load_test(
         f"{qps}",
     ]
 
-    if use_dns_servers:
-        cmd.extend(["--connect-to", use_dns_servers])
+    if connect_to:
+        cmd.extend(["--connect-to", connect_to])
 
     if insecure:
         cmd.extend(
@@ -261,9 +273,12 @@ def run_load_test(
         logger.debug(f"locust stderr: {stderr}")
 
         try:
-            results = json.loads(stdout)
+            results = cast(Dict[str, Any], json.loads(stdout))
         except json.decoder.JSONDecodeError:
             logger.error("failed to parse oha results")
             raise ActivityFailed("failed to parse oha results")
 
-    return cast(Dict[str, Any], results)
+    if test_name:
+        store_results(test_name, results)
+
+    return results
