@@ -22,6 +22,8 @@ def load_test_result_field_should_be(
 
     If the load test runs against many endpoint, specify which one must be
     validated by setting the `result_item_name` to match the `name` field.
+
+    Can only be used with the result from inject_gradual_traffic_into_endpoint
     """
     if not os.path.exists(result_filepath):
         return pass_if_file_is_missing
@@ -52,6 +54,8 @@ def load_test_result_field_should_be_less_than(
 
     If the load test runs against many endpoint, specify which one must be
     validated by setting the `result_item_name` to match the `name` field.
+
+    Can only be used with the result from inject_gradual_traffic_into_endpoint
     """
     if not os.path.exists(result_filepath):
         return pass_if_file_is_missing
@@ -82,6 +86,8 @@ def load_test_result_field_should_be_greater_than(
 
     If the load test runs against many endpoint, specify which one must be
     validated by setting the `result_item_name` to match the `name` field.
+
+    Can only be used with the result from inject_gradual_traffic_into_endpoint
     """
     if not os.path.exists(result_filepath):
         return pass_if_file_is_missing

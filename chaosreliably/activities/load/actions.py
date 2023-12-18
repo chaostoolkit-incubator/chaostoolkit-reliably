@@ -21,7 +21,7 @@ try:
 except ImportError:
     HAS_OTEL = False
 
-__all__ = ["inject_gradual_traffic_into_endpoint"]
+__all__ = ["inject_gradual_traffic_into_endpoint", "run_load_test"]
 
 
 def inject_gradual_traffic_into_endpoint(
@@ -158,5 +158,112 @@ def inject_gradual_traffic_into_endpoint(
                 results = json.loads(stdout)
             except json.decoder.JSONDecodeError:
                 logger.error("failed to parse locust results")
+
+    return cast(Dict[str, Any], results)
+
+
+def run_load_test(
+    url: str,
+    duration: int = 30,
+    qps: int = 5,
+    use_dns_servers: str = "",
+    insecure: bool = False,
+    host: str = "None",
+    method: str = "GET",
+    headers: str = "",
+    body: str = "",
+    content_type: str = "",
+) -> Dict[str, Any]:
+    """
+    Run a load test against the given URL.
+
+    This action uses [oha](https://github.com/hatoo/oha) rather than Locust.
+    It produces a different set of results. Please make sure to have it
+    installed in your `PATH`.
+
+    Use the following parameters to adjust the default:
+
+    * `use_dns_servers` pass a comma-separated list of DNS servers to connect
+      to instead of the default ones
+    * `insecure` set to False to communicate with a non-secure TLS server
+    * `host` set a different `HOST` header
+    * `method` the HTTP method to use
+    * `headers` a comma-separated list of headers "foo: bar,other: thing"
+    * `body` the content of the request to send if any
+    * `content_type` the content-type of the request to send if any
+    """
+    oha_path = shutil.which("oha")
+    if not oha_path:
+        raise ActivityFailed("missing load test dependency")
+
+    cmd = [
+        oha_path,
+        "--json",
+        "--disable-color",
+        "--no-tui",
+        "--stats-success-breakdown",
+        "--latency-correction",
+        "-z",
+        f"{duration}s",
+        "-q",
+        f"{qps}",
+    ]
+
+    if use_dns_servers:
+        cmd.extend(["--connect-to", use_dns_servers])
+
+    if insecure:
+        cmd.extend(
+            [
+                "--insecure",
+            ]
+        )
+
+    if host:
+        cmd.extend(["--host", host])
+
+    if method:
+        cmd.extend(["--method", method])
+
+    if headers:
+        for pair in headers.split(","):
+            cmd.extend(["-H", pair])
+
+    if body:
+        cmd.extend(["--body", body])
+    if content_type:
+        cmd.extend(["-T", content_type])
+
+    cmd.append(url)
+
+    env = {}  # type: Dict[str, str]
+    try:
+        p = subprocess.run(  # nosec
+            cmd,
+            timeout=duration + 60,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env,
+            shell=False,
+        )
+    except KeyboardInterrupt:
+        logger.debug(
+            "Caught SIGINT signal while running load test. Ignoring it."
+        )
+    except subprocess.TimeoutExpired:
+        raise ActivityFailed("load test took too long to complete")
+    else:
+        stdout = decode_bytes(p.stdout)
+        stderr = decode_bytes(p.stderr)
+
+        logger.debug(f"oha exit code: {p.returncode}")
+        logger.debug(f"locust stderr: {stderr}")
+
+        try:
+            results = json.loads(stdout)
+        except json.decoder.JSONDecodeError:
+            logger.error("failed to parse oha results")
+            raise ActivityFailed("failed to parse oha results")
 
     return cast(Dict[str, Any], results)
