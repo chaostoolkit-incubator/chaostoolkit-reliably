@@ -2,7 +2,19 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.73.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.74.0...HEAD
+
+## [0.74.0][]
+
+[0.74.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.73.0...0.74.0
+
+### Added
+
+* The `run_load_test` to perform a load test using the excellent [oha](https://github.com/hatoo/oha)
+
+### Changed
+
+* Bump dependencies
 
 ## [0.73.0][]
 
