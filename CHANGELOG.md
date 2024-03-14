@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.76.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.77.0...HEAD
+
+## [0.77.0][]
+
+[0.77.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.76.0...0.77.0
+
+### Changed
+
+* Adjust OpenAI calls to match new capabilities from the models
 
 ## [0.76.0][]
 

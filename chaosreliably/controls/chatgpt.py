@@ -127,14 +127,25 @@ def talk_with_chatgpt(
         start = time.time()
         backoff = 3
         results = []
-        chat = []
-        suffix = ". Render in unrendered markdown."
+        chat = [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant for DevOps or SRE engineering team trying to improve their reliability and resilience through Chaos Engineering.",
+            },
+            {
+                "role": "system",
+                "content": "You aware of the Chaos Toolkit and understand the responses may be useful in context of Chaos Toolkit experiments.",
+            },
+            {
+                "role": "system",
+                "content": "You respond in unrendered markdown format and do not prefix the response with ```markdown",
+            },
+        ]
         for message in extension.get("messages", [])[:]:
             if should_exit.is_set():
                 logger.debug("Exiting OpenAI chat as experiment has finished")
                 break
 
-            message["content"] += suffix
             chat.append(message)
             try:
                 logger.debug("Submitting message to OpenAI")
@@ -148,8 +159,10 @@ def talk_with_chatgpt(
                     },
                     json={
                         "model": openai_model,
-                        "temperature": 0.3,
+                        "temperature": 0.2,
                         "messages": chat,
+                        "frequency_penalty": 0.2,
+                        "presence_penalty": 0.1,
                     },
                 )
             except httpx.ReadTimeout:
@@ -167,12 +180,6 @@ def talk_with_chatgpt(
                         f"OpenAI chat failed: {r.status_code}: {r.json()}"
                     )
                 else:
-                    message["content"] = (
-                        message["content"]
-                        .replace(suffix, "")
-                        .replace("```markdown\n", "")
-                        .rstrip("```")
-                    )
                     results.append(r.json())
                     chat.append(results[-1]["choices"][0]["message"])
                     logger.debug("Got a reply from OpenAI")
