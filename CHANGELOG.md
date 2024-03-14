@@ -9,6 +9,10 @@
 * Bump dependencies
 * Cleanup GPT output for rendering
 
+### Fixed
+
+* Command line argument for `ruff`
+
 ## [0.75.0][]
 
 [0.75.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.74.0...0.75.0

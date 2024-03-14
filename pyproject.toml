@@ -88,6 +88,6 @@ testpaths = ["tests"]
 addopts = "-v -rxs --cov chaosreliably --cov-report term-missing:skip-covered -p no:warnings"
 
 [tool.pdm.scripts]
-lint = {composite = ["ruff chaosreliably/", "isort --check-only --profile black chaosreliably/", "black --check --diff chaosreliably/", "mypy chaosreliably/", "bandit -r chaosreliably"]}
-format = {composite = ["isort --profile black chaosreliably/", "black chaosreliably/", "ruff chaosreliably/ --fix"]}
+lint = {composite = ["ruff check chaosreliably/", "isort --check-only --profile black chaosreliably/", "black --check --diff chaosreliably/", "mypy chaosreliably/", "bandit -r chaosreliably"]}
+format = {composite = ["isort --profile black chaosreliably/", "black chaosreliably/", "ruff check chaosreliably/ --fix"]}
 test = {cmd = "pytest"}
