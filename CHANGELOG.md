@@ -7,6 +7,7 @@
 ### Changed
 
 * Bump dependencies
+* Cleanup GPT output for rendering
 
 ## [0.75.0][]
 

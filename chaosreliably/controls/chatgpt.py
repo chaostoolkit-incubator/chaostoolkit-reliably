@@ -167,7 +167,12 @@ def talk_with_chatgpt(
                         f"OpenAI chat failed: {r.status_code}: {r.json()}"
                     )
                 else:
-                    message["content"] = message["content"].replace(suffix, "")
+                    message["content"] = (
+                        message["content"]
+                        .replace(suffix, "")
+                        .replace("```markdown\n", "")
+                        .rstrip("```")
+                    )
                     results.append(r.json())
                     chat.append(results[-1]["choices"][0]["message"])
                     logger.debug("Got a reply from OpenAI")
