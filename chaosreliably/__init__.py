@@ -19,7 +19,6 @@ from chaoslib.types import (
     Discovery,
     Secrets,
 )
-from logzero import logger
 
 try:
     from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
@@ -39,6 +38,7 @@ __all__ = [
 RELIABLY_HOST = "app.reliably.com"
 STREAM_LOG = io.StringIO()
 
+logger = logging.getLogger("chaostoolkit")
 shared_state_lock = threading.Lock()
 shared_state = {}  # type: ignore
 

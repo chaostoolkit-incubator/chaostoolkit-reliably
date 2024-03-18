@@ -1,13 +1,14 @@
+import logging
 import os
 import secrets
 from typing import Any, Dict, Union
 
 from chaoslib.types import Activity, Configuration, Experiment, Secrets
-from logzero import logger
 
 from chaosreliably.types import AutoPause
 
 __all__ = ["configure_control"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def configure_control(

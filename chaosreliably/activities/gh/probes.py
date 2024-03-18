@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, cast
@@ -6,7 +7,6 @@ from urllib.parse import urlparse
 import httpx
 from chaoslib.exceptions import ActivityFailed, InvalidActivity
 from chaoslib.types import Configuration, Secrets
-from logzero import logger
 
 from chaosreliably import parse_duration
 from chaosreliably.activities.gh import get_gh_token, get_period
@@ -18,6 +18,7 @@ __all__ = [
     "get_workflow_most_recent_run",
     "get_workflow_most_recent_run_billing_usage",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
 def closed_pr_ratio(

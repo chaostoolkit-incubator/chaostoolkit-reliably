@@ -1,16 +1,17 @@
+import logging
 import os
 import re
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, cast
 
 from chaoslib.types import Configuration, Experiment, Secrets
-from logzero import logger
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 from chaosreliably.controls.capture import get_control_by_name
 
 __all__ = ["start_capturing", "stop_capturing"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def start_capturing(

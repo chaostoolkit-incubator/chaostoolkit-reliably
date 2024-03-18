@@ -1,6 +1,7 @@
-from logzero import logger
+import logging
 
 __all__ = ["response_time_must_be_under"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def response_time_must_be_under(latency: float, value: float = 0.0) -> bool:

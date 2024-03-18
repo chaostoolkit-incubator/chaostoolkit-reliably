@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import secrets
 import threading
@@ -27,7 +28,6 @@ from chaoslib.types import (
     Secrets,
     Settings,
 )
-from logzero import logger
 
 from chaosreliably import (
     RELIABLY_HOST,
@@ -44,6 +44,7 @@ from chaosreliably.controls.vendors import (
 )
 
 __all__ = ["configure_control"]
+logger = logging.getLogger("chaostoolkit")
 init_failed = threading.Event()
 
 

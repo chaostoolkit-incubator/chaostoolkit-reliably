@@ -1,9 +1,12 @@
+import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional, cast
 
 from chaoslib.control import get_global_controls
 from chaoslib.types import Configuration, Experiment, Journal, Secrets
-from logzero import logger
+
+
+logger = logging.getLogger("chaostoolkit")
 
 
 def get_control_by_name(

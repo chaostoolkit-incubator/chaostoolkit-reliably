@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import os.path
 import pkgutil
@@ -11,7 +12,6 @@ from urllib.parse import urlparse
 from chaoslib import decode_bytes
 from chaoslib.exceptions import ActivityFailed, InvalidActivity
 from chaoslib.types import Configuration, Secrets
-from logzero import logger
 
 from chaosreliably.activities.load import store_results
 
@@ -24,6 +24,7 @@ except ImportError:
     HAS_OTEL = False
 
 __all__ = ["inject_gradual_traffic_into_endpoint", "run_load_test"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def inject_gradual_traffic_into_endpoint(

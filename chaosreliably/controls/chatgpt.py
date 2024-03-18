@@ -1,3 +1,4 @@
+import logging
 import os
 import threading
 import time
@@ -13,11 +14,11 @@ from chaoslib.types import (
     Secrets,
     Settings,
 )
-from logzero import logger
 
 from chaosreliably.controls import find_extension_by_name, global_lock
 
 __all__ = ["configure_control"]
+logger = logging.getLogger("chaostoolkit")
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 
 

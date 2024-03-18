@@ -1,8 +1,8 @@
+import logging
 from typing import List, Optional, Union, cast
 
 from boltons import statsutils
 from chaoslib.exceptions import InvalidActivity
-from logzero import logger
 
 from chaosreliably import parse_duration
 
@@ -13,6 +13,7 @@ __all__ = [
     "ratio_under_or_equal",
     "ratio_above_or_equal",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
 def ratio_under(target: float, value: float = 0.0) -> bool:

@@ -1,9 +1,10 @@
-from logzero import logger
+import logging
 
 from chaosreliably.controls.vendors.honeycomb import HoneycombVendorHandler
 from chaosreliably.controls.vendors.otel import OTELVendorHandler
 
 __all__ = ["apply_vendors", "register_vendors", "unregister_vendors"]
+logger = logging.getLogger("chaostoolkit")
 VENDORS = []
 
 

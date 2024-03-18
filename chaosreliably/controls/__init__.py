@@ -1,3 +1,4 @@
+import logging
 import os
 import secrets
 import threading
@@ -12,8 +13,8 @@ from chaoslib.types import (
     Journal,
     Secrets,
 )
-from logzero import logger
 
+logger = logging.getLogger("chaostoolkit")
 global_lock = threading.Lock()
 
 

@@ -1,10 +1,11 @@
+import logging
 from typing import Optional
 
 import httpx
 from chaoslib.types import Configuration, Secrets
-from logzero import logger
 
 __all__ = ["call_endpoint"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def call_endpoint(

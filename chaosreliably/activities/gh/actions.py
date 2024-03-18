@@ -1,3 +1,4 @@
+import logging
 import random
 import re
 from typing import Any, Dict, Optional, cast
@@ -5,11 +6,12 @@ from typing import Any, Dict, Optional, cast
 import httpx
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Configuration, Secrets
-from logzero import logger
+
 
 from chaosreliably.activities.gh import get_gh_token, get_period
 
 __all__ = ["cancel_workflow_run"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def cancel_workflow_run(

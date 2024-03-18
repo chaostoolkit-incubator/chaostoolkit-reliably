@@ -1,7 +1,7 @@
 import logging
 import warnings
 
-from logzero import logger
+logger = logging.getLogger("chaostoolkit")
 
 
 # from slo-egenerator

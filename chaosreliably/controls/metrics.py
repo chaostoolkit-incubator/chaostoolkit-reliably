@@ -1,3 +1,4 @@
+import logging
 import threading
 import time
 from copy import deepcopy
@@ -17,11 +18,11 @@ from chaoslib.types import (
     Secrets,
     Settings,
 )
-from logzero import logger
 
 from chaosreliably.controls import find_extension_by_name, global_lock
 
 __all__ = ["configure_control"]
+logger = logging.getLogger("chaostoolkit")
 
 
 class MetricsHandler(RunEventHandler):  # type: ignore

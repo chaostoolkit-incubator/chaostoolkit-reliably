@@ -13,6 +13,7 @@
 * Dropped Python 3.7
 * Building for Python 3.12
 * Bump dependencies
+* Remove logzero dependency
 
 ## [0.77.0][]
 

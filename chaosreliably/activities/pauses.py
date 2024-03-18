@@ -1,6 +1,7 @@
+import logging
 import threading
 
-from logzero import logger
+logger = logging.getLogger("chaostoolkit")
 
 __all__ = ["pause_execution"]
 

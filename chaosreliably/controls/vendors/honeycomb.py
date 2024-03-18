@@ -1,11 +1,12 @@
+import logging
 import os
 from typing import Any, Dict, Optional, cast
 
 import httpx
 from chaoslib.types import Configuration, Experiment, Journal, Secrets
-from logzero import logger
 
 __all__ = ["HoneycombVendorHandler"]
+logger = logging.getLogger("chaostoolkit")
 
 
 class HoneycombVendorHandler:

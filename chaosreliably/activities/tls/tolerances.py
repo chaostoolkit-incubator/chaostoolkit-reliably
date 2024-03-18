@@ -1,8 +1,8 @@
+import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from chaoslib.exceptions import InvalidActivity
-from logzero import logger
 
 from chaosreliably import parse_duration
 
@@ -13,6 +13,7 @@ __all__ = [
     "is_issued_by",
     "verify_tls_cert",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
 def expire_in_more_than(
