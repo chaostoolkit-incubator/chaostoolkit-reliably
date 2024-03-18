@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.77.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.78.0...HEAD
+
+## [0.78.0][]
+
+[0.78.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.77.0...0.78.0
+
+### Changed
+
+* Dropped Python 3.7
+* Building for Python 3.12
 
 ## [0.77.0][]
 

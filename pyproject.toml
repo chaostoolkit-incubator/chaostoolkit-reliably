@@ -5,7 +5,7 @@ description = "Reliably CLI"
 authors = [
     {name = "Chaos Toolkit", email = "contact@chaostoolkit.org"},
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 dependencies = [
@@ -27,11 +27,11 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
