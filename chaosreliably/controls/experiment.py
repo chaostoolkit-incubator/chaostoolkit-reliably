@@ -332,9 +332,9 @@ class ReliablyHandler(RunEventHandler):  # type: ignore
                         self.secrets,
                     )
 
-                self.experiment = (
-                    self.configuration
-                ) = self.secrets = self.journal = None
+                self.experiment = self.configuration = self.secrets = (
+                    self.journal
+                ) = None
 
                 init_failed.clear()
 
