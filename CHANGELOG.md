@@ -12,6 +12,7 @@
 
 * Dropped Python 3.7
 * Building for Python 3.12
+* Bump dependencies
 
 ## [0.77.0][]
 
