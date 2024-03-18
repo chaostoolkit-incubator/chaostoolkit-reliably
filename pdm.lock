@@ -250,12 +250,12 @@ files = [
 
 [[package]]
 name = "chaostoolkit-addons"
-version = "0.9.0"
+version = "0.10.0"
 requires_python = ">=3.7"
 summary = "Addons for your Chaos Toolkit experiments"
 files = [
-    {file = "chaostoolkit-addons-0.9.0.tar.gz", hash = "sha256:7388479ae6bda452a18097626b141dd61b0714315540f8ce98ab7ed5a1f53218"},
-    {file = "chaostoolkit_addons-0.9.0-py2.py3-none-any.whl", hash = "sha256:4c0c4347acdf807c22d1636a4a8434a1f48cec9cecbfcdaafda7fcb65b3b3382"},
+    {file = "chaostoolkit-addons-0.10.0.tar.gz", hash = "sha256:edc13185540f44521c3d5743e8043ab1c5792cfbfe8a8126a33b6d644097db84"},
+    {file = "chaostoolkit_addons-0.10.0-py2.py3-none-any.whl", hash = "sha256:f95c13a17f657c5a4ed8414b899da518a1a060d1e4c47f74a4cdbf18fc1983d5"},
 ]
 
 [[package]]
