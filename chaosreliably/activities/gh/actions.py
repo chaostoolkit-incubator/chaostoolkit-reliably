@@ -7,7 +7,6 @@ import httpx
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Configuration, Secrets
 
-
 from chaosreliably.activities.gh import get_gh_token, get_period
 
 __all__ = ["cancel_workflow_run"]

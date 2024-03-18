@@ -5,7 +5,6 @@ from typing import Any, Dict, Optional, cast
 from chaoslib.control import get_global_controls
 from chaoslib.types import Configuration, Experiment, Journal, Secrets
 
-
 logger = logging.getLogger("chaostoolkit")
 
 
