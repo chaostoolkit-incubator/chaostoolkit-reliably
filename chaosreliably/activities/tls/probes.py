@@ -23,7 +23,9 @@ def get_certificate_info(host: str, port: int = 443) -> Dict[str, Any]:
     context.check_hostname = True
 
     with socket.create_connection((host, port)) as sock:
-        conn_info = dict(conn={}, cert={"fingerprints": {}, "extensions": {}})
+        conn_info = dict(  # type: ignore
+            conn={}, cert={"fingerprints": {}, "extensions": {}}
+        )
         with context.wrap_socket(sock, server_hostname=host) as secsock:
             cert = secsock.getpeercert(binary_form=True)
             if not cert:
@@ -33,29 +35,29 @@ def get_certificate_info(host: str, port: int = 443) -> Dict[str, Any]:
 
             cert_data = x509.load_der_x509_certificate(cert, default_backend())
 
-            conn_info["conn"].update(  # type: ignore
+            conn_info["conn"].update(
                 {
-                    "version": secsock.version(),
-                    "remote_addr": ":".join(
+                    "version": secsock.version(),  # type: ignore
+                    "remote_addr": ":".join(  # type: ignore
                         [str(_) for _ in secsock.getpeername()]
                     ),
                 }
             )
 
             sig_hash = cert_data.signature_hash_algorithm.name  # type: ignore
-            conn_info["cert"].update(  # type: ignore
+            conn_info["cert"].update(
                 {
-                    "issuer": cert_data.issuer.rfc4514_string(),
-                    "subject": cert_data.subject.rfc4514_string(),
-                    "serial": str(cert_data.serial_number),
-                    "version": cert_data.version.name,
-                    "signature_hash": sig_hash,
-                    "not_valid_before": cert_data.not_valid_before.isoformat(),
-                    "not_valid_after": cert_data.not_valid_after.isoformat(),
+                    "issuer": cert_data.issuer.rfc4514_string(),  # type: ignore
+                    "subject": cert_data.subject.rfc4514_string(),  # type: ignore
+                    "serial": str(cert_data.serial_number),  # type: ignore
+                    "version": cert_data.version.name,  # type: ignore
+                    "signature_hash": sig_hash,  # type: ignore
+                    "not_valid_before": cert_data.not_valid_before.isoformat(),  # type: ignore
+                    "not_valid_after": cert_data.not_valid_after.isoformat(),  # type: ignore
                 }
             )
 
-            conn_info["cert"]["fingerprints"].update(  # type: ignore
+            conn_info["cert"]["fingerprints"].update(
                 {
                     "md5": cert_data.fingerprint(hashes.MD5()).hex(),  # nosec
                     "sha1": cert_data.fingerprint(hashes.SHA1()).hex(),  # nosec
@@ -66,7 +68,7 @@ def get_certificate_info(host: str, port: int = 443) -> Dict[str, Any]:
             for ext in cert_data.extensions:
                 if ext.oid._name in ("subjectAltName",):
                     names = []  # type: ignore
-                    conn_info["cert"]["extensions"].update(  # type: ignore
+                    conn_info["cert"]["extensions"].update(
                         {
                             ext.oid._name: names,
                         }
