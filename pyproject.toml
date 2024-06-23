@@ -18,6 +18,7 @@ dependencies = [
     "chaostoolkit-addons>=0.4.0",
     "orjson>=3.8.10",
     "dnspython>=2.3.0",
+    "grpcio>=1.64.1",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
