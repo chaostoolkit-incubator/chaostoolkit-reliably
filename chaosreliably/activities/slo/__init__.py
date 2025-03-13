@@ -23,7 +23,7 @@ def reroute_slo_generator_logging() -> None:
     # Ignore Cloud SDK warning when using a user instead of service account
     try:
         # pylint: disable=import-outside-toplevel
-        from google.auth._default import (  # type: ignore
+        from google.auth._default import (
             _CLOUD_SDK_CREDENTIALS_WARNING,
         )
 
