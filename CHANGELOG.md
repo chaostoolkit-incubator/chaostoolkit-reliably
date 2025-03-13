@@ -2,7 +2,13 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.1...HEAD
+
+## [0.80.1][]
+
+[0.80.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.0...0.80.1
+
+* Fix action version
 
 ## [0.80.0][]
 
