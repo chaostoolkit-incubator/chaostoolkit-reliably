@@ -252,6 +252,7 @@ def run_load_test(
 
     env = {}  # type: Dict[str, str]
     try:
+        logger.debug(f"Running command {cmd}")
         p = subprocess.run(  # nosec
             cmd,
             timeout=duration + 60,
@@ -272,7 +273,7 @@ def run_load_test(
         stderr = decode_bytes(p.stderr)
 
         logger.debug(f"oha exit code: {p.returncode}")
-        logger.debug(f"locust stderr: {stderr}")
+        logger.debug(f"oha stderr: {stderr}")
 
         try:
             results = cast(Dict[str, Any], json.loads(stdout))

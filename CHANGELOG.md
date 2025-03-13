@@ -2,7 +2,13 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.3...HEAD
+
+## [0.80.3][]
+
+[0.80.3]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.2...0.80.3
+
+* Log oha command line
 
 ## [0.80.2][]
 
