@@ -219,6 +219,10 @@ def run_load_test(
         f"{qps}",
     ]
 
+    proxy = os.getenv("HTTPS_PROXY", os.getenv("HTTP_PROXY"))
+    if proxy:
+        cmd.extend(["-x", proxy])
+
     if connect_to:
         cmd.extend(["--connect-to", connect_to])
 

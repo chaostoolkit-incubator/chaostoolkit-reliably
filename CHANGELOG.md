@@ -2,7 +2,13 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.79.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.0...HEAD
+
+## [0.80.0][]
+
+[0.80.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.79.0...0.80.0
+
+* Add proxy support to run_load_test
 
 ## [0.79.0][]
 
