@@ -2,7 +2,13 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.2...HEAD
+
+## [0.80.2][]
+
+[0.80.2]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.1...0.80.2
+
+* Use a specific proxy environment variable to prevent mixing system proxy settings
 
 ## [0.80.1][]
 
