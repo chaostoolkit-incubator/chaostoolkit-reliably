@@ -177,6 +177,7 @@ def run_load_test(
     body: str = "",
     content_type: str = "",
     test_name: str = "load test",
+    proxy_addr: str = ""
 ) -> Dict[str, Any]:
     """
     Run a load test against the given URL.
@@ -198,6 +199,8 @@ def run_load_test(
     * `headers` a comma-separated list of headers "foo: bar,other: thing"
     * `body` the content of the request to send if any
     * `content_type` the content-type of the request to send if any
+    * `proxy_addr` any proxy address by all requests (can also be set via
+       OHA_HTTPS_PROXY or OHA_HTTP_PROXY env variables)
 
     """
     oha_path = shutil.which("oha")
@@ -219,7 +222,10 @@ def run_load_test(
         f"{qps}",
     ]
 
-    proxy = os.environ.get("OHA_HTTPS_PROXY", os.environ.get("OHA_HTTP_PROXY"))
+    proxy = proxy_addr or os.environ.get(
+        "OHA_HTTPS_PROXY", os.environ.get("OHA_HTTP_PROXY")
+    )
+
     if proxy:
         logger.debug(f"Using proxy {proxy} on requests from oha")
         cmd.extend(["-x", proxy])
