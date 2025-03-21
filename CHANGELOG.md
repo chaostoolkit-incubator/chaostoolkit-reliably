@@ -11,6 +11,7 @@
 ### Changed
 
 * Read environ dict directly rather than via getenv
+* bump dependencies
 
 ## [0.80.3][]
 
