@@ -12,6 +12,10 @@
 
 * Support passing proxy address to load test runner as an argument
 
+### Removed
+
+* don't upload to GH release, this isn't useful
+
 ## [0.81.0][]
 
 [0.81.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.3...0.81.0
