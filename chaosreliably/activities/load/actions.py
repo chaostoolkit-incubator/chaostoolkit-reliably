@@ -219,8 +219,9 @@ def run_load_test(
         f"{qps}",
     ]
 
-    proxy = os.getenv("OHA_HTTPS_PROXY", os.getenv("OHA_HTTP_PROXY"))
+    proxy = os.environ.get("OHA_HTTPS_PROXY", os.environ.get("OHA_HTTP_PROXY"))
     if proxy:
+        logger.debug(f"Using proxy {proxy} on requests from oha")
         cmd.extend(["-x", proxy])
 
     if connect_to:

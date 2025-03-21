@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.3...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.81.0...HEAD
+
+## [0.81.0][]
+
+[0.81.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.80.3...0.81.0
+
+### Changed
+
+* Read environ dict directly rather than via getenv
 
 ## [0.80.3][]
 
