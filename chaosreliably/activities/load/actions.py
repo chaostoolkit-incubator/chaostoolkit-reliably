@@ -177,7 +177,7 @@ def run_load_test(
     body: str = "",
     content_type: str = "",
     test_name: str = "load test",
-    proxy_addr: str = ""
+    proxy_addr: str = "",
 ) -> Dict[str, Any]:
     """
     Run a load test against the given URL.
@@ -223,7 +223,7 @@ def run_load_test(
     ]
 
     proxy = proxy_addr or os.environ.get(
-        "OHA_HTTPS_PROXY", os.environ.get("OHA_HTTP_PROXY")
+        "OHA_HTTPS_PROXY", os.environ.get("OHA_HTTP_PROXY")  # type: ignore
     )
 
     if proxy:
