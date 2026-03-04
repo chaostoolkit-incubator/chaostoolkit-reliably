@@ -9,17 +9,16 @@ on:
 jobs:
   release-to-pypi:
     runs-on: ubuntu-24.04
+    environment: release
+    permissions:
+      id-token: write
     steps:
     - uses: actions/checkout@v4
     - name: Set up PDM
       uses: pdm-project/setup-pdm@v4
       with:
         python-version: "3.12"
-    - name: Publish wheels
-      run: |
-        pdm publish
-        # try to give Pypi time to update its index. Unfortunate.
-        sleep 30s
-      env:
-        PDM_PUBLISH_USERNAME: __token__
-        PDM_PUBLISH_PASSWORD: ${{ secrets.PYPI_PWD }}
+    - name: EBuild artifacts
+      run: pdm build
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
