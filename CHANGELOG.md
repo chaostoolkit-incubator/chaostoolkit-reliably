@@ -11,6 +11,8 @@
 ### Added
 
 * Support passing proxy address to load test runner as an argument
+* Bump dependencies
+* Minimal Python version is now 3.12
 
 ## [0.82.0][]
 
