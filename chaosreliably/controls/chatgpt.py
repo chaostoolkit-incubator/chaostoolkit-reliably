@@ -92,7 +92,7 @@ def configure_control(
 def talk_with_chatgpt(
     state: Journal,
     should_exit: threading.Event,
-    openai_model: Union[str, Dict[str, str]] = "gpt-3.5-turbo",
+    openai_model: Union[str, Dict[str, str]] = "gpt-5-nano",
     secrets: Secrets = None,
 ) -> None:
     try:
@@ -100,12 +100,13 @@ def talk_with_chatgpt(
         extension = find_extension_by_name(experiment, "chatgpt")
 
         if not extension:
+            logger.warning("OpenAI extension will not do anything. We need at least one user prompt.")
             return None
 
         if isinstance(openai_model, dict):
             openai_model = os.getenv(
                 openai_model["key"],
-                openai_model.get("default", "gpt-3.5-turbo"),
+                openai_model.get("default", "gpt-5-nano"),
             )
 
         secrets = secrets or {}
@@ -160,7 +161,6 @@ def talk_with_chatgpt(
                     },
                     json={
                         "model": openai_model,
-                        "temperature": 0.2,
                         "messages": chat,
                         "frequency_penalty": 0.2,
                         "presence_penalty": 0.1,
