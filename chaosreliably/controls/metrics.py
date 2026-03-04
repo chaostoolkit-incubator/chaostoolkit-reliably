@@ -98,9 +98,7 @@ def configure_control(
         probes = deepcopy(probes)
 
     event_registry.register(
-        MetricsHandler(
-            probes, frequency, recovery_timeout, block_execution  # type: ignore
-        )
+        MetricsHandler(probes, frequency, recovery_timeout, block_execution)
     )
 
 

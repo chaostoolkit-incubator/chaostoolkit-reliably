@@ -100,7 +100,9 @@ def talk_with_chatgpt(
         extension = find_extension_by_name(experiment, "chatgpt")
 
         if not extension:
-            logger.warning("OpenAI extension will not do anything. We need at least one user prompt.")
+            logger.warning(
+                "OpenAI extension will not do anything. We need at least one user prompt."
+            )
             return None
 
         if isinstance(openai_model, dict):
