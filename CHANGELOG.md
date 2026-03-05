@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.83.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.83.1...HEAD
+
+## [0.83.1][]
+
+[0.83.1]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.83.0...0.83.1
+
+### Changed
+
+- Removed old OpenAI API paramaters such as frequency_penalty and presence_penalty
+  as they aren't supported by new models
 
 ## [0.83.0][]
 

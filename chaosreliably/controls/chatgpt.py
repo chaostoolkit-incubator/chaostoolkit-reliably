@@ -138,7 +138,7 @@ def talk_with_chatgpt(
             },
             {
                 "role": "system",
-                "content": "You aware of the Chaos Toolkit and understand the responses may be useful in context of Chaos Toolkit experiments.",
+                "content": "You aware of the Reliably & Chaos Toolkit and understand the responses may be useful in context of Chaos Toolkit experiments.",
             },
             {
                 "role": "system",
@@ -163,9 +163,7 @@ def talk_with_chatgpt(
                     },
                     json={
                         "model": openai_model,
-                        "messages": chat,
-                        "frequency_penalty": 0.2,
-                        "presence_penalty": 0.1,
+                        "messages": chat
                     },
                 )
             except httpx.ReadTimeout:
