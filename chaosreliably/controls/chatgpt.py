@@ -161,10 +161,7 @@ def talk_with_chatgpt(
                         "Authorization": f"Bearer {key}",
                         "OpenAI-Organization": org,
                     },
-                    json={
-                        "model": openai_model,
-                        "messages": chat
-                    },
+                    json={"model": openai_model, "messages": chat},
                 )
             except httpx.ReadTimeout:
                 logger.debug("OpenAI took too long to respond unfortunately")
