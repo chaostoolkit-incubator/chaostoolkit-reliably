@@ -5,6 +5,7 @@ import time
 from typing import Dict, Union
 
 import httpx
+import orjson
 from chaoslib.run import EventHandlerRegistry, RunEventHandler
 from chaoslib.types import (
     Configuration,
@@ -30,6 +31,8 @@ class OpenAIHandler(RunEventHandler):  # type: ignore
         RunEventHandler.__init__(self)
         self.openai_model = openai_model
         self.should_exit = threading.Event()
+        self.allow_journal_review = False
+        self.secrets = None
         self._t = None
 
     def running(
@@ -41,6 +44,17 @@ class OpenAIHandler(RunEventHandler):  # type: ignore
         schedule: Schedule,
         settings: Settings,
     ) -> None:
+        extension = find_extension_by_name(experiment, "chatgpt")
+        if not extension:
+            logger.warning(
+                "OpenAI extension will not do anything. We need at least one user prompt."
+            )
+            return None
+
+        self.allow_journal_review = extension.get("allow_journal_review", False)
+        if self.allow_journal_review:
+            self.secrets = secrets.copy()
+
         logger.debug("Starting OpenAI GPT conversation in background")
         self._t = threading.Thread(  # type: ignore
             None,
@@ -56,6 +70,13 @@ class OpenAIHandler(RunEventHandler):  # type: ignore
         self._t.start()  # type: ignore
 
     def finish(self, journal: Journal) -> None:
+        if self.allow_journal_review:
+            logger.debug("Review journal with LLM...")
+            review_journal(
+                journal, openai_model=self.openai_model, secrets=self.secrets
+            )
+            self.secrets = None
+
         if self._t is not None and self._t.is_alive():
             try:
                 global_lock.acquire()
@@ -89,6 +110,22 @@ def configure_control(
 ###############################################################################
 # Private functions
 ###############################################################################
+SYSTEM_PROMPTS = [
+    {
+        "role": "system",
+        "content": "You are a helpful assistant for DevOps or SRE engineering team trying to improve their reliability and resilience through Chaos Engineering. This is not an interactive chat. You must contain your comprehensive answer in that one response.",
+    },
+    {
+        "role": "system",
+        "content": "You aware of the Reliably & Chaos Toolkit and understand the responses may be useful in context of Chaos Toolkit experiments.",
+    },
+    {
+        "role": "system",
+        "content": "You respond in unrendered markdown format and do not prefix the response with ```markdown",
+    },
+]
+
+
 def talk_with_chatgpt(
     state: Journal,
     should_exit: threading.Event,
@@ -98,11 +135,7 @@ def talk_with_chatgpt(
     try:
         experiment = state["experiment"]
         extension = find_extension_by_name(experiment, "chatgpt")
-
         if not extension:
-            logger.warning(
-                "OpenAI extension will not do anything. We need at least one user prompt."
-            )
             return None
 
         if isinstance(openai_model, dict):
@@ -131,26 +164,14 @@ def talk_with_chatgpt(
         start = time.time()
         backoff = 3
         results = []
-        chat = [
-            {
-                "role": "system",
-                "content": "You are a helpful assistant for DevOps or SRE engineering team trying to improve their reliability and resilience through Chaos Engineering.",
-            },
-            {
-                "role": "system",
-                "content": "You aware of the Reliably & Chaos Toolkit and understand the responses may be useful in context of Chaos Toolkit experiments.",
-            },
-            {
-                "role": "system",
-                "content": "You respond in unrendered markdown format and do not prefix the response with ```markdown",
-            },
-        ]
+        chat = SYSTEM_PROMPTS[:]
         for message in extension.get("messages", [])[:]:
             if should_exit.is_set():
                 logger.debug("Exiting OpenAI chat as experiment has finished")
                 break
 
             chat.append(message)
+
             try:
                 logger.debug("Submitting message to OpenAI")
                 r = httpx.post(
@@ -187,3 +208,81 @@ def talk_with_chatgpt(
         extension["results"] = results
     except Exception:
         logger.debug("Failure to communicate with OpenAI API", exc_info=True)
+
+
+def review_journal(
+    state: Journal,
+    openai_model: Union[str, Dict[str, str]] = "gpt-5-nano",
+    secrets: Secrets = None,
+) -> None:
+    experiment = state["experiment"]
+    extension = find_extension_by_name(experiment, "chatgpt")
+    if not extension:
+        return None
+
+    results = extension["results"]
+
+    if isinstance(openai_model, dict):
+        openai_model = os.getenv(
+            openai_model["key"],
+            openai_model.get("default", "gpt-5-nano"),
+        )
+
+    secrets = secrets or {}
+    openapi_secrets = secrets.get("openai", {})
+
+    org = openapi_secrets.get("org") or os.getenv("OPENAI_ORG")
+    if not org:
+        logger.warning("Cannot call OpenAI: missing org")
+        return None
+
+    key = openapi_secrets.get("key") or os.getenv("OPENAI_API_KEY")
+    if not key:
+        logger.warning("Cannot call OpenAI: missing secret key")
+        return None
+
+    logger.debug(
+        f"Asking OpenAPI to review journal using model '{openai_model}'"
+    )
+
+    review_message = "Below is the full JSON journal of a Chaos Toolkit experiment's run. Please review it and provide sound and actionable remarks about the system's state."
+    serialized_journal = orjson.dumps(state).decode("utf-8")
+    review_message_with_payload = f"{review_message}\n\n{serialized_journal}\n"
+
+    try:
+        logger.debug("Submitting journal to OpenAI")
+        chat = SYSTEM_PROMPTS[:]
+        chat.append(
+            {
+                "role": "user",
+                "content": review_message_with_payload,
+            }
+        )
+
+        r = httpx.post(
+            OPENAI_URL,
+            timeout=90,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {key}",
+                "OpenAI-Organization": org,
+            },
+            json={"model": openai_model, "messages": chat},
+        )
+    except httpx.ReadTimeout:
+        logger.debug("OpenAI took too long to respond unfortunately")
+    else:
+        if r.status_code == 429:
+            logger.debug("OpenAI models overloaded. Skipping execution review.")
+        elif r.status_code > 399:
+            logger.debug(f"OpenAI chat failed: {r.status_code}: {r.json()}")
+        else:
+            logger.debug("Finished reviewing journal")
+            extension.get("messages", []).append(
+                {
+                    "role": "user",
+                    "content": "Execution's review and feedback.",
+                }
+            )
+            results.append(r.json())
+            extension["results"] = results

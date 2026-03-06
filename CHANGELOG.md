@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.83.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.84.0...HEAD
+
+## [0.84.0][]
+
+[0.84.0]: https://github.com/chaostoolkit-incubator/chaostoolkit-reliably/compare/0.83.1...0.84.0
+
+### Added
+
+- A flag to automatically send the execution journal to the LLM for review
 
 ## [0.83.1][]
 
